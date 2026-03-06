@@ -4,9 +4,9 @@ import { getAllItems, getItem } from "./API_CALLS";
 function App() {
   const [item_list, addToList] = useState([]);
   const [temp_list, setTempList] = useState(item_list);
-  const [sorted, setSorted] = useState(true);
+  const [sorted, setSorted] = useState(false);
   const [search, setSearch] = useState(true);
-  const [filtered, setFiltered] = useState(true);
+  const [slider_val, setSliderValue] = useState(0);
   console.log(item_list, "item_list1");
   useEffect(() => {
     console.log("UseEffect going");
@@ -21,24 +21,15 @@ function App() {
     allItemInterval();
     // }, 10000);
     console.log("Done with useEffect");
-    // return () => clearInterval(intervalId);
-    // Create the interval and store its ID
-    // console.log('useEffect')
-    // const intervalId = setInterval(() => {
-    //   console.log("going through interval");
-    // }, 10000); // 1000 milliseconds = 1 second
-
-    // // Return a cleanup function to clear the interval when the component unmounts
-    // return () => clearInterval(intervalId);
   }, []);
 
   console.log("item_list", item_list);
   const filterItems = () => {
-    console.log(search)
+    console.log(search);
     const new_list = item_list.filter((a) =>
       a.name.toLowerCase().includes(search.toLowerCase()),
     );
-    setTempList(new_list)
+    setTempList(new_list);
     // let temp_item_list = filtered
     //   ? [...item_list].filter((a) => a.percentage < 0)
     //   : [...item_list].filter((a) => a.percentage > 0);
@@ -57,14 +48,30 @@ function App() {
 
   const resetItems = () => {
     setTempList(item_list);
+    setSliderValue(30);
+    setSorted(false);
+    setSearch("");
   };
+
+  const filterBySlider = (val) => {
+    setSliderValue(val);
+    console.log(val);
+    const new_list = item_list.filter(
+      (a) => a.percentage <= -val || a.percentage >= val,
+    );
+    setTempList(new_list);
+  };
+  console.log('slider_va', slider_val)
   return (
     <>
       <div className="m-0 relative h-full w-full [background:radial-gradient(125%_125%_at_70%_100%,#000_20%,#137_650%)]">
         <div className="inset-0">
           <div className=" relative z-20 self-center h-[3rem] px-4 flex justify-center space-between">
             <div className="p-4 mr-4 text-white transition delay-50 duration-300 ease-in-out hover:scale-105 hover:text-teal-200 font-bold">
-              <input placeholder="Search Item" onChange={(e) => setSearch(e.target.value)}/>
+              <input
+                placeholder="Search Item"
+                onChange={(e) => setSearch(e.target.value)}
+              />
             </div>
             <div className="p-4 mr-4 text-white transition delay-50 duration-300 ease-in-out hover:scale-105 hover:animate-pulse hover:text-teal-200 font-bold">
               <span className="cursor-pointer" onClick={filterItems}>
@@ -75,6 +82,20 @@ function App() {
               <span className="cursor-pointer" onClick={sortItems}>
                 Sort
               </span>
+            </div>
+            <div className="text-teal-200 transition delay-50 duration-300 ease-in-out hover:scale-105 hover:animate-pulse hover:text-teal-200 font-bold">
+              <span className="cursor-pointer text-sm" onClick={sortItems}>
+                {slider_val ?? 0}%
+              </span>
+              <input
+                type="range"
+                min={0}
+                max={200}
+                step={5}
+                defaultValue={0}
+                onChange={(e) => filterBySlider(Number(e.target.value))}
+                className="w-full accent-teal-200"
+              />
             </div>
             <div className="p-4 mr-4 text-white transition delay-50 duration-300 ease-in-out hover:scale-105 hover:animate-pulse hover:text-teal-200 font-bold">
               <span className="cursor-pointer" onClick={resetItems}>

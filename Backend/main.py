@@ -63,6 +63,14 @@ async def getItem(item_name: str):
         raise HTTPException(status_code=404, detail="Item not found")
     return item
 
+@app.get("/items/range/{percentage}")
+async def getItemsByPercentRange(percentage: int):
+    print(percentage)
+    item = await db.selectItemsByRange(percentage)
+    if item == "Item Not Found":
+        raise HTTPException(status_code=404, detail="Item not found")
+    return item
+
 async def repeatInsert() -> None:
     while True:
         await db.insertItemTableAsArray()

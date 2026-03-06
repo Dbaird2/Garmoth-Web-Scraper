@@ -20,11 +20,12 @@ class Database:
             async with pool.transaction():
                 for item in items:
                     try:
+                        date_check = await self.selectItem(item)
                         await pool.execute(''' 
-                                INSERT INTO bdo_items (item, percentage, stock, price) VALUES ($1, $2, $3, $4) 
-                                ON CONFLICT (item) DO 
-                                UPDATE SET stock = EXCLUDED.stock, percentage = EXCLUDED.percentage, price = EXCLUDED.price ''',
-                                item[0], item[1], item[2], item[3])
+                            INSERT INTO bdo_items (item, percentage, stock, price, recent_time) VALUES ($1, $2, $3, $4, CURRENT_DATE) 
+                            ON CONFLICT (item) DO 
+                            UPDATE SET stock = EXCLUDED.stock, percentage = EXCLUDED.percentage, price = EXCLUDED.price ''',
+                            item[0], item[1], item[2], item[3])
                     except Exception as e:
                         print(f"Transaction failed: {e}")
         
@@ -33,8 +34,8 @@ class Database:
         try:
             
             items = await self.conn.fetch(''' 
-                                    SELECT id, item, percentage, stock, price::numeric(12,1) AS full_price from bdo_items WHERE percentage <= -30 order by percentage
-                               ''')
+                SELECT id, item, percentage, stock, price::numeric(12,1) AS full_price from bdo_items order by percentage desc
+            ''')
             return items
         except Exception as e:
             print(f"Transaction failed: {e}")
@@ -43,9 +44,19 @@ class Database:
     async def selectItem(self, item_name = ''):
         try:
             item = await self.conn.fetch(''' 
-                                    SELECT id, item, percentage, stock, price::numeric(12,1) AS full_price FROM bdo_items WHERE item = $1 ORDER BY percentage DESC 
-                               ''', item_name)
+                SELECT id, item, percentage, stock, price::numeric(12,1) AS full_price, recent_time FROM bdo_items WHERE item = $1 ORDER BY percentage DESC 
+            ''', item_name)
             return item
+        except Exception as e:
+            print(f"Select failed: {e}")
+            return "Item Not Found"
+    
+    async def selectItemsByRange(self, range = 0):
+        try:
+            items = await self.conn.fetch(''' 
+                SELECT id, item, percentage, stock, price::numeric(12,1) AS full_price, recent_time FROM bdo_items WHERE percentage <= $1 OR percentage > $1 ORDER BY percentage DESC 
+            ''', range)
+            return items
         except Exception as e:
             print(f"Select failed: {e}")
             return "Item Not Found"

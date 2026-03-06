@@ -131,7 +131,6 @@ def ScrapeForItems():
     item_list = []
     for url in urls:
         driver.get(url)
-        print(url)
         if counter == 0:
             # switch to NA regionx
             wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "div.rounded-md"))).click()
@@ -158,7 +157,6 @@ def ScrapeForItems():
                 if direction == '-':
                     value = -int(value)
                 item_list.append((cells[0], int(value), int(cells[1]),  int(cells[3])))
-    print(item_list)
     driver.quit()
     return item_list
 # ScrapeForItems()
