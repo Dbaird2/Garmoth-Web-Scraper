@@ -1,5 +1,5 @@
 import asyncpg
-from web_scrape import ScrapeForItems
+from datetime import datetime
 
 class Database:
     def __init__(self):
@@ -15,6 +15,7 @@ class Database:
 
     async def insertItemTableAsArray(self, items = []):
         # items = ScrapeForItems()
+        time1 = datetime.now()
         print(f"insertItemTableAsArray called with {len(items)} items")
         async with self.conn.acquire() as pool:
             # Start a transaction on the acquired connection
@@ -43,14 +44,20 @@ class Database:
                 [i[3] for i in items])
             except Exception as e:
                 print(f"Transaction failed: {e}")
+        time2 = datetime.now()
+        diff = time2 - time1
+        print(f"Time took to insert {diff.seconds}.{diff.microseconds}")
         
     async def selectAllItemRows(self):
         # await self.insertItemTableAsArray()
         try:
-            
+            time1 = datetime.now()
             items = await self.conn.fetch(''' 
                 SELECT id, item, percentage, stock, price::numeric(12,1) AS full_price, percentage - (select percentage from bdo_items b where b.item = bdo_items.item and b.recent_time < CURRENT_DATE ORDER BY b.recent_time DESC LIMIT 1) as percent_diff, price - (select price from bdo_items b where b.item = bdo_items.item and b.recent_time < CURRENT_DATE ORDER BY b.recent_time DESC LIMIT 1) as price_diff from bdo_items WHERE recent_time = CURRENT_DATE ORDER BY percentage desc;
             ''')
+            time2 = datetime.now()
+            diff = time2 - time1
+            print(f"Time took {diff.seconds}.{diff.microseconds}")
             return items
         except Exception as e:
             print(f"Transaction failed: {e}")

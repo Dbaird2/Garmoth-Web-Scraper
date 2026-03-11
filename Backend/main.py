@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 import asyncio
 from web_scrape import ScrapeForItems
 from web_socket import ConnectionManager
-
+from datetime import datetime
 
 db = Database()
 
@@ -20,7 +20,13 @@ origins = [
 async def lifespan(app: FastAPI):
     await db.connect()
     print("Starting background task...")
+
+    time1 = datetime.now()
     task = asyncio.create_task(repeatInsert())
+    time2 = datetime.now()
+    diff = time2 - time1
+    print(f"Time took to create and run task {diff.seconds}.{diff.microseconds}")
+
     await asyncio.sleep(0) 
     print(f"Task created: {task}")
     task.add_done_callback(lambda t: print(f"Task ended: {t.exception() if not t.cancelled() else 'cancelled'}"))
@@ -48,19 +54,40 @@ class Item(BaseModel):
 async def repeatInsert():
     print('repeatInsert Started')
     while True:
+
+        print("Inserting items into database...")
+        loop = asyncio.get_event_loop()
+            
         try:
-            print("Inserting items into database...")
-            loop = asyncio.get_event_loop()
+            time1 = datetime.now()
             items = await loop.run_in_executor(None, ScrapeForItems)
-            print(f"Insertin item examples {items[0:3]}")
-            await db.insertItemTableAsArray(items)
-            print(f"Broadcasting Message")
-            item_list = []
-            for item in items:
-                item_list.append({'id': item[0], 'name': item[1], 'percentage': item[2], 'stock': item[3], 'price': float(item[4]), 'percent_diff': item[5] if item[5] is not None else 0, 'price_diff': item[6] if item[6] is not None else 0})
-            await manager.broadcast(item_list)
+            time2 = datetime.now()
+            diff = time2 - time1
         except Exception as e:
             print(f"Scrape failed, retrying next cycle: {e}")
+
+        try:
+            print(f"Insertin item examples {items[0:3]}; Time took {diff.seconds}.{diff.microseconds}")
+            await db.insertItemTableAsArray(items)
+        except Exception as e:
+            print(f"Inserting into database failed: {e}")
+
+        try:
+            items = await db.selectAllItemRows()
+            item_list = []
+            # print(items)
+            for item in items:
+                print(item)
+                item_list.append({'id': item[0], 'name': item[1], 'percentage': item[2], 'stock': item[3], 'price': float(item[4]), 'percent_diff': item[5] if item[5] is not None else 0, 'price_diff': item[6] if item[6] is not None else 0})
+            
+        except Exception as e:
+            print(f"Creating JSON array failed: {e}")
+
+        try:
+            print(f"Broadcasting Message")
+            await manager.broadcast(item_list)
+        except Exception as e:
+            print(f"Broading casting failed: {e}")
         await asyncio.sleep(600)
         
 

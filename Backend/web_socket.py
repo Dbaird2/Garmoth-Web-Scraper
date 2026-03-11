@@ -19,12 +19,12 @@ class ConnectionManager:
     async def broadcast(self, message: list):
         """Broadcast Message"""
         print("Broadcasting")
-        try:
-            for websocket in self.active_connections:
+        for websocket in self.active_connections:
+            try:
                 await websocket.send_json(message)
-        except Exception:
-            self.active_connections.remove(websocket)
-            print(f"Removed Websocket connection from broadcast {websocket}")
+            except Exception:
+                self.active_connections.remove(websocket)
+                print(f"Removed Websocket connection from broadcast {websocket}")
     
     def disconnect(self, websocket: WebSocket):
         """disconnect event"""
