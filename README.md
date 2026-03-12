@@ -5,5 +5,4 @@
 # To Do
 - Add graphs of data in modal
 - Add unit testing
-- Split React code into hooks & components
 - Add function timing to see bottlenecks
