@@ -3,6 +3,4 @@
 
 
 # To Do
-- Add graphs of data in modal
 - Add unit testing
-- Add function timing to see bottlenecks

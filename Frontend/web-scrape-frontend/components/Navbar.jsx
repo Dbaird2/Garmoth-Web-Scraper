@@ -51,7 +51,7 @@ export function Navbar({ ...props_from_filter }) {
           <span className="cursor-pointer">Contact</span>
         </div>
       </div>
-      <div className="absolute inset-0 -z-10 h-full w-full items-center px-5 py-24 h-screen [background:radial-gradient(125%_125%_at_50%_10%,#000_20%,#137_650%)]"></div>
+      <div className="absolute inset-0 -z-10 h-full w-full items-center px-5 py-24 h-screen "></div>
     </div>
   );
 }

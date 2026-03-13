@@ -66,7 +66,7 @@ class Database:
     async def selectItem(self, item_name = ''):
         try:
             item = await self.conn.fetch(''' 
-                SELECT id, item, percentage, stock, price::numeric(12,1) AS full_price, recent_time FROM bdo_items WHERE item = $1 AND recent_time = CURRENT_DATE ORDER BY percentage DESC 
+                SELECT id, item, percentage, stock, price::numeric(12,1) AS full_price, recent_time FROM bdo_items WHERE item = $1 ORDER BY recent_time ASC 
             ''', item_name)
             return item
         except Exception as e:

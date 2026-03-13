@@ -1,4 +1,7 @@
+import ItemModal from "./ItemModal";
+
 export function ItemCard({ item }) {
+  
   return (
     <>
       <div
@@ -45,6 +48,7 @@ export function ItemCard({ item }) {
             {item.price_diff.toLocaleString() ?? 0}
           </span>
         </div>
+        <ItemModal item={item} />
       </div>
     </>
   );

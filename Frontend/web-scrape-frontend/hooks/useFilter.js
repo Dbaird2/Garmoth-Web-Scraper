@@ -29,7 +29,7 @@ export function useFilter(item_list) {
 
   const resetItems = () => {
     setTempList(item_list);
-    setSliderValue(30);
+    setSliderValue(0);
     setSorted(false);
     setSearch("");
   };

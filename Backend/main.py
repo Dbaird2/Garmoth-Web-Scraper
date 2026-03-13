@@ -110,7 +110,7 @@ async def websocket_endpoint(websocket: WebSocket):
 async def getAllItems():
     try:
         items = await db.selectAllItemRows()
-        # print(items)
+        print(items)
         if items == "Items Not Found":
             raise HTTPException(status_code=404, detail="Items not found")
         item_list = []

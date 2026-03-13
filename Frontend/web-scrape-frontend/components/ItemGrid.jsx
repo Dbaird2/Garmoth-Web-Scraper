@@ -13,4 +13,5 @@ export function ItemGrid({ items }) {
     </div>
   );
 }
+
 export default ItemGrid;

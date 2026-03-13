@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { getAllItems, getItem } from "./API_CALLS";
 import ItemGrid from "../components/ItemGrid";
 import Navbar from "../components/Navbar";
 import SortBar from "../components/SortBar";
@@ -13,7 +12,7 @@ function App() {
   const { temp_list, ...filter_props } = useFilter(item_list);
 
   return (
-    <div className="...background...">
+    <div>
       <Navbar {...filter_props} />
       <SortBar {...filter_props} />
       <ItemGrid items={temp_list} />
