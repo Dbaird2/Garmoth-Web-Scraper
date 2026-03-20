@@ -65,6 +65,7 @@ class Database:
 
     async def selectItem(self, item_name = ''):
         try:
+            
             item = await self.conn.fetch(''' 
                 SELECT id, item, percentage, stock, price::numeric(12,1) AS full_price, recent_time FROM bdo_items WHERE item = $1 ORDER BY recent_time ASC 
             ''', item_name)
@@ -82,6 +83,18 @@ class Database:
         except Exception as e:
             print(f"Select failed: {e}")
             return "Item Not Found"
+
+    async def getSweetSpot(self, low=20, high=80):
+        try:
+            async with self.conn.acquire() as pool:
+                items = pool.fetch('''
+                    SELECT i.id, DISTINCT i.item, i.percentage, i.stock, i.price::numeric(12,1) AS full_price, i.recent_time, j.max_price, j.min_price, j.category
+                            FROM bdo_items i LEFT JOIN item j ON i.item = j.name 
+                           ''')
+            pass
+        except Exception as e:
+            pass
+        pass
 
     async def closeConnection(self):
         await self.conn.close()

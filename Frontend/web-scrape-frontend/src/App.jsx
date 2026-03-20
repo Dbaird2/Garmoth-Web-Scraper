@@ -1,23 +1,18 @@
-import { useEffect, useState } from "react";
-import ItemGrid from "../components/ItemGrid";
-import Navbar from "../components/Navbar";
-import SortBar from "../components/SortBar";
-import useFilter from "../hooks/useFilter";
-import useWebsocket from "../hooks/useWebsocket";
+import { Routes, Route } from "react-router-dom";
+import ItemPage from "../pages/ItemPage";
+import Dashboard from "../pages/DashboardPage"
+import About from "../pages/About";
+import Navbar from "../components/Navbar"
 
-function App() {
-  const [item_list, setItemList] = useState([]);
-  useWebsocket((items) => setItemList(items));
-
-  const { temp_list, ...filter_props } = useFilter(item_list);
-
+export default function App() {
   return (
-    <div>
-      <Navbar {...filter_props} />
-      <SortBar {...filter_props} />
-      <ItemGrid items={temp_list} />
+    <div className="dark:bg-[radial-gradient(125%_125%_at_50%_10%,_#000_20%,_#137_650%)] bg-white">
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/items" element={<ItemPage />} />
+        <Route path="/about" element={<About />} />
+      </Routes>
     </div>
   );
 }
-
-export default App;

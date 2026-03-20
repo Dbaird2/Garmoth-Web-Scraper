@@ -1,58 +1,39 @@
-export function Navbar({ ...props_from_filter }) {
+import { Link } from "react-router-dom";
+
+export default function Navbar() {
   return (
-    <div className="inset-0">
-      <div className=" relative z-20 self-center h-[3rem] px-4 flex justify-center space-between">
-        <div className="p-4 mr-4 text-white transition delay-50 duration-300 ease-in-out hover:scale-105 hover:text-teal-200 font-bold">
-          <input
-            placeholder="Search Item"
-            onChange={(e) => props_from_filter.setSearch(e.target.value)}
-          />
-        </div>
-        <div className="p-4 mr-4 text-white transition delay-50 duration-300 ease-in-out hover:scale-105 hover:animate-pulse hover:text-teal-200 font-bold">
-          <span
-            className="cursor-pointer"
-            onClick={props_from_filter.filterItems}
+    <div
+      className="flex justify-end border-b border-white/[0.07] bg-[#0a0e14]/80 backdrop-blur-lg"
+      style={{ boxShadow: "inset 0 -1px 0 rgba(255,255,255,0.04)" }}
+    >
+      <div className="flex font-bold">
+        <div className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40">
+          <Link
+            className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
+            to="/"
           >
-            Filter
-          </span>
+            Dashboard
+          </Link>
         </div>
 
-        <div className="text-teal-200 transition delay-50 duration-300 ease-in-out hover:scale-105 hover:animate-pulse hover:text-teal-200 font-bold">
-          <span
-            className="cursor-pointer text-sm"
-            onClick={props_from_filter.sortItems}
+        <div className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40">
+          <Link
+            className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
+            to="/items"
           >
-            {props_from_filter.slider_val ?? 0}%
-          </span>
-          <input
-            type="range"
-            min={0}
-            max={200}
-            step={5}
-            defaultValue={0}
-            onChange={(e) =>
-              props_from_filter.filterBySlider(Number(e.target.value))
-            }
-            className="w-full accent-teal-200"
-          />
+            Items
+          </Link>
         </div>
-        <div className="p-4 mr-4 text-white transition delay-50 duration-300 ease-in-out hover:scale-105 hover:animate-pulse hover:text-teal-200 font-bold">
-          <span
-            className="cursor-pointer"
-            onClick={props_from_filter.resetItems}
+
+        <div className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40">
+          <Link
+            className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
+            to="/about"
           >
-            Reset
-          </span>
-        </div>
-        <div className="p-4 mr-4 text-white transition delay-50 duration-300 ease-in-out hover:scale-105 hover:animate-pulse hover:text-teal-200 font-bold">
-          <span className="cursor-pointer">About</span>
-        </div>
-        <div className="p-4 mr-4 text-white transition delay-50 duration-300 ease-in-out hover:scale-105 hover:animate-pulse hover:text-teal-200 font-bold">
-          <span className="cursor-pointer">Contact</span>
+            About
+          </Link>
         </div>
       </div>
-      <div className="absolute inset-0 -z-10 h-full w-full items-center px-5 py-24 h-screen "></div>
     </div>
   );
 }
-export default Navbar;

@@ -11,16 +11,15 @@ export function ItemModal({ item }) {
     const data = await getItem(item.name);
     setData(data);
   };
-  console.log("data from handleOpen", data);
   return (
     <>
       <button
         onClick={handleOpen}
         command="show-modal"
         commandfor={modal_id}
-        className="rounded-md bg-gray-950/5 px-2.5 py-1.5 text-sm font-semibold text-gray-900 hover:bg-gray-950/10 dark:bg-white/10 dark:text-white dark:inset-ring dark:inset-ring-white/5 dark:hover:bg-white/20"
+        className="rounded border border-teal-400/30 bg-teal-400/10 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-teal-400 transition-all duration-150 hover:bg-teal-400/20 hover:shadow-[0_0_14px_rgba(45,212,191,0.2)] hover:-translate-y-px active:translate-y-0"
       >
-        Open chart
+        ↗ Open Chart
       </button>
       {modal ? (
         <el-dialog>
@@ -35,24 +34,40 @@ export function ItemModal({ item }) {
               tabindex="0"
               className="flex min-h-full items-end justify-center p-4 text-center focus:outline-none sm:items-center sm:p-0"
             >
-              <el-dialog-panel className="relative transform overflow-hidden rounded-lg bg-gray-800 text-left shadow-xl outline -outline-offset-1 outline-white/10 transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 data-closed:sm:translate-y-0 data-closed:sm:scale-95">
-                <div className="bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+              <el-dialog-panel className="relative transform overflow-hidden rounded-xl border border-white/[0.07] bg-[#0a1018] text-left shadow-[0_0_0_1px_rgba(45,212,191,0.08),0_32px_80px_rgba(0,0,0,0.7)] transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 data-closed:sm:translate-y-0 data-closed:sm:scale-95">
+                {/* Teal top accent */}
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-teal-400 to-transparent" />
+
+                <div className="bg-[#0a1018] px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <h3
-                      id="dialog-title"
-                      className="text-base font-semibold text-white"
-                    >
-                      {item.name}
-                    </h3>
+                    {/* Header */}
+                    <div className="flex items-center gap-2.5 mb-4 pb-4 border-b border-white/[0.07]">
+                      <div className="h-2 w-2 shrink-0 rounded-full bg-teal-400 shadow-[0_0_8px_rgba(45,212,191,0.7)]" />
+                      <h3
+                        id="dialog-title"
+                        className="text-[15px] font-extrabold tracking-tight text-slate-200"
+                      >
+                        {item.name}
+                      </h3>
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="mt-2">
+                      <div className="mt-2 rounded-lg border border-white/[0.07] p-4 transition-colors hover:border-teal-400/30">
+                        <div className="mb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.12em] text-teal-400">
+                          <span className="inline-block h-px w-4 bg-teal-400/50" />
+                          Full Price
+                        </div>
                         <Chart
                           data={data}
                           x_axis="recent_time"
                           line="full_price"
                         />
                       </div>
-                      <div className="mt-2">
+                      <div className="mt-2 rounded-lg border border-white/[0.07] p-4 transition-colors hover:border-teal-400/30">
+                        <div className="mb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.12em] text-teal-400">
+                          <span className="inline-block h-px w-4 bg-teal-400/50" />
+                          Percentage
+                        </div>
                         <Chart
                           data={data}
                           x_axis="recent_time"
@@ -62,20 +77,13 @@ export function ItemModal({ item }) {
                     </div>
                   </div>
                 </div>
-                <div className="bg-gray-700/25 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                  {/* <button
-                    type="button"
-                    command="close"
-                    commandfor={modal_id}
-                    className="inline-flex w-full justify-center rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white hover:bg-red-400 sm:ml-3 sm:w-auto"
-                  >
-                    Deactivate
-                  </button> */}
+
+                <div className="border-t border-white/[0.07] bg-[#080c12]/90 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                   <button
                     type="button"
                     command="close"
                     commandfor={modal_id}
-                    className="mt-3 inline-flex w-full justify-center rounded-md bg-white/10 px-3 py-2 text-sm font-semibold text-white inset-ring inset-ring-white/5 hover:bg-white/20 sm:mt-0 sm:w-auto"
+                    className="mt-3 inline-flex w-full justify-center rounded border border-white/[0.07] px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-400 transition-all hover:border-white/[0.18] hover:bg-white/[0.04] hover:text-slate-200 sm:mt-0 sm:w-auto"
                   >
                     Close
                   </button>

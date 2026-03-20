@@ -109,7 +109,7 @@ pytest unit_tests/ -v
 ### In progress
 
 - [ ] Loading states — spinner on WS connect, skeleton cards, chart fetch indicator
-- [ ] Pagination or virtual scrolling — performance fix for 500+ items
+- [X] Pagination or virtual scrolling — performance fix for 500+ items
 - [ ] Dark/light mode toggle — Tailwind `dark:` classes + navbar button
 - [ ] Export to CSV — client-side download of current filtered list
 
