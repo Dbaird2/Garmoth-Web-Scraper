@@ -70,13 +70,6 @@ export default function SearchBar({ ...props_from_filter }) {
         <div className="flex-1" />
         <div className="mx-1.5 h-5 w-px shrink-0 bg-white/[0.07]" />
 
-        {/* About */}
-        <div className="p-0 mr-0">
-          <span className="cursor-pointer rounded-md border border-transparent px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-500 transition-all duration-150 hover:border-white/[0.07] hover:bg-white/[0.03] hover:text-slate-200">
-            About
-          </span>
-        </div>
-
         {/* Contact */}
         <div className="p-0 mr-0">
           <span className="cursor-pointer rounded-md border border-transparent px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-500 transition-all duration-150 hover:border-white/[0.07] hover:bg-white/[0.03] hover:text-slate-200">
