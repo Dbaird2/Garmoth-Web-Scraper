@@ -31,7 +31,7 @@ class ConnectionManager:
         print("Disconnecting websocket")
         self.active_connections.remove(websocket)
     
-    async def closeConnections(self, websocket: WebSocket):
+    async def closeConnections(self):
         """disconnect event"""
         print("Disconnecting all websockets")
         for websocket in self.active_connections:

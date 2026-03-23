@@ -6,7 +6,14 @@ import Navbar from "../components/Navbar"
 
 export default function App() {
   return (
-    <div className="dark:bg-[radial-gradient(125%_125%_at_50%_10%,_#000_20%,_#137_650%)] bg-white">
+    <div
+      className="dark:bg-[#090e14] bg-white"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(0,200,180,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,200,180,0.03) 1px, transparent 1px)",
+        backgroundSize: "40px 40px",
+      }}
+    >
       <Navbar />
       <Routes>
         <Route path="/" element={<Dashboard />} />

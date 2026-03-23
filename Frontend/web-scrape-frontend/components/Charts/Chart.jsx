@@ -11,9 +11,6 @@ import {
 export function Chart({ data, x_axis, line }) {
   return (
     <div className="w-sm h-32 md:w-64 md:h-64 lg:w-110 lg:h-100">
-      <span className="text-teal-400">
-        {x_axis} x {line}
-      </span>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           style={{

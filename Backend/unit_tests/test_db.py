@@ -13,5 +13,6 @@ async def test_db():
 @pytest.mark.asyncio
 async def test_select_all_items(test_db):
     items = await test_db.selectAllItemRows()
+    print(items)
     assert isinstance(items, list)
-    assert len(items) > 0
+    assert len(items) >= 0

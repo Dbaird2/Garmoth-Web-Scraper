@@ -1,14 +1,15 @@
 import ItemModal from "./ItemModal";
 
 export function ItemCard({ item }) {
-  
   return (
     <>
       <div
         key={item.name}
         className="bg-slate-800 rounded-xl border border-slate-700 hover:border-blue-500 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/10 p-4 flex flex-col gap-2"
       >
-        <h3 className="font-semibold text-white truncate">{item.name}</h3>
+        <h3 className="tracking-wider italic font-semibold text-white truncate ">
+          {item.name}
+        </h3>
         <div
           className={
             item.percentage >= 0 ? "h-px bg-green-400" : "h-px bg-red-400"

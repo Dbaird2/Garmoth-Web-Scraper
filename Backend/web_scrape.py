@@ -1,104 +1,3 @@
-# from selenium import webdriver
-# from selenium.webdriver.common.by import By
-# from selenium.webdriver.support.ui import WebDriverWait
-# from selenium.webdriver.support import expected_conditions as EC
-# from selenium.webdriver.chrome.options import Options
-
-
-
-# options = Options()
-# # options.add_argument("--headless")
-# options.add_argument("--incognito")
-# options.add_argument("--disable-blink-features=AutomationControlled")
-# options.add_experimental_option("excludeSwitches", ["enable-automation"])
-# options.add_experimental_option("useAutomationExtension", False)
-# driver = webdriver.Chrome(options=options)
-# driver.execute_cdp_cmd("Network.setBlockedURLs", {"urls": ["*nitro*", "*ads*", "*hadron*", "*audigent*"]})
-# driver.execute_cdp_cmd("Network.enable", {})
-
-# wait = WebDriverWait(driver, 60)
-# driver.get("https://garmoth.com/market/category/accessories/ring")
-# driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-#     "source": "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
-# })
-# import time
-# time.sleep(10)  # hard wait, no shortcuts
-# with open("page_source.html", "w", encoding="utf-8") as f:
-#     f.write(driver.page_source)
-# print("saved!")
-
-# print(driver.page_source[:3000].encode('utf-8', errors='replace').decode('utf-8'))
-# # for url in urls:
-# #     driver.get(url)
-# #     wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "tbody tr td")))
-# #     # # Click the region switcher div
-# #     # region_btn = driver.find_element(By.XPATH, "//p[text()='EU']/parent::div")
-# #     # region_btn.click()
-
-# #     # # Wait for NA option and click it
-# #     # na_option = wait.until(EC.element_to_be_clickable((By.XPATH, "//p[text()='NA']")))
-# #     # na_option.click()
-# #     for row in driver.find_elements(By.CSS_SELECTOR, "tbody tr"):
-# #         cells = [c.text for c in row.find_elements(By.CSS_SELECTOR, "td") if c.text and c.text != "Unknown Name"]
-# #         if not cells:
-# #             continue
-
-# #         # Column 5 (index 4) = weekly % change
-# #         if len(cells) >= 5:
-# #             change = cells[4]
-# #             direction = change[0]       # + or -
-# #             value = change[1:-1]        # strip sign and % symbol
-# #             cells[4] = f"{value} {direction}"
-
-# #         print(" ".join(cells))
-
-# driver.quit()
-
-# # from playwright.sync_api import sync_playwright
-# # import time
-
-# # urls = [
-# #     "https://garmoth.com/market/category/enhancement-upgrade/black-stone",
-# #     # add more urls...
-# # ]
-
-# # with sync_playwright() as p:
-# #     browser = p.chromium.launch(
-# #         channel="msedge", 
-# #         headless=False
-# #     )
-# #     # context = browser.new_context(
-# #     #     user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-# #     #     viewport={"width": 1280, "height": 720},
-# #     # )
-# #     page = browser.new_page()
-
-# #     for url in urls:
-# #         page.goto(url)
-# #         page.wait_for_selector("tbody tr td", timeout=30000)
-# #         with open("page_source.html", "w", encoding="utf-8") as f:
-# #             f.write(page.content())
-# #         # # switch region to NA
-# #         # page.click("//p[text()='EU']")  # open dropdown
-# #         # page.click("//p[text()='NA']")  # select NA
-# #         # time.sleep(5)  # wait for table reload
-
-# #         # grab rows
-# #         rows = page.query_selector_all("tbody tr")
-# #         print(f"{url}: found {len(rows)} rows")
-
-# #         for row in rows:
-# #             cells = [c.inner_text() for c in row.query_selector_all("td")]
-# #             cells = [c for c in cells if c and c != "Unknown Name"]
-# #             if len(cells) >= 5:
-# #                 change = cells[4]
-# #                 direction = change[0]
-# #                 value = change[1:-1]
-# #                 cells[4] = f"{value} {direction}"
-# #             if cells:
-# #                 print(" ".join(cells))
-
-# #     browser.close()
 def ScrapeForItems():
     import undetected_chromedriver as uc
     from selenium.webdriver.common.by import By
@@ -119,7 +18,15 @@ def ScrapeForItems():
         "https://garmoth.com/market/category/material/leather",
         "https://garmoth.com/market/category/material/blood",
         "https://garmoth.com/market/category/material/meat",
-        "https://garmoth.com/market/category/mount/courser-training"
+        "https://garmoth.com/market/category/mount/courser-training",
+        "https://garmoth.com/market/item/715001",
+        "https://garmoth.com/market/item/719897",
+        "https://garmoth.com/market/item/719898",
+        "https://garmoth.com/market/item/719899",
+        "https://garmoth.com/market/item/719900",
+        "https://garmoth.com/market/item/731101",
+        "https://garmoth.com/market/item/735001",
+        "https://garmoth.com/market/category/enhancement-upgrade/upgrade"
     ]
     counter = 0
     options = uc.ChromeOptions()

@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from starlette.requests import Request  
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from db import Database
@@ -6,11 +7,15 @@ from contextlib import asynccontextmanager
 import asyncio
 from web_scrape import ScrapeForItems
 from web_socket import ConnectionManager
-from datetime import datetime
+from datetime import datetime, date
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 db = Database()
 
-manager = ConnectionManager()
+item_manager = ConnectionManager()
+dash_manager = ConnectionManager()
 
 origins = [
     "http://localhost:5173",
@@ -32,10 +37,14 @@ async def lifespan(app: FastAPI):
     task.add_done_callback(lambda t: print(f"Task ended: {t.exception() if not t.cancelled() else 'cancelled'}"))
     yield
     await db.closeConnection()
-    await manager.closeConnections()
-    task.cancel()
+    await item_manager.closeConnections()
+    await dash_manager.closeConnections()
+    # task.cancel()
 
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(lifespan=lifespan)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -52,6 +61,8 @@ class Item(BaseModel):
     price: float
 
 async def repeatInsert():
+    from misc_functions import updateImpactLevel
+
     print('repeatInsert Started')
     while True:
 
@@ -75,9 +86,7 @@ async def repeatInsert():
         try:
             items = await db.selectAllItemRows()
             item_list = []
-            # print(items)
             for item in items:
-                print(item)
                 item_list.append({'id': item[0], 'name': item[1], 'percentage': item[2], 'stock': item[3], 'price': float(item[4]), 'percent_diff': item[5] if item[5] is not None else 0, 'price_diff': item[6] if item[6] is not None else 0})
             
         except Exception as e:
@@ -85,10 +94,16 @@ async def repeatInsert():
 
         try:
             print(f"Broadcasting Message")
-            await manager.broadcast(item_list)
+            await item_manager.broadcast(item_list)
         except Exception as e:
             print(f"Broading casting failed: {e}")
-        await asyncio.sleep(600)
+        
+        try:
+            
+            await updateImpactLevel(db)
+        except Exception as e:
+            print(f"Failed to update impact of event: {e}")
+        await asyncio.sleep(36000)
         
 
 @app.get("/")
@@ -97,42 +112,87 @@ def root():
 
 @app.websocket("/communicate")
 async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
+    await item_manager.connect(websocket)
     try:
-        items = await getAllItems()
-        await manager.send_personal_message(items, websocket)
+        items = await fetchAllItems()
+        await item_manager.send_personal_message(items, websocket)
         while True:                              # ← keeps connection alive
             data = await websocket.receive_text() # ← waits for client messages
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
+        item_manager.disconnect(websocket)
     
+@app.websocket("/dashboardWs")
+async def websocket_endpoint(websocket: WebSocket):
+
+    await dash_manager.connect(websocket)
+    try:
+        
+        events = await db.selectAllEvents()
+    
+        event_dict = {}
+        item_dict = {}
+        for row in events:
+            if row[0] not in item_dict:
+                item_dict[row[0]] = [row[4]]
+            else:
+                item_dict[row[0]].append(row[4])
+            event_dict[row[0]] = {
+                "event": row[0],
+                "impact": row[1],
+                "start_date": row[2].strftime('%Y-%m-%d'),
+                "end_date": row[3].strftime('%Y-%m-%d'),
+                "items": item_dict[row[0]]
+            }
+        
+        await dash_manager.send_personal_message(event_dict, websocket)
+        while True:                             
+            data = await websocket.receive_text() 
+    except WebSocketDisconnect:
+        dash_manager.disconnect(websocket)
+
 @app.get("/items/all")
-async def getAllItems():
+@limiter.limit("5/minute")
+async def getAllItems(request: Request):
+    return await fetchAllItems()
+
+async def fetchAllItems():
     try:
         items = await db.selectAllItemRows()
-        print(items)
         if items == "Items Not Found":
             raise HTTPException(status_code=404, detail="Items not found")
         item_list = []
         for item in items:
             item_list.append({'id': item[0], 'name': item[1], 'percentage': item[2], 'stock': item[3], 'price': float(item[4]), 'percent_diff': item[5] if item[5] is not None else 0, 'price_diff': item[6] if item[6] is not None else 0})
-        print(item_list[0:3])
         return item_list
     except Exception as e:
         print('Error', e)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/items/{item_name}")
-async def getItem(item_name: str):
-    item = await db.selectItem(item_name)
-    if item == "Item Not Found":
-        raise HTTPException(status_code=404, detail="Item not found")
-    return item
+@limiter.limit("5/minute")
+async def getItem(request: Request, item_name: str):
+    try:
+        item = await db.selectItem(item_name)
+        if not item:
+            raise HTTPException(status_code=404, detail="Item not found")
+        return item
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error fetching item {item_name}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/items/range/{percentage}")
-async def getItemsByPercentRange(percentage: int):
-    print(percentage)
-    item = await db.selectItemsByRange(percentage)
-    if item == "Item Not Found":
-        raise HTTPException(status_code=404, detail="Item not found")
-    return item
+@limiter.limit("5/minute")
+async def getItemsByPercentRange(request: Request, percentage: int):
+    try:
+        item = await db.selectItemsByRange(percentage)
+        if item == "Item Not Found":
+            raise HTTPException(status_code=404, detail="Item not found")
+        return item
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error fetching item {percentage}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
