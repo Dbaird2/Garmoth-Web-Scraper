@@ -18,7 +18,7 @@ item_manager = ConnectionManager()
 dash_manager = ConnectionManager()
 
 origins = [
-    "http://localhost:5173",
+    "https://garmoth-web-scraper.vercel.app",
 ]
 
 @asynccontextmanager

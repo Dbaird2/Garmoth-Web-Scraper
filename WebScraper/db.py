@@ -24,7 +24,8 @@ class Database:
                 password=DB_PASSWORD,
                 database=DB_NAME,
                 host=DB_HOST,
-                port=6543
+                port=6543,
+                statement_cache_size=0
             )          
             print('Connected to database')
         except Exception as e:
@@ -60,8 +61,22 @@ class Database:
         try:
             time1 = datetime.now()
             items = await self.conn.fetch(''' 
-                SELECT id, item, percentage, stock, price::numeric(15,1) AS full_price, percentage - (select percentage from bdo_items b where b.item = bdo_items.item and b.recent_time < CURRENT_DATE ORDER BY b.recent_time DESC LIMIT 1) as percent_diff, price - (select price from bdo_items b where b.item = bdo_items.item and b.recent_time < CURRENT_DATE ORDER BY b.recent_time DESC LIMIT 1) as price_diff from bdo_items WHERE recent_time = CURRENT_DATE ORDER BY percentage desc;
-            ''')
+                SELECT DISTINCT ON (item) item, id, percentage, stock, price::numeric(15,1) AS full_price, 
+                percentage - (
+                select percentage from bdo_items b 
+                where b.item = bdo_items.item and b.recent_time < CURRENT_DATE 
+                ORDER BY b.recent_time DESC LIMIT 1
+                ) as percent_diff, 
+                price - (
+                select price from bdo_items b 
+                where b.item = bdo_items.item and b.recent_time < CURRENT_DATE 
+                ORDER BY b.recent_time DESC LIMIT 1
+                ) 
+                as price_diff, 
+                recent_time from bdo_items 
+                WHERE recent_time <= CURRENT_DATE 
+                ORDER BY item, recent_time desc
+                                                      ''')
             time2 = datetime.now()
             diff = time2 - time1
             print(f"Time took {diff.seconds}.{diff.microseconds}")
