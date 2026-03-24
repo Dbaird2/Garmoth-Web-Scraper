@@ -24,7 +24,8 @@ class Database:
                 password=DB_PASSWORD,
                 database=DB_NAME,
                 host=DB_HOST,
-                port=6543
+                port=6543,
+                statement_cache_size=0
             )          
             print('Connected to database')
         except Exception as e:

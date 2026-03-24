@@ -26,7 +26,12 @@ def ScrapeForItems():
         "https://garmoth.com/market/item/719900",
         "https://garmoth.com/market/item/731101",
         "https://garmoth.com/market/item/735001",
-        "https://garmoth.com/market/category/enhancement-upgrade/upgrade"
+        "https://garmoth.com/market/category/enhancement-upgrade/upgrade",
+        "https://garmoth.com/market/category/mount/champron",
+        "https://garmoth.com/market/category/mount/barding",
+        "https://garmoth.com/market/category/mount/saddle",
+        "https://garmoth.com/market/category/mount/stirrups",
+        "https://garmoth.com/market/category/mount/horseshoe"
     ]
     counter = 0
     options = uc.ChromeOptions()
@@ -45,6 +50,7 @@ def ScrapeForItems():
     wait = WebDriverWait(driver, 30)
     item_list = []
     for url in urls:
+        print(f"On url: {url}")
         driver.get(url)
         if counter == 0:
             # switch to NA regionx
