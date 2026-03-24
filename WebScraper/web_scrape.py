@@ -31,7 +31,11 @@ def ScrapeForItems():
         "https://garmoth.com/market/category/mount/barding",
         "https://garmoth.com/market/category/mount/saddle",
         "https://garmoth.com/market/category/mount/stirrups",
-        "https://garmoth.com/market/category/mount/horseshoe"
+        "https://garmoth.com/market/category/mount/horseshoe",
+        "https://garmoth.com/market/category/alchemy-stone/destruction",
+        "https://garmoth.com/market/category/alchemy-stone/protection",
+        "https://garmoth.com/market/category/alchemy-stone/life",
+        "https://garmoth.com/market/category/alchemy-stone/spirit-stone"
     ]
     counter = 0
     options = uc.ChromeOptions()
@@ -49,8 +53,9 @@ def ScrapeForItems():
     driver = uc.Chrome(version_main=145, options=options)
     wait = WebDriverWait(driver, 30)
     item_list = []
+    seen = set()
     for url in urls:
-        print(f"On url: {url}")
+        print(f"Starting url: {url}")
         driver.get(url)
         if counter == 0:
             # switch to NA regionx
@@ -77,7 +82,13 @@ def ScrapeForItems():
                 cells[1] = cells[1].replace(",", "")
                 if direction == '-':
                     value = -int(value)
-                item_list.append((cells[0], int(value), int(cells[1]),  int(cells[3])))
+                if (cells[0]) not in seen:
+                    seen.add(cells[0])
+                    item_list.append((cells[0], int(value), int(cells[1]),  int(cells[3])))
+                else:
+                    print(cells[0])
+
+                
     driver.quit()
     return item_list
 # ScrapeForItems()
