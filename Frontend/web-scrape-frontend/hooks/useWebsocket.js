@@ -3,7 +3,9 @@ import { useState, useEffect } from "react";
 export function useWebsocket(onMessage) {
 
   useEffect(() => {
-    const ws = new WebSocket(`ws://localhost:8000/communicate`);
+    const ws = new WebSocket(
+      `wss://web-scraper-68z5.onrender.com//communicate`,
+    );
     ws.onopen = () => {
       console.log("WebSocket Connected");
     };

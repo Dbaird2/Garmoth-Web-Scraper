@@ -1,7 +1,7 @@
 export async function getAllItems() {
     console.log('getAllItems', 'calling fetch')
   try {
-    const res = await fetch("http://localhost:8000/items/all");
+    const res = await fetch("https://web-scraper-68z5.onrender.com/items/all");
     console.log("status", res);
     const json_items = await res.json();
     console.log("json_items", json_items);
@@ -12,7 +12,7 @@ export async function getAllItems() {
 }
 
 export async function getItem(item) {
-  let url = "http://localhost:8000/items/" + item;
+  let url = "https://web-scraper-68z5.onrender.com/items/" + item;
 
   const res = await fetch(url);
 
