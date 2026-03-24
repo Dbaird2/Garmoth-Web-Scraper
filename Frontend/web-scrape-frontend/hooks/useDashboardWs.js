@@ -4,7 +4,7 @@ export function useWebsocket(onMessage) {
 
   useEffect(() => {
     const ws = new WebSocket(
-      `wss://web-scraper-68z5.onrender.com//dashboardWs`,
+      `wss://web-scraper-68z5.onrender.com/dashboardWs`,
     );
     ws.onopen = () => {
       console.log("WebSocket Connected");
