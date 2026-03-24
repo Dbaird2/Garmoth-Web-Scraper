@@ -1,18 +1,11 @@
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
-from starlette.requests import Request  
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from fastapi import FastAPI
 from db import Database
 from contextlib import asynccontextmanager
-import asyncio
 from web_scrape import ScrapeForItems
 from datetime import datetime, date
+import asyncio
 
 db = Database()
-
-origins = [
-    "http://localhost:5173",
-]
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,19 +27,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,  # Allows specific origins
-    allow_credentials=True,  # Allows cookies, authorization headers, etc.
-    allow_methods=["*"],     # Allows all methods (GET, POST, PUT, DELETE, etc.)
-    allow_headers=["*"],     # Allows all headers
-)
-
-class Item(BaseModel):
-    name: str
-    percentage: int
-    stock: int
-    price: float
 
 async def repeatInsert():
 

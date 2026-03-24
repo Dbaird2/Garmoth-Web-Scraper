@@ -75,19 +75,19 @@ class Database:
             
             item = await self.conn.fetch(''' 
                 SELECT id, item, percentage, stock, price::numeric(15,1) AS full_price, recent_time 
-                                         FROM bdo_items WHERE item = $1 ORDER BY recent_time ASC LIMIT 60
+                                         FROM bdo_items WHERE item ILIKE $1 ORDER BY recent_time ASC LIMIT 60
             ''', item_name)
             return item
         except Exception as e:
             print(f"Select failed: {e}")
-            return "Item Not Found"
+            raise
         
     async def selectItemRecentPrice(self, item_name = ''):
         try:
             
             item = await self.conn.fetch(''' 
                 SELECT id, item, percentage, stock, price::numeric(15,1) AS full_price, recent_time 
-                                         FROM bdo_items WHERE item = $1 ORDER BY recent_time DESC LIMIT 1
+                                         FROM bdo_items WHERE item ILIKE $1 ORDER BY recent_time DESC LIMIT 1
             ''', item_name)
             return item
         except Exception as e:
