@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from db import Database
 from contextlib import asynccontextmanager
 import asyncio
-from WebScraper.web_scrape import ScrapeForItems
 from web_socket import ConnectionManager
 from datetime import datetime, date
 from slowapi import Limiter, _rate_limit_exceeded_handler
