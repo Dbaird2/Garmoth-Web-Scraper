@@ -148,16 +148,3 @@ class Database:
 
     async def closeConnection(self):
         await self.conn.close()
-
-# async def main():
-#     db = Database()
-#     await db.connect()
-#     #await db.insertItemTableAsArray()
-#     items = await db.selectAllItemRows()
-#     for item in items:
-#         print("items", item['item'], item['full_price'], item['percentage'])
-#     item = await db.selectItem('Memory Fragment')
-#     print('item', item)
-
-# asyncio.run(main())
-    

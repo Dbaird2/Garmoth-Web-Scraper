@@ -5,12 +5,13 @@ from pydantic import BaseModel
 from db import Database
 from contextlib import asynccontextmanager
 import asyncio
-from web_scrape import ScrapeForItems
+from WebScraper.web_scrape import ScrapeForItems
 from web_socket import ConnectionManager
 from datetime import datetime, date
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+
 
 db = Database()
 
@@ -65,24 +66,6 @@ async def repeatInsert():
 
     print('repeatInsert Started')
     while True:
-
-        print("Inserting items into database...")
-        loop = asyncio.get_event_loop()
-            
-        try:
-            time1 = datetime.now()
-            items = await loop.run_in_executor(None, ScrapeForItems)
-            time2 = datetime.now()
-            diff = time2 - time1
-        except Exception as e:
-            print(f"Scrape failed, retrying next cycle: {e}")
-
-        try:
-            print(f"Insertin item examples {items[0:3]}; Time took {diff.seconds}.{diff.microseconds}")
-            await db.insertItemTableAsArray(items)
-        except Exception as e:
-            print(f"Inserting into database failed: {e}")
-
         try:
             items = await db.selectAllItemRows()
             item_list = []
@@ -99,7 +82,6 @@ async def repeatInsert():
             print(f"Broading casting failed: {e}")
         
         try:
-            
             await updateImpactLevel(db)
         except Exception as e:
             print(f"Failed to update impact of event: {e}")
