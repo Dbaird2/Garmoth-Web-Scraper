@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 export function useWebsocket(onMessage) {
-
+  const [loading, setLoading] = useState(true)
   useEffect(() => {
     const ws = new WebSocket(
       `wss://web-scraper-68z5.onrender.com/dashboardWs`,
@@ -15,6 +15,7 @@ export function useWebsocket(onMessage) {
       console.log("received message", event);
       const items = JSON.parse(event.data);
       onMessage(items);
+      setLoading(false)
     //   setTempList(items);
     };
 
@@ -25,6 +26,7 @@ export function useWebsocket(onMessage) {
       ws.close();
     };
   }, []);  
+  return loading
 }
 
 export default useWebsocket;
