@@ -1,6 +1,7 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import ItemCard from "./ItemCard";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import { getFavorites } from "../hooks/favorites";
 
 const COLUMNS = 5;
 const GAP = 16; // gap-4 = 16px
@@ -17,6 +18,13 @@ export function ItemGrid({ items, isFavorite, toggleFavorite }) {
     getScrollElement: () => scroll_ref.current,
     overscan: 3,
   });
+
+  const [favorites, setFavorites] = useState(() => getFavorites());
+
+  const handleToggle = (itemName) => {
+    toggleFavorite(itemName);
+    setFavorites(getFavorites());
+  };
 
   return (
     <div className=" p-4 mx-auto h-[90dvh] overflow-auto" ref={scroll_ref}>
@@ -43,8 +51,8 @@ export function ItemGrid({ items, isFavorite, toggleFavorite }) {
                   <ItemCard
                     key={item.name}
                     item={item}
-                    favorite={favorite}
-                    toggleFavorite={toggleFavorite}
+                    favorite={favorites.includes(item.name)}
+                    toggleFavorite={handleToggle}
                   />
                 );
               })}

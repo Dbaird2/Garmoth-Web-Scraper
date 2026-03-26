@@ -1,7 +1,16 @@
+import { useState } from "react";
 import ItemModal from "./ItemModal";
 
 export function ItemCard({ item, favorite, toggleFavorite }) {
   // filled star &#9733;
+  const [popped, setPopped] = useState(false);
+
+  const handleFavorite = (name) => {
+    console.log(name);
+    toggleFavorite(name);
+    setPopped(true);
+    setTimeout(() => setPopped(false), 200);
+  };
   return (
     <>
       <div
@@ -12,23 +21,12 @@ export function ItemCard({ item, favorite, toggleFavorite }) {
           <h3 className="tracking-wider italic font-semibold text-white truncate ">
             {item.name}
           </h3>
-          {favorite ? (
-            <a
-              value={item.name}
-              onClick={(e) => toggleFavorite(item.name)}
-              className="text-[20px] hover:cursor-pointer text-yellow-500"
-            >
-              &#9733;
-            </a>
-          ) : (
-            <a
-              value={item.name}
-              onClick={(e) => toggleFavorite(item.name)}
-              className="text-[20px] hover:cursor-pointer text-yellow-500"
-            >
-              &#9734;
-            </a>
-          )}
+          <span
+            onClick={() => handleFavorite(item.name)}
+            className={`text-yellow-400 text-[1.2rem] cursor-pointer transition-transform duration-150 inline-block ${popped ? "scale-150" : "scale-100"}`}
+          >
+            {favorite ? "★" : "☆"}
+          </span>
         </div>
         <div
           className={
