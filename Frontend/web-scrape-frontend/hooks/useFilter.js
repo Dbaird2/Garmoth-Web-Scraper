@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getFavorites } from "./favorites";
 
 export function useFilter(item_list) {
   const [temp_list, setTempList] = useState([]);
@@ -43,6 +44,14 @@ export function useFilter(item_list) {
     setTempList(new_list);
   };
 
+  const filterByFavorites = () => {
+    const list = getFavorites();
+    console.log(item_list, list)
+    const new_list = item_list.filter((a) => list.includes(a.name));
+    console.log(new_list)
+    setTempList(new_list);
+  };
+
   return {
     temp_list,
     search,
@@ -52,6 +61,7 @@ export function useFilter(item_list) {
     sortItems,
     resetItems,
     filterBySlider,
+    filterByFavorites,
   };
 }
 export default useFilter;

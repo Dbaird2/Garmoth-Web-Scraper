@@ -32,8 +32,7 @@ export default function SearchBar({ ...props_from_filter }) {
         <div className="mx-1.5 h-5 w-px shrink-0 bg-white/[0.07]" />
 
         {/* Filter */}
-        <div className="p-0 mr-0">
-        </div>
+        <div className="p-0 mr-0"></div>
 
         {/* Slider */}
         <div className="flex items-center gap-2.5 rounded-md border border-white/[0.07] bg-white/[0.03] px-3 py-1.5 min-w-[160px] transition-colors hover:border-teal-400/30 hover:bg-teal-400/[0.06]">
@@ -56,6 +55,16 @@ export default function SearchBar({ ...props_from_filter }) {
           />
         </div>
 
+        {/* Favorites */}
+        <div className="p-0 mr-0">
+          <span
+            className="cursor-pointer flex items-center gap-1.5 rounded-md border border-transparent px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-400 transition-all duration-150 hover:-translate-y-px hover:border-yellow-400/30 hover:bg-yellow-400/[0.07] hover:text-yellow-400"
+            onClick={props_from_filter.filterByFavorites}
+          >
+            &#9733; Favorites
+          </span>
+        </div>
+
         {/* Reset */}
         <div className="p-0 mr-0">
           <span
@@ -69,13 +78,6 @@ export default function SearchBar({ ...props_from_filter }) {
         {/* Spacer */}
         <div className="flex-1" />
         <div className="mx-1.5 h-5 w-px shrink-0 bg-white/[0.07]" />
-
-        {/* Contact */}
-        <div className="p-0 mr-0">
-          <span className="cursor-pointer rounded-md border border-transparent px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-500 transition-all duration-150 hover:border-white/[0.07] hover:bg-white/[0.03] hover:text-slate-200">
-            Contact
-          </span>
-        </div>
       </div>
 
       <div className="absolute inset-0 -z-10 h-full w-full items-center px-5 py-24 h-screen"></div>

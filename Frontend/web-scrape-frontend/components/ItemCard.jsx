@@ -1,15 +1,35 @@
 import ItemModal from "./ItemModal";
 
-export function ItemCard({ item }) {
+export function ItemCard({ item, favorite, toggleFavorite }) {
+  // filled star &#9733;
   return (
     <>
       <div
         key={item.name}
         className="bg-slate-800 rounded-xl border border-slate-700 hover:border-blue-500 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/10 p-4 flex flex-col gap-2"
       >
-        <h3 className="tracking-wider italic font-semibold text-white truncate ">
-          {item.name}
-        </h3>
+        <div className="flex flex-row justify-between">
+          <h3 className="tracking-wider italic font-semibold text-white truncate ">
+            {item.name}
+          </h3>
+          {favorite ? (
+            <a
+              value={item.name}
+              onClick={(e) => toggleFavorite(item.name)}
+              className="text-[20px] hover:cursor-pointer text-yellow-500"
+            >
+              &#9733;
+            </a>
+          ) : (
+            <a
+              value={item.name}
+              onClick={(e) => toggleFavorite(item.name)}
+              className="text-[20px] hover:cursor-pointer text-yellow-500"
+            >
+              &#9734;
+            </a>
+          )}
+        </div>
         <div
           className={
             item.percentage >= 0 ? "h-px bg-green-400" : "h-px bg-red-400"

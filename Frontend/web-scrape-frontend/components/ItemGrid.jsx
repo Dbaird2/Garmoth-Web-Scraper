@@ -6,7 +6,7 @@ const COLUMNS = 5;
 const GAP = 16; // gap-4 = 16px
 const ROW_HEIGHT = 250 + GAP;
 
-export function ItemGrid({ items }) {
+export function ItemGrid({ items, isFavorite, toggleFavorite }) {
   const scroll_ref = useRef(null);
 
   const row_count = Math.ceil(items.length / COLUMNS);
@@ -37,9 +37,17 @@ export function ItemGrid({ items }) {
                 height: `${ROW_HEIGHT}px`,
               }}
             >
-              {row_items.map((item) => (
-                <ItemCard key={item.name} item={item} />
-              ))}
+              {row_items.map((item) => {
+                const favorite = isFavorite(item.name);
+                return (
+                  <ItemCard
+                    key={item.name}
+                    item={item}
+                    favorite={favorite}
+                    toggleFavorite={toggleFavorite}
+                  />
+                );
+              })}
             </div>
           );
         })}

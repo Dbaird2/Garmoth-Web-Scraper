@@ -4,6 +4,7 @@ import SearchBar from "../components/SearchBar";
 import SortBar from "../components/SortBar";
 import useFilter from "../hooks/useFilter";
 import useWebsocket from "../hooks/useWebsocket";
+import { getFavorites, toggleFavorite, isFavorite } from "../hooks/favorites";
 import { useState } from "react";
 
 export default function ItemPage() {
@@ -20,7 +21,15 @@ export default function ItemPage() {
           <SortBar {...filter_props} />
         </div>
         <div className="flex-1 overflow-y-auto">
-          {loading ? <SkeletonGrid /> : <ItemGrid items={temp_list} />}
+          {loading ? (
+            <SkeletonGrid />
+          ) : (
+            <ItemGrid
+              items={temp_list}
+              isFavorite={isFavorite}
+              toggleFavorite={toggleFavorite}
+            />
+          )}
         </div>
       </div>
     </>
