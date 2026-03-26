@@ -23,7 +23,7 @@ function EventCard({ event, impact, start_date, end_date, items }) {
 
   return (
     <div
-      className={`bg-[#0d1520] border border-[#1a2a3a] border-t-2 ${style.border} p-5 flex flex-col gap-4`}
+      className={`bg-[#0d1520] border border-[#1a2a3a] border-t-2 ${style.border} p-5 flex flex-col gap-4 max-h-[40rem]`}
     >
       <div className="flex justify-between items-start gap-3">
         <span className="font-bold text-[#e8f0f8] text-sm leading-snug tracking-wide">
@@ -46,13 +46,18 @@ function EventCard({ event, impact, start_date, end_date, items }) {
         <p className="font-mono text-[10px] tracking-widest uppercase text-[#2a4a5a] mb-2">
           Affected Items
         </p>
-        <ul className="flex flex-col gap-1.5">
+        <ul className="flex flex-col h-[30rem] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-[#0d1520] [&::-webkit-scrollbar-thumb]:bg-teal-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-teal-400 overflow-auto gap-1.5">
           {items.map((item) => (
             <li
               key={item}
-              className="text-[13px] text-[#8aa8b8] px-2.5 py-1.5 bg-[#0a1018] border-l-2 border-[#1a2a3a] hover:border-teal-400 hover:text-[#c8d8e8] transition-colors"
+              className="flex flex-row justify-between text-[13px] text-[#8aa8b8] px-2.5 py-1.5 bg-[#0a1018] border-l-2 border-[#1a2a3a] hover:border-teal-400 hover:text-[#c8d8e8] transition-colors"
             >
-              {item}
+              <div>{item}</div>
+              <div
+                className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 border shrink-0 ${style.badge}`}
+              >
+                None
+              </div>
             </li>
           ))}
         </ul>
@@ -65,6 +70,7 @@ export default function EventsDashboard() {
   const [event_info, setEventInfo] = useState({});
   const { loading } = useWebsocket((events) => setEventInfo(events));
   const numbers = Array.from({ length: 4 }, (e, i) => i);
+  console.log(loading)
   return (
     <div
       className="p-6 min-h-screen bg-[#090e14]"

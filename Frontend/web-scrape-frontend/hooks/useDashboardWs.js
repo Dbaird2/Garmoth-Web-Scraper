@@ -26,7 +26,7 @@ export function useWebsocket(onMessage) {
       ws.close();
     };
   }, []);  
-  return loading
+  return { loading };
 }
 
 export default useWebsocket;
