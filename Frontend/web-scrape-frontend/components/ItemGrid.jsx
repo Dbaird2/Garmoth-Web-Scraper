@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import ItemCard from "./ItemCard";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { getFavorites } from "../hooks/favorites";
@@ -9,6 +9,7 @@ const ROW_HEIGHT = 250 + GAP;
 
 export function ItemGrid({ items, isFavorite, toggleFavorite }) {
   const scroll_ref = useRef(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   const row_count = Math.ceil(items.length / COLUMNS);
 
@@ -26,41 +27,69 @@ export function ItemGrid({ items, isFavorite, toggleFavorite }) {
     setFavorites(getFavorites());
   };
 
-  return (
-    <div className=" p-4 mx-auto h-[90dvh] overflow-auto" ref={scroll_ref}>
-      <div
-        className="relative"
-        style={{ height: `${virtualizer.getTotalSize()}px` }}
-      >
-        {virtualizer.getVirtualItems().map((v_row) => {
-          const from = v_row.index * COLUMNS;
-          const row_items = items.slice(from, from + COLUMNS);
+  const scrollToTop = () => {
+    console.log("Clicked scrollToTop");
+    scroll_ref.current.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "smooth",
+    });
+  };
 
-          return (
-            <div
-              key={v_row.key}
-              className="absolute w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-4 items-start"
-              style={{
-                transform: `translateY(${v_row.start}px)`,
-                height: `${ROW_HEIGHT}px`,
-              }}
-            >
-              {row_items.map((item) => {
-                const favorite = isFavorite(item.name);
-                return (
-                  <ItemCard
-                    key={item.name}
-                    item={item}
-                    favorite={favorites.includes(item.name)}
-                    toggleFavorite={handleToggle}
-                  />
-                );
-              })}
-            </div>
-          );
-        })}
+  useEffect(() => {
+    const el = scroll_ref.current;
+    const handleScroll = () => setShowScrollTop(el.scrollTop > 300);
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <>
+      {showScrollTop && (
+        <span
+          className="text-teal-400 justify-center flex cursor-pointer z-400"
+          onClick={() => scrollToTop()}
+        >
+          Scroll To Top
+        </span>
+      )}
+      <div
+        className="[&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-[#0d1520] [&::-webkit-scrollbar-thumb]:bg-teal-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-teal-400 p-4 mx-auto h-[90dvh] overflow-auto"
+        ref={scroll_ref}
+      >
+        <div
+          className="relative"
+          style={{ height: `${virtualizer.getTotalSize()}px` }}
+        >
+          {virtualizer.getVirtualItems().map((v_row) => {
+            const from = v_row.index * COLUMNS;
+            const row_items = items.slice(from, from + COLUMNS);
+
+            return (
+              <div
+                key={v_row.key}
+                className="absolute w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-4 items-start"
+                style={{
+                  transform: `translateY(${v_row.start}px)`,
+                  height: `${ROW_HEIGHT}px`,
+                }}
+              >
+                {row_items.map((item) => {
+                  return (
+                    <ItemCard
+                      key={item.name}
+                      item={item}
+                      favorite={favorites.includes(item.name)}
+                      toggleFavorite={handleToggle}
+                    />
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
