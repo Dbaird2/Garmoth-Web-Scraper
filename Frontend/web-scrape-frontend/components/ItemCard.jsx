@@ -9,64 +9,88 @@ export function ItemCard({ item, favorite, toggleFavorite }) {
     console.log(name);
     toggleFavorite(name);
     setPopped(true);
-    setTimeout(() => setPopped(false), 200);
+    setTimeout(() => setPopped(false), 400);
   };
   return (
     <>
       <div
         key={item.name}
-        className="bg-slate-800 rounded-xl border border-slate-700 hover:border-blue-500 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/10 p-4 flex flex-col gap-2"
+        className={`relative bg-[#111d2e] border-0 border-b-1 border-t-1 border-t-red-900/40 border-b-teal-900/40 rounded-xl border border-[#1a2a3a] ${item.percentage >= 0 ? 'hover:border-1 hover:border-teal-500/50' : 'hover:border-1 hover:border-red-500/50'} transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/10 p-4 flex flex-col gap-3 group`}
       >
-        <div className="flex flex-row justify-between">
-          <h3 className="tracking-wider italic font-semibold text-white truncate ">
+        {/* Header */}
+        <div className="flex flex-row justify-between items-start gap-2">
+          <h3 className="tracking-wider font-semibold text-[#c8d8e8] truncate text-sm">
             {item.name}
           </h3>
           <span
             onClick={() => handleFavorite(item.name)}
-            className={`text-yellow-400 text-[1.2rem] cursor-pointer transition-transform duration-150 inline-block ${popped ? "scale-150" : "scale-100"}`}
+            className={`hover:scale-125 text-yellow-400/80 hover:text-yellow-300 text-lg cursor-pointer transition-all duration-200 inline-block flex-shrink-0 ${popped ? "scale-125 animate-spin" : "scale-100"}`}
           >
             {favorite ? "★" : "☆"}
           </span>
         </div>
+
+        {/* Divider */}
         <div
-          className={
-            item.percentage >= 0 ? "h-px bg-green-400" : "h-px bg-red-400"
-          }
+          className={`h-px ${item.percentage >= 0 ? "bg-gradient-to-r from-teal-500/70 via-purple-500/50 to-transparent" : "bg-gradient-to-r from-red-500/50 via-blue-500/50 to-transparent"}`}
         />
-        <div className="flex justify-between text-md">
-          <span className="text-slate-400">Change</span>
-          <span
-            className={item.percentage >= 0 ? "text-green-400" : "text-red-400"}
-          >
-            {item.percentage}%
-          </span>
+        
+
+        {/* Stats */}
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-between items-center">
+            <span className="text-[11px] uppercase tracking-widest text-[#4a6070]">
+              Change
+            </span>
+            <span
+              className={`text-sm font-mono font-semibold ${item.percentage >= 0 ? "text-teal-400" : "text-red-400"}`}
+            >
+              {item.percentage >= 0 ? "+" : ""}
+              {item.percentage}%
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-[11px] uppercase tracking-widest text-[#4a6070]">
+              Price
+            </span>
+            <span className="text-sm font-mono text-[#c8d8e8]">
+              {item.price.toLocaleString()}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-[11px] uppercase tracking-widest text-[#4a6070]">
+              Stock
+            </span>
+            <span
+              className={`text-sm font-mono ${item.stock > 0 ? "text-teal-400" : "text-red-400"}`}
+            >
+              {item.stock.toLocaleString()}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-[11px] uppercase tracking-widest text-[#4a6070]">
+              % Diff
+            </span>
+            <span
+              className={`text-sm font-mono ${item.percent_diff > 0 ? "text-teal-400" : "text-red-400"}`}
+            >
+              {item.percent_diff > 0 ? "+" : ""}
+              {item.percent_diff ?? 0}%
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-[11px] uppercase tracking-widest text-[#4a6070]">
+              Price Diff
+            </span>
+            <span
+              className={`text-sm font-mono ${item.price_diff > 0 ? "text-teal-400" : "text-red-400"}`}
+            >
+              {item.price_diff > 0 ? "+" : ""}
+              {item.price_diff.toLocaleString() ?? 0}
+            </span>
+          </div>
         </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-slate-400">Price</span>
-          <span className="text-white">{item.price.toLocaleString()}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-slate-400">Stock</span>
-          <span className="text-white">{item.stock.toLocaleString()}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-slate-400">% Difference</span>
-          <span
-            className={
-              item.percent_diff >= 0 ? "text-green-400" : "text-red-400"
-            }
-          >
-            {item.percent_diff ?? 0}%
-          </span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-slate-400">Price Difference</span>
-          <span
-            className={item.price_diff >= 0 ? "text-green-400" : "text-red-400"}
-          >
-            {item.price_diff.toLocaleString() ?? 0}
-          </span>
-        </div>
+
         <ItemModal item={item} />
       </div>
     </>

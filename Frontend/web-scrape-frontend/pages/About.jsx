@@ -1,7 +1,7 @@
 export default function About() {
   return (
     <>
-      <div>Hello</div>
+      <div className="text-white">Hello</div>
     </>
   );
 }
