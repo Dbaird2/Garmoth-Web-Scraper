@@ -1,4 +1,18 @@
+import { useRef, useEffect } from 'react';
+
 export default function SearchBar({ ...props_from_filter }) {
+  const search_ref = useRef(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.altKey && e.key === '/') {
+        e.preventDefault();
+        search_ref.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
   return (
     <div className="inset-0">
       <div
@@ -18,6 +32,7 @@ export default function SearchBar({ ...props_from_filter }) {
           </span>
           <input
             placeholder="Search Item"
+            ref={search_ref}
             onChange={(e) => props_from_filter.setSearch(e.target.value)}
             className="w-40 rounded-md border border-white/[0.07] bg-white/[0.03] py-1.5 pl-7 pr-3 text-[12px] text-slate-200 placeholder-slate-500 outline-none transition-all duration-200 focus:w-52 focus:border-teal-400/30 focus:bg-teal-400/[0.06] focus:shadow-[0_0_0_3px_rgba(45,212,191,0.08)]"
           />

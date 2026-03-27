@@ -93,8 +93,8 @@ def root():
 
 @app.websocket("/communicate")
 async def websocket_endpoint(websocket: WebSocket):
-    await item_manager.connect(websocket)
     try:
+        await item_manager.connect(websocket)
         items = await fetchAllItems()
         await item_manager.send_personal_message(items, websocket)
         while True:                              # ← keeps connection alive
@@ -105,8 +105,8 @@ async def websocket_endpoint(websocket: WebSocket):
 @app.websocket("/dashboardWs")
 async def websocket_endpoint(websocket: WebSocket):
 
-    await dash_manager.connect(websocket)
     try:
+        await dash_manager.connect(websocket)
         
         events = await db.selectAllEvents()
     
