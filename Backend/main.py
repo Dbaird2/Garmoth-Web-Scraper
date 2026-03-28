@@ -84,7 +84,7 @@ async def repeatInsert():
             await updateImpactLevel(db)
         except Exception as e:
             print(f"Failed to update impact of event: {e}")
-        await asyncio.sleep(360)
+        await asyncio.sleep(3600)
         
 
 @app.get("/")

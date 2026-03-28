@@ -24,6 +24,7 @@ async def updateImpactLevel(db):
 async def calculateImpact(db, price_range, item):
     """Calculates the impact level of an item based on its pre-event price baseline."""
     try:
+        print("Starting calculateImpact")
         if not price_range:
             return "None"
 
@@ -32,9 +33,9 @@ async def calculateImpact(db, price_range, item):
             return "None"
 
         item_data = await db.selectItemRecentPrice(item)
-        print(item_data)
+        print('item_data from calculateImpact', item_data)
         pct_diff = abs((int(item_data[0]["full_price"]) - baseline_avg) / baseline_avg * 100)
-
+        print('pct_diff from calculateImpact', pct_diff)
         if pct_diff >= 50:   return "High"
         if pct_diff >= 30:   return "Medium"
         if pct_diff >= 15.5: return "Low"
