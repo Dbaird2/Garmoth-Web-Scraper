@@ -139,6 +139,7 @@ class Database:
 
     async def updateEventImpact(self, impact, event_name):
         try:
+            print(impact, event_name)
             await self.conn.execute("""
                 UPDATE bdo_events SET impact = $1 WHERE name = $2
                               """, impact, event_name)
