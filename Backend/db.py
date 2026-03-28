@@ -127,7 +127,7 @@ class Database:
         print("Selecting All Events")
         try:
             events = await self.conn.fetch('''
-                                SELECT e.name, e.impact, e.start_date, e.end_date, c.item_name
+                                SELECT e.name, e.impact, e.start_date, e.end_date, c.item_name, c.impact as item_impact
                                     FROM bdo_events e RIGHT JOIN event_contents c ON e.name = c.event_name 
                                            WHERE e.end_date >= CURRENT_DATE ORDER BY e.end_date  
                                            ''')

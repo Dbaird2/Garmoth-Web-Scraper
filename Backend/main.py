@@ -114,7 +114,7 @@ async def websocket_endpoint(websocket: WebSocket):
         item_dict = {}
         for row in events:
             if row[0] not in item_dict:
-                item_dict[row[0]] = [row[4]]
+                item_dict[row[0]] = {'name': row[4], 'impact': row[5]}
             else:
                 item_dict[row[0]].append(row[4])
             event_dict[row[0]] = {
