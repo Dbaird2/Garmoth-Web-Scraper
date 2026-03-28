@@ -50,7 +50,7 @@ async def repeatInsert():
         except Exception as e:
             print(f"Inserting into database failed: {e}")
    
-        await asyncio.sleep(36000)
+        await asyncio.sleep(3600)
         
 
 @app.get("/")

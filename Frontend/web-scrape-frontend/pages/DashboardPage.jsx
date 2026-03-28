@@ -1,5 +1,6 @@
 import { useState } from "react";
 import useWebsocket from "../hooks/useDashboardWs";
+import DashbaordItemModal from "../components/DashboardModal";
 
 const IMPACT_STYLES = {
   High: { border: "border-t-red-500", badge: "border-red-500 text-red-500" },
@@ -52,11 +53,16 @@ function EventCard({ event, impact, start_date, end_date, items }) {
               key={key}
               className="flex flex-row justify-between text-[13px] text-[#8aa8b8] px-2.5 py-1.5 bg-[#0a1018] border-l-2 border-[#1a2a3a] hover:border-teal-400 hover:text-[#c8d8e8] transition-colors"
             >
-              <div>{item.name}</div>
-              <div
-                className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 border shrink-0 ${style.badge}`}
-              >
-                {item.impact}
+              <div>
+                <DashbaordItemModal item={item.name} />
+              </div>
+              <div className="flex gap-4 text-gray-400 text-[10px]">
+                <span>Impact</span>
+                <div
+                  className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 border shrink-0 ${IMPACT_STYLES[item.impact].badge}`}
+                >
+                  {item.impact}
+                </div>
               </div>
             </li>
           ))}
@@ -70,7 +76,7 @@ export default function EventsDashboard() {
   const [event_info, setEventInfo] = useState({});
   const { loading } = useWebsocket((events) => setEventInfo(events));
   const numbers = Array.from({ length: 4 }, (e, i) => i);
-  console.log(loading)
+  console.log(loading);
   return (
     <div
       className="p-6 min-h-screen bg-[#090e14]"

@@ -14,20 +14,10 @@ export function SortBar({ ...props_from_filter }) {
     v: change_diff,
     b: price_diff_ref,
   };
-  /* ... rest of variable 
-  const KEY_CASES = {
-    price_diff_ref: 'a',
-    ... rest of key + value
-  }
-    if (KEY_CASES[e.alyKey && e.key] ) {
-      e.preventDefault();
-      KEY_CASES.get(e.alyKey && e.key).current?.click();
-    }
-
-  */
+ 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.ctrlKey && KEY_CASES[e.key]) {
+      if (e.shiftKey && KEY_CASES[e.key]) {
         e.preventDefault();
         KEY_CASES[e.key].current?.click();
       }

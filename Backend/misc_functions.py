@@ -24,7 +24,7 @@ async def updateImpactLevel(db):
 async def calculateImpact(db, price_range, item, event_name):
     """Calculates the impact level of an item based on its pre-event price baseline."""
     try:
-        print("Starting calculateImpact")
+        print("Starting calculateImpact", price_range, item, event_name)
         if not price_range:
             return "None"
 
