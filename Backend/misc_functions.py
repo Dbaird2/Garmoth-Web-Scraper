@@ -5,7 +5,7 @@ async def updateImpactLevel(db):
     events = await db.selectAllEvents()
     impact_dict: dict[str, str] = {}
     try:
-        for event_name, curr_impact, start_date, end_date, item_name in events:
+        for event_name, curr_impact, start_date, end_date, item_name, item_impact in events:
             price_range = await db.selectWeekBeforePrice(item_name, start_date)
             impact = await calculateImpact(db, price_range, item_name, event_name)
 

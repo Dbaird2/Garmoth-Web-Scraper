@@ -47,9 +47,9 @@ function EventCard({ event, impact, start_date, end_date, items }) {
           Affected Items
         </p>
         <ul className="flex flex-col h-[30rem] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-[#0d1520] [&::-webkit-scrollbar-thumb]:bg-teal-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-teal-400 overflow-auto gap-1.5">
-          {Object.entries(items).map((item) => (
+          {Object.entries(items).map(([key, item]) => (
             <li
-              key={item.name}
+              key={key}
               className="flex flex-row justify-between text-[13px] text-[#8aa8b8] px-2.5 py-1.5 bg-[#0a1018] border-l-2 border-[#1a2a3a] hover:border-teal-400 hover:text-[#c8d8e8] transition-colors"
             >
               <div>{item.name}</div>
