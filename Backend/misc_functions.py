@@ -7,7 +7,7 @@ async def updateImpactLevel(db):
     try:
         for event_name, curr_impact, start_date, end_date, item_name in events:
             price_range = await db.selectWeekBeforePrice(item_name, start_date)
-            impact = await calculateImpact(db, price_range, item_name)
+            impact = await calculateImpact(db, price_range, item_name, event_name)
 
             if event_name not in impact_dict:
                 impact_dict[event_name] = impact
@@ -21,7 +21,7 @@ async def updateImpactLevel(db):
     for i, val in enumerate(impact_dict):
         await db.updateEventImpact(impact_dict[val], val)
 
-async def calculateImpact(db, price_range, item):
+async def calculateImpact(db, price_range, item, event_name):
     """Calculates the impact level of an item based on its pre-event price baseline."""
     try:
         print("Starting calculateImpact")
@@ -36,9 +36,9 @@ async def calculateImpact(db, price_range, item):
         print('item_data from calculateImpact', item_data)
         pct_diff = abs((int(item_data[0]["full_price"]) - baseline_avg) / baseline_avg * 100)
         print('pct_diff from calculateImpact', pct_diff)
-        if pct_diff >= 50:   return "High"
-        if pct_diff >= 30:   return "Medium"
-        if pct_diff >= 15.5: return "Low"
+        if pct_diff >= 50:   await db.updateEventItem("High", item, event_name); return "High"
+        if pct_diff >= 30:   await db.updateEventItem("Medium", item, event_name); return "Medium"
+        if pct_diff >= 15.5: await db.updateEventItem("Low", item, event_name); return "Low"
         return "None"
     except Exception as e:
         print(f"Failed in calculateImpact: {e}")

@@ -147,6 +147,33 @@ class Database:
             print(f"Failed to update impact: {impact} - {event_name} - {e}")
             return False
 
+    async def updateEventItem(self, impact, item, event_name):
+        time1 = datetime.now()
+        print(f"updating event item Impact called {item} from event {event_name}")
+        async with self.conn.acquire() as pool:
+            # Start a transaction on the acquired connection
+            try:
+                await pool.execute('''
+                    WITH cte AS 
+                        (
+                            SELECT * FROM event_contents WHERE item_name = $2
+                            AND event_name = $3
+                            AND date_inserted <= CURRENT_DATE
+                            ORDER BY date_inserted DESC
+                            LIMIT 1
+                        )
+                    UPDATE event_contents 
+                        SET impact = $1 
+                        FROM cte 
+                        WHERE event_contents.id = cte.id
+                ''', 
+                impact, item, event_name)
+            except Exception as e:
+                print(f"updateEventItem Transaction failed: {e}")
+        time2 = datetime.now()
+        diff = time2 - time1
+        print(f"Time took to update item {diff.seconds}.{diff.microseconds}")
+
     async def closeConnection(self):
         await self.conn.close()
 
