@@ -29,7 +29,7 @@ export function ItemModal({ item }) {
           ↗ Open Chart
         </button>
       </div>
-      {(modal && data.length > 0) ? (
+      {modal ? (
         <el-dialog>
           <dialog
             id={modal_id}

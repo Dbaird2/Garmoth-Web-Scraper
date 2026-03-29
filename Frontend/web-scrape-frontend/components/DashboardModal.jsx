@@ -14,7 +14,7 @@ export default function DashbaordItemModal({ item }) {
       setData(Array.isArray(response) ? response : []);
     } catch (err) {
       console.error(err);
-      setData([]); 
+      setData([]);
     }
   };
   return (
@@ -29,7 +29,7 @@ export default function DashbaordItemModal({ item }) {
           {item.name}
         </button>
       </div>
-      {(modal && data.length > 0) ? (
+      {modal ? (
         <el-dialog>
           <dialog
             id={modal_id}
@@ -47,43 +47,47 @@ export default function DashbaordItemModal({ item }) {
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-teal-400 to-transparent" />
 
                 <div className="bg-[#0a1018] px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    {/* Header */}
-                    <div className="flex items-center gap-2.5 mb-4 pb-4 border-b border-white/[0.07]">
-                      <div className="h-2 w-2 shrink-0 rounded-full bg-teal-400 shadow-[0_0_8px_rgba(45,212,191,0.7)]" />
-                      <h3
-                        id="dialog-title"
-                        className="text-[15px] font-extrabold tracking-tight text-slate-200 "
-                      >
-                        {item.name}
-                      </h3>
-                    </div>
+                  {data.length > 0 ? (
+                    <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                      {/* Header */}
+                      <div className="flex items-center gap-2.5 mb-4 pb-4 border-b border-white/[0.07]">
+                        <div className="h-2 w-2 shrink-0 rounded-full bg-teal-400 shadow-[0_0_8px_rgba(45,212,191,0.7)]" />
+                        <h3
+                          id="dialog-title"
+                          className="text-[15px] font-extrabold tracking-tight text-slate-200 "
+                        >
+                          {item.name}
+                        </h3>
+                      </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="mt-2 rounded-lg border border-white/[0.07] p-4 transition-colors hover:border-teal-400/30">
-                        <div className="mb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.12em] text-teal-400">
-                          <span className="inline-block h-px w-4 bg-teal-400/50" />
-                          Full Price
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="mt-2 rounded-lg border border-white/[0.07] p-4 transition-colors hover:border-teal-400/30">
+                          <div className="mb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.12em] text-teal-400">
+                            <span className="inline-block h-px w-4 bg-teal-400/50" />
+                            Full Price
+                          </div>
+                          <Chart
+                            data={data}
+                            x_axis="recent_time"
+                            line="full_price"
+                          />
                         </div>
-                        <Chart
-                          data={data}
-                          x_axis="recent_time"
-                          line="full_price"
-                        />
-                      </div>
-                      <div className="mt-2 rounded-lg border border-white/[0.07] p-4 transition-colors hover:border-teal-400/30">
-                        <div className="mb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.12em] text-teal-400">
-                          <span className="inline-block h-px w-4 bg-teal-400/50" />
-                          Percentage
+                        <div className="mt-2 rounded-lg border border-white/[0.07] p-4 transition-colors hover:border-teal-400/30">
+                          <div className="mb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.12em] text-teal-400">
+                            <span className="inline-block h-px w-4 bg-teal-400/50" />
+                            Percentage
+                          </div>
+                          <Chart
+                            data={data}
+                            x_axis="recent_time"
+                            line="percentage"
+                          />
                         </div>
-                        <Chart
-                          data={data}
-                          x_axis="recent_time"
-                          line="percentage"
-                        />
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div>No Data</div>
+                  )}
                 </div>
 
                 <div className="border-t border-white/[0.07] bg-[#080c12]/90 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
