@@ -8,8 +8,14 @@ export default function DashbaordItemModal({ item }) {
   const [modal, setOpen] = useState(false);
   const handleOpen = async () => {
     setOpen(true);
-    const data = await getItem(item.name);
-    setData(data);
+    try {
+      const response = await getItem(item.name);
+      // ensure we always have an array
+      setData(Array.isArray(response) ? response : []);
+    } catch (err) {
+      console.error(err);
+      setData([]); 
+    }
   };
   return (
     <>
@@ -23,7 +29,7 @@ export default function DashbaordItemModal({ item }) {
           {item.name}
         </button>
       </div>
-      {(modal && data.length != 0) ? (
+      {(modal && data.length > 0) ? (
         <el-dialog>
           <dialog
             id={modal_id}

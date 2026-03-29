@@ -155,7 +155,7 @@ async def getItem(request: Request, item_name: str):
     try:
         item = await db.selectItem(item_name)
         if not item:
-            raise HTTPException(status_code=404, detail=[])
+            return []
         return item
     except HTTPException:
         raise

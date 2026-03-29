@@ -7,9 +7,14 @@ export function ItemModal({ item }) {
   const [data, setData] = useState([]);
   const [modal, setOpen] = useState(false);
   const handleOpen = async () => {
-    setOpen(true);
-    const data = await getItem(item.name);
-    setData(data);
+    try {
+      const response = await getItem(item.name);
+      // ensure we always have an array
+      setData(Array.isArray(response) ? response : []);
+    } catch (err) {
+      console.error(err);
+      setData([]);
+    }
   };
   console.log(data, modal)
   return (
@@ -24,7 +29,7 @@ export function ItemModal({ item }) {
           ↗ Open Chart
         </button>
       </div>
-      {(modal & data) ? (
+      {(modal && data.length > 0) ? (
         <el-dialog>
           <dialog
             id={modal_id}

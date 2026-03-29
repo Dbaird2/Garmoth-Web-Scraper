@@ -112,7 +112,7 @@ class Database:
         from datetime import datetime, timedelta
         try:
             if not items:
-                return 'Empty items array'
+                return []
         
             select_start = 'SELECT item, price, recent_time FROM bdo_items ' \
             'WHERE recent_time >= $1 AND recent_time < $2 AND item = $3 ORDER BY recent_time'
