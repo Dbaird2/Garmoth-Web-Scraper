@@ -96,7 +96,7 @@ export function ItemModal({ item }) {
           </dialog>
         </el-dialog>
       ) : (
-        <span>No Data on Item</span>
+        <span></span>
       )}
     </>
   );
