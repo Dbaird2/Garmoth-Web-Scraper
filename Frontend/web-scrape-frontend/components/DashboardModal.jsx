@@ -23,7 +23,7 @@ export default function DashbaordItemModal({ item }) {
           {item.name}
         </button>
       </div>
-      {(modal & data) ? (
+      {(modal & data.length != 0) ? (
         <el-dialog>
           <dialog
             id={modal_id}
