@@ -11,6 +11,7 @@ export function ItemModal({ item }) {
     const data = await getItem(item.name);
     setData(data);
   };
+  console.log(data, modal)
   return (
     <>
       <div className="flex justify-center">
@@ -23,7 +24,7 @@ export function ItemModal({ item }) {
           ↗ Open Chart
         </button>
       </div>
-      {modal ? (
+      {(modal & data) ? (
         <el-dialog>
           <dialog
             id={modal_id}
@@ -33,7 +34,7 @@ export function ItemModal({ item }) {
             <el-dialog-backdrop className="fixed inset-0 bg-gray-900/50 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"></el-dialog-backdrop>
 
             <div
-              tabindex="0"
+              tabIndex="0"
               className="flex min-h-full items-end justify-center p-4 text-center focus:outline-none sm:items-center sm:p-0"
             >
               <el-dialog-panel className="relative transform overflow-hidden rounded-xl border border-white/[0.07] bg-[#0a1018] text-left shadow-[0_0_0_1px_rgba(45,212,191,0.08),0_32px_80px_rgba(0,0,0,0.7)] transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 data-closed:sm:translate-y-0 data-closed:sm:scale-95">
@@ -95,7 +96,7 @@ export function ItemModal({ item }) {
           </dialog>
         </el-dialog>
       ) : (
-        <span></span>
+        <span>No Data on Item</span>
       )}
     </>
   );

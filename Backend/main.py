@@ -155,7 +155,7 @@ async def getItem(request: Request, item_name: str):
     try:
         item = await db.selectItem(item_name)
         if not item:
-            raise HTTPException(status_code=404, detail="Item not found")
+            raise HTTPException(status_code=404, detail=[])
         return item
     except HTTPException:
         raise
@@ -169,7 +169,7 @@ async def getItemsByPercentRange(request: Request, percentage: int):
     try:
         item = await db.selectItemsByRange(percentage)
         if item == "Item Not Found":
-            raise HTTPException(status_code=404, detail="Item not found")
+            raise HTTPException(status_code=404, detail=[])
         return item
     except HTTPException:
         raise
