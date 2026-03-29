@@ -30,6 +30,7 @@ class Database:
             print('Connected to database')
         except Exception as e:
             print(f"Connection failed: {e}")
+            raise
 
     async def insertItemTableAsArray(self, items = []):
         # items = ScrapeForItems()
@@ -52,6 +53,7 @@ class Database:
                 [i[3] for i in items])
             except Exception as e:
                 print(f"Transaction failed: {e}")
+                raise
         time2 = datetime.now()
         diff = time2 - time1
         print(f"Time took to insert {diff.seconds}.{diff.microseconds}")
@@ -69,7 +71,7 @@ class Database:
             return items
         except Exception as e:
             print(f"Transaction failed: {e}")
-            return "Items Not Found"
+            raise
 
     async def selectItem(self, item_name = ''):
         try:
@@ -93,7 +95,7 @@ class Database:
             return item
         except Exception as e:
             print(f"Select failed: {e}")
-            return "Item Not Found"
+            raise
     
     async def selectItemsByRange(self, range = 0):
         try:
@@ -104,7 +106,7 @@ class Database:
             return items
         except Exception as e:
             print(f"Select failed: {e}")
-            return "Item Not Found"
+            raise
 
     async def selectWeekBeforePrice(self, items: str, event_start_date: str):
         from datetime import datetime, timedelta
@@ -146,7 +148,7 @@ class Database:
             return True
         except Exception as e:
             print(f"Failed to update impact: {impact} - {event_name} - {e}")
-            return False
+            raise
 
     async def updateEventItem(self, impact, item, event_name):
         time1 = datetime.now()
@@ -171,6 +173,7 @@ class Database:
                 impact, item, event_name)
             except Exception as e:
                 print(f"updateEventItem Transaction failed: {e}")
+                raise
         time2 = datetime.now()
         diff = time2 - time1
         print(f"Time took to update item {diff.seconds}.{diff.microseconds}")
