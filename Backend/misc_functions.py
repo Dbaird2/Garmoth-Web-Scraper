@@ -34,11 +34,11 @@ async def calculateImpact(db, price_range, item, event_name):
 
         item_data = await db.selectItemRecentPrice(item)
         print('item_data from calculateImpact', item_data)
-        pct_diff = abs((int(item_data[0]["full_price"]) - baseline_avg) / baseline_avg * 100)
+        pct_diff = (int(item_data[0]["full_price"]) - baseline_avg) / baseline_avg * 100
         print('pct_diff from calculateImpact', pct_diff)
-        if pct_diff >= 50:   await db.updateEventItem("High", item, event_name); return "High"
-        if pct_diff >= 30:   await db.updateEventItem("Medium", item, event_name); return "Medium"
-        if pct_diff >= 15.5: await db.updateEventItem("Low", item, event_name); return "Low"
+        if pct_diff <= -50:   await db.updateEventItem("High", item, event_name); return "High"
+        if pct_diff <= -30:   await db.updateEventItem("Medium", item, event_name); return "Medium"
+        if pct_diff <= -15.5: await db.updateEventItem("Low", item, event_name); return "Low"
         return "None"
     except Exception as e:
         print(f"Failed in calculateImpact: {e}")
