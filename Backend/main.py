@@ -128,7 +128,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 "impact": row[1],
                 "start_date": row[2].strftime('%Y-%m-%d'),
                 "end_date": row[3].strftime('%Y-%m-%d'),
-                "items": item_dict[row[0]]
+                "items": sorted(item_dict[row[0]], key=lambda x: (x['pct_diff'], x['name']))
             }
         
         await dash_manager.send_personal_message(event_dict, websocket)
