@@ -5,12 +5,20 @@ from pydantic import BaseModel
 from db import Database
 from contextlib import asynccontextmanager
 import asyncio
+import logging
 from web_socket import ConnectionManager
 from datetime import datetime, date
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+
+logger = logging.getLogger(__name__)
 
 db = Database()
 
@@ -24,22 +32,21 @@ origins = [
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await db.connect()
-    print("Starting background task...")
+    logger.info("Database connected successfully")
 
     time1 = datetime.now()
     task = asyncio.create_task(repeatInsert())
     time2 = datetime.now()
     diff = time2 - time1
-    print(f"Time took to create and run task {diff.seconds}.{diff.microseconds}")
+    logger.info("Background task created in %d.%06ds", diff.seconds, diff.microseconds)
 
     await asyncio.sleep(0) 
-    print(f"Task created: {task}")
-    task.add_done_callback(lambda t: print(f"Task ended: {t.exception() if not t.cancelled() else 'cancelled'}"))
+    logger.info("Background task registered: %s", task)
+    task.add_done_callback(lambda t: logger.error("Background task ended — exception: %s", t.exception()) if not t.cancelled() else logger.warning("Background task was cancelled"))
     yield
     await db.closeConnection()
     await item_manager.closeConnections()
     await dash_manager.closeConnections()
-    # task.cancel()
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(lifespan=lifespan)
@@ -48,10 +55,10 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Allows specific origins
-    allow_credentials=True,  # Allows cookies, authorization headers, etc.
-    allow_methods=["*"],     # Allows all methods (GET, POST, PUT, DELETE, etc.)
-    allow_headers=["*"],     # Allows all headers
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 class Item(BaseModel):
@@ -63,7 +70,7 @@ class Item(BaseModel):
 async def repeatInsert():
     from misc_functions import updateImpactLevel
 
-    print('repeatInsert Started')
+    logger.info("repeatInsert loop started")
     while True:
         try:
             items = await db.selectAllItemRows()
@@ -72,18 +79,18 @@ async def repeatInsert():
                 item_list.append({'id': item[0], 'name': item[1], 'percentage': item[2], 'stock': item[3], 'price': float(item[4]), 'percent_diff': item[5] if item[5] is not None else 0, 'price_diff': item[6] if item[6] is not None else 0})
             
         except Exception as e:
-            print(f"Creating JSON array failed: {e}")
+            logger.exception("Failed to build item list from DB rows: %s", e)
 
         try:
-            print(f"Broadcasting Message")
+            logger.info("Broadcasting %d items to connected clients", len(item_list))
             await item_manager.broadcast(item_list)
         except Exception as e:
-            print(f"Broading casting failed: {e}")
+            logger.exception("WebSocket broadcast to item_manager failed: %s", e)
         
         try:
             await updateImpactLevel(db)
         except Exception as e:
-            print(f"Failed to update impact of event: {e}")
+            logger.exception("Scheduled impact level update failed: %s", e)
         await asyncio.sleep(3600)
         
 
@@ -97,14 +104,13 @@ async def websocket_endpoint(websocket: WebSocket):
         await item_manager.connect(websocket)
         items = await fetchAllItems()
         await item_manager.send_personal_message(items, websocket)
-        while True:                              # ← keeps connection alive
-            data = await websocket.receive_text() # ← waits for client messages
+        while True:
+            data = await websocket.receive_text()
     except WebSocketDisconnect:
         item_manager.disconnect(websocket)
     
 @app.websocket("/dashboardWs")
 async def websocket_endpoint(websocket: WebSocket):
-
     try:
         await dash_manager.connect(websocket)
         
@@ -146,7 +152,7 @@ async def fetchAllItems():
             item_list.append({'id': item[0], 'name': item[1], 'percentage': item[2], 'stock': item[3], 'price': float(item[4]), 'percent_diff': item[5] if item[5] is not None else 0, 'price_diff': item[6] if item[6] is not None else 0})
         return item_list
     except Exception as e:
-        print('Error', e)
+        logger.exception("fetchAllItems failed: %s", e)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/items/{item_name}")
@@ -160,7 +166,7 @@ async def getItem(request: Request, item_name: str):
     except HTTPException:
         raise
     except Exception as e:
-        print(f"Error fetching item {item_name}: {e}")
+        logger.exception("getItem failed for item_name=%s: %s", item_name, e)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/items/range/{percentage}")
@@ -174,6 +180,5 @@ async def getItemsByPercentRange(request: Request, percentage: int):
     except HTTPException:
         raise
     except Exception as e:
-        print(f"Error fetching item {percentage}: {e}")
+        logger.exception("getItemsByPercentRange failed for percentage=%s: %s", percentage, e)
         raise HTTPException(status_code=500, detail=str(e))
-

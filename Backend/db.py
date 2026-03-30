@@ -1,18 +1,21 @@
 import asyncpg
+import logging
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 class Database:
     def __init__(self):
         self.conn = None
         self.cursor = None
         self.path = None
+
     async def connect(self):
         from dotenv import load_dotenv
         import os
 
         load_dotenv()
 
-        # Fetch variables
         DB_USER = os.getenv("DB_USER")
         DB_PASSWORD = os.getenv("DB_PASSWORD")
         DB_HOST = os.getenv("DB_HOST")
@@ -27,17 +30,15 @@ class Database:
                 port=6543,
                 statement_cache_size=0
             )          
-            print('Connected to database')
+            logger.info("Connected to database — host=%s | db=%s", DB_HOST, DB_NAME)
         except Exception as e:
-            print(f"Connection failed: {e}")
+            logger.exception("Database connection pool failed — host=%s | db=%s | error: %s", DB_HOST, DB_NAME, e)
             raise
 
     async def insertItemTableAsArray(self, items = []):
-        # items = ScrapeForItems()
         time1 = datetime.now()
-        print(f"insertItemTableAsArray called with {len(items)} items")
+        logger.info("insertItemTableAsArray called — upserting %d items", len(items))
         async with self.conn.acquire() as pool:
-            # Start a transaction on the acquired connection
             try:
                 await pool.execute('''
                     INSERT INTO bdo_items (item, percentage, stock, price, recent_time)
@@ -52,14 +53,13 @@ class Database:
                 [i[2] for i in items],
                 [i[3] for i in items])
             except Exception as e:
-                print(f"Transaction failed: {e}")
+                logger.exception("insertItemTableAsArray transaction failed — %d items | error: %s", len(items), e)
                 raise
         time2 = datetime.now()
         diff = time2 - time1
-        print(f"Time took to insert {diff.seconds}.{diff.microseconds}")
+        logger.info("insertItemTableAsArray completed in %d.%06ds", diff.seconds, diff.microseconds)
         
     async def selectAllItemRows(self):
-        # await self.insertItemTableAsArray()
         try:
             time1 = datetime.now()
             items = await self.conn.fetch(''' 
@@ -67,49 +67,47 @@ class Database:
             ''')
             time2 = datetime.now()
             diff = time2 - time1
-            print(f"Time took {diff.seconds}.{diff.microseconds}")
+            logger.info("selectAllItemRows returned %d rows in %d.%06ds", len(items), diff.seconds, diff.microseconds)
             return items
         except Exception as e:
-            print(f"Transaction failed: {e}")
+            logger.exception("selectAllItemRows failed: %s", e)
             raise
 
     async def selectItem(self, item_name = ''):
         try:
-            
             item = await self.conn.fetch(''' 
                 SELECT id, item, percentage, stock, price::numeric(15,1) AS full_price, recent_time 
-                                         FROM bdo_items WHERE item ILIKE $1 ORDER BY recent_time ASC LIMIT 60
+                FROM bdo_items WHERE item ILIKE $1 ORDER BY recent_time ASC LIMIT 60
             ''', item_name)
             return item
         except Exception as e:
-            print(f"Select failed: {e}")
+            logger.exception("selectItem failed — item_name=%s | error: %s", item_name, e)
             raise
         
     async def selectItemRecentPrice(self, item_name = ''):
         try:
-            
             item = await self.conn.fetch(''' 
                 SELECT id, item, percentage, stock, price::numeric(15,1) AS full_price, recent_time 
-                                         FROM bdo_items WHERE item ILIKE $1 ORDER BY recent_time DESC LIMIT 1
+                FROM bdo_items WHERE item ILIKE $1 ORDER BY recent_time DESC LIMIT 1
             ''', item_name)
             return item
         except Exception as e:
-            print(f"Select failed: {e}")
+            logger.exception("selectItemRecentPrice failed — item_name=%s | error: %s", item_name, e)
             raise
     
     async def selectItemsByRange(self, range = 0):
         try:
             items = await self.conn.fetch(''' 
                 SELECT id, item, percentage, stock, price::numeric(15,1) AS full_price, recent_time FROM bdo_items
-                                           WHERE (percentage <= $2 OR percentage >= $1) AND recent_time = CURRENT_DATE ORDER BY percentage DESC 
+                WHERE (percentage <= $2 OR percentage >= $1) AND recent_time = CURRENT_DATE ORDER BY percentage DESC 
             ''', range, -range)
             return items
         except Exception as e:
-            print(f"Select failed: {e}")
+            logger.exception("selectItemsByRange failed — range=%s | error: %s", range, e)
             raise
 
     async def selectWeekBeforePrice(self, items: str, event_start_date: str):
-        from datetime import datetime, timedelta
+        from datetime import timedelta
         try:
             if not items:
                 return []
@@ -122,39 +120,39 @@ class Database:
             price_range = await self.conn.fetch(select_start, last_week_date, event_start_date, items)
             return price_range
         except Exception as e:
-            print(f"Error select price history: {e}")
+            logger.exception("selectWeekBeforePrice failed — item=%s | event_start=%s | error: %s", items, event_start_date, e)
 
     async def selectAllEvents(self):
-        '''This function returns items or categories impacted, event name, start date, end date '''
-        print("Selecting All Events")
+        logger.debug("selectAllEvents — querying active events")
         try:
             events = await self.conn.fetch('''
-                                SELECT e.name, e.impact, e.start_date, e.end_date, c.item_name, c.impact as item_impact, c.pct_diff
-                                    FROM bdo_events e RIGHT JOIN event_contents c ON e.name = c.event_name 
-                                           WHERE e.end_date >= CURRENT_DATE ORDER BY e.end_date  
-                                           ''')
-            print("done selecting All Events")
-
+                SELECT e.name, e.impact, e.start_date, e.end_date, c.item_name, c.impact as item_impact, c.pct_diff
+                FROM bdo_events e RIGHT JOIN event_contents c ON e.name = c.event_name 
+                WHERE e.end_date >= CURRENT_DATE ORDER BY e.end_date  
+            ''')
+            logger.debug("selectAllEvents — returned %d rows", len(events))
             return events
         except Exception as e:
-            print(f"Error selecting events: {e}")
+            logger.exception("selectAllEvents failed: %s", e)
 
     async def updateEventImpact(self, impact, event_name):
         try:
-            print(impact, event_name)
+            logger.info("updateEventImpact — event=%s | impact=%s", event_name, impact)
             await self.conn.execute("""
                 UPDATE bdo_events SET impact = $1 WHERE name = $2
-                              """, impact, event_name)
+            """, impact, event_name)
             return True
         except Exception as e:
-            print(f"Failed to update impact: {impact} - {event_name} - {e}")
+            logger.exception("updateEventImpact failed — event=%s | impact=%s | error: %s", event_name, impact, e)
             raise
 
-    async def updateEventItem(self, impact, item, event_name, pct_diff):
+    async def updateEventItem(self, **arg_dict):
         time1 = datetime.now()
-        print(f"updating event item Impact called {item} from event {event_name}")
+        logger.info(
+            "updateEventItem called — item=%s | event=%s | impact=%s | pct_diff=%.2f%%",
+            arg_dict['item'], arg_dict['event_name'], arg_dict['impact'], arg_dict['pct_diff']
+        )
         async with self.conn.acquire() as pool:
-            # Start a transaction on the acquired connection
             try:
                 await pool.execute('''
                     WITH cte AS 
@@ -172,26 +170,16 @@ class Database:
                         WHERE event_contents.id = cte.id
                             AND $4 < cte.pct_diff
                 ''', 
-                impact, item, event_name, pct_diff)
+                arg_dict['impact'], arg_dict['item'], arg_dict['event_name'], arg_dict['pct_diff'])
             except Exception as e:
-                print(f"updateEventItem Transaction failed: {e}")
+                logger.exception(
+                    "updateEventItem transaction failed — item=%s | event=%s | error: %s",
+                    arg_dict['item'], arg_dict['event_name'], e
+                )
                 raise
         time2 = datetime.now()
         diff = time2 - time1
-        print(f"Time took to update item {diff.seconds}.{diff.microseconds}")
+        logger.info("updateEventItem completed in %d.%06ds", diff.seconds, diff.microseconds)
 
     async def closeConnection(self):
         await self.conn.close()
-
-# async def main():
-#     db = Database()
-#     await db.connect()
-#     #await db.insertItemTableAsArray()
-#     items = await db.selectAllItemRows()
-#     for item in items:
-#         print("items", item['item'], item['full_price'], item['percentage'])
-#     item = await db.selectItem('Memory Fragment')
-#     print('item', item)
-
-# asyncio.run(main())
-    

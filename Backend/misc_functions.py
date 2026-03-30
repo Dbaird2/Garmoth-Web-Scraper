@@ -1,4 +1,6 @@
+import logging
 
+logger = logging.getLogger(__name__)
 
 async def updateImpactLevel(db):
     """Calculates and persists the worst-case impact level per active event."""
@@ -17,14 +19,17 @@ async def updateImpactLevel(db):
             if impact != "Medium":
                 impact_dict[event_name] = impact
     except Exception as e:
-        print(f"Failed to update impact level: {e}")
+        logger.exception("updateImpactLevel failed while iterating events: %s", e)
     for i, val in enumerate(impact_dict):
         await db.updateEventImpact(impact_dict[val], val, pct_diff)
 
 async def calculateImpact(db, price_range, item, event_name):
     """Calculates the impact level of an item based on its pre-event price baseline."""
     try:
-        print("Starting calculateImpact", price_range, item, event_name)
+        logger.debug(
+            "calculateImpact started — item=%s | event=%s | price_range_rows=%d",
+            item, event_name, len(price_range) if price_range else 0
+        )
         if not price_range:
             return "None"
 
@@ -33,13 +38,18 @@ async def calculateImpact(db, price_range, item, event_name):
             return "None"
 
         item_data = await db.selectItemRecentPrice(item)
-        print('item_data from calculateImpact', item_data)
+        logger.debug("calculateImpact — recent price fetched for item=%s: %s", item, item_data[0]["full_price"] if item_data else "no data")
+
         pct_diff = (int(item_data[0]["full_price"]) - baseline_avg) / baseline_avg * 100
-        print('pct_diff from calculateImpact', pct_diff)
-        if pct_diff <= -50:   await db.updateEventItem("High", item, event_name, pct_diff); return "High", pct_diff
-        if pct_diff <= -30:   await db.updateEventItem("Medium", item, event_name, pct_diff); return "Medium", pct_diff
-        if pct_diff <= -15.5: await db.updateEventItem("Low", item, event_name, pct_diff); return "Low", pct_diff
-        await db.updateEventItem("None", item, event_name, pct_diff);
+        logger.info(
+            "calculateImpact — item=%s | event=%s | baseline_avg=%.1f | pct_diff=%.2f%%",
+            item, event_name, baseline_avg, pct_diff
+        )
+
+        if pct_diff <= -50:   await db.updateEventItem(impact = "High", item = item, event_name = event_name, pct_diff = pct_diff); return "High", pct_diff
+        if pct_diff <= -30:   await db.updateEventItem(impact = "Medium", item = item, event_name = event_name, pct_diff = pct_diff); return "Medium", pct_diff
+        if pct_diff <= -15.5: await db.updateEventItem(impact = "Low", item = item, event_name = event_name, pct_diff = pct_diff); return "Low", pct_diff
+        await db.updateEventItem(impact = "None", item = item, event_name = event_name, pct_diff = pct_diff);
         return "None", pct_diff
     except Exception as e:
-        print(f"Failed in calculateImpact: {e}")
+        logger.exception("calculateImpact failed — item=%s | event=%s | error: %s", item, event_name, e)
