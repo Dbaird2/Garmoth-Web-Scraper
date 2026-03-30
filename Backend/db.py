@@ -170,6 +170,7 @@ class Database:
                             pct_diff = $4
                         FROM cte 
                         WHERE event_contents.id = cte.id
+                            AND $4 < cte.pct_diff
                 ''', 
                 impact, item, event_name, pct_diff)
             except Exception as e:
