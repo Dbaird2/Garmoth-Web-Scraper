@@ -86,7 +86,9 @@ export default function DashbaordItemModal({ item }) {
                       </div>
                     </div>
                   ) : (
-                    <div>No Data</div>
+                    <div className="text-teal-400 font-medium">
+                      No Data Available
+                    </div>
                   )}
                 </div>
 
