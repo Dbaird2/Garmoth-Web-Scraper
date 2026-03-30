@@ -129,7 +129,7 @@ class Database:
         print("Selecting All Events")
         try:
             events = await self.conn.fetch('''
-                                SELECT e.name, e.impact, e.start_date, e.end_date, c.item_name, c.impact as item_impact
+                                SELECT e.name, e.impact, e.start_date, e.end_date, c.item_name, c.impact as item_impact, c.pct_diff
                                     FROM bdo_events e RIGHT JOIN event_contents c ON e.name = c.event_name 
                                            WHERE e.end_date >= CURRENT_DATE ORDER BY e.end_date  
                                            ''')
@@ -139,18 +139,18 @@ class Database:
         except Exception as e:
             print(f"Error selecting events: {e}")
 
-    async def updateEventImpact(self, impact, event_name):
+    async def updateEventImpact(self, impact, event_name, pct_diff):
         try:
             print(impact, event_name)
             await self.conn.execute("""
-                UPDATE bdo_events SET impact = $1 WHERE name = $2
-                              """, impact, event_name)
+                UPDATE bdo_events SET impact = $1, pct_diff = $3 WHERE name = $2
+                              """, impact, event_name, pct_diff)
             return True
         except Exception as e:
             print(f"Failed to update impact: {impact} - {event_name} - {e}")
             raise
 
-    async def updateEventItem(self, impact, item, event_name):
+    async def updateEventItem(self, impact, item, event_name, pct_diff):
         time1 = datetime.now()
         print(f"updating event item Impact called {item} from event {event_name}")
         async with self.conn.acquire() as pool:
@@ -166,11 +166,12 @@ class Database:
                             LIMIT 1
                         )
                     UPDATE event_contents 
-                        SET impact = $1 
+                        SET impact = $1,
+                            pct_diff = $4
                         FROM cte 
                         WHERE event_contents.id = cte.id
                 ''', 
-                impact, item, event_name)
+                impact, item, event_name, pct_diff)
             except Exception as e:
                 print(f"updateEventItem Transaction failed: {e}")
                 raise
