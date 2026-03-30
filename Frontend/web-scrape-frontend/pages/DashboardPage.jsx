@@ -61,7 +61,7 @@ function EventCard({ event, impact, start_date, end_date, items }) {
                 <div
                   className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 border shrink-0 ${IMPACT_STYLES[item.impact].badge}`}
                 >
-                  {item.impact}
+                  {item.pct_diff}
                 </div>
               </div>
             </li>
