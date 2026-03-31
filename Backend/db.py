@@ -144,7 +144,7 @@ class Database:
                         from bdo_categories co left join item i on i.category_id = co.id 
                         where i.name = ANY($1::text[])
                                            )
-                    SELECT * from item, cte 
+                    SELECT DISTINCT ON (item.name) * from item, cte 
                         where cte.id = item.category_id and item.name != ANY($1::text[])  
             ''', items)
             logger.debug("selectIndirectItems — returned %d rows", len(indirect_items))
@@ -153,7 +153,7 @@ class Database:
             logger.exception("selectIndirectItems failed: %s", e)
 
     async def selectCurrentIndirectItem(self):
-        logger.debug("selectIndirectItems — querying active events")
+        logger.debug("selectCurrentIndirectItem — querying active events")
         try:
             indirect_items = await self.conn.fetch('''
                 SELECT * FROM indirect_event_item WHERE end_date >= CURRENT_DATE
@@ -167,28 +167,36 @@ class Database:
 
     async def updateIndirectTable(self, event_dict = {}):
         time1 = datetime.now()
-        print(event_dict)
+        event_dict = [dict(frozenset(d.items())) for d in set(frozenset(d.items())) for d in event_dict]
+        print(event_dict[0:3])
         logger.info("insertItemTableAsArray called — inserting %d items", len(event_dict))
         async with self.conn.acquire() as pool:
             try:
-                rows = [row for sublist in event_dict.values() for row in sublist]
+                for event, rows in event_dict.items():
 
-                await pool.execute('''
-                    INSERT INTO indirect_event_item (event_name, item_name, pct_diff, end_date)
-                    SELECT unnest($1::text[]), unnest($2::text[]), unnest($3::float[]), unnest($4::date[])
-                    ON CONFLICT (event_name, item_name, end_date) DO 
-                    UPDATE SET pct_diff = EXCLUDED.pct_diff
-                ''', 
-                [i.get('event', '') for i in rows],
-                [i.get('item', '') for i in rows],
-                [i.get('pct_diff', '') for i in rows],
-                [i.get('end_date', '') for i in rows])
+                    await pool.execute('''
+                        INSERT INTO indirect_event_item (event_name, item_name, pct_diff, end_date)
+                        SELECT unnest($1::text[]), unnest($2::text[]), unnest($3::float[]), unnest($4::date[])
+                        ON CONFLICT (event_name, item_name, end_date) DO 
+                        UPDATE SET pct_diff = EXCLUDED.pct_diff
+                    ''', 
+                    [i['event'] for i in rows],
+                    [i['item'] for i in rows],
+                    [i['pct_diff'] for i in rows],
+                    [i['end_date'] for i in rows])
             except Exception as e:
                 logger.exception("insertItemTableAsArray transaction failed — %d items | error: %s", len(event_dict), e)
                 raise
         time2 = datetime.now()
         diff = time2 - time1
         logger.info("insertItemTableAsArray completed in %d.%06ds", diff.seconds, diff.microseconds)
+
+        for event, rows in event_dict.items():
+            for row in rows:
+                event_name = row['event']
+                item = row['item']
+                pct_diff = row['pct_diff']
+                end_date = row['end_date']
 
     async def updateEventImpact(self, impact, event_name):
         try:

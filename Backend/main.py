@@ -139,7 +139,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 "direct_items": {
                     "items": sorted(item_dict[event], key=lambda x: (x['pct_diff'], x['name']))},
                 "indirect_items": {
-                    "items": sorted(indirect_items[event], key=lambda x: (x['pct_diff'], x['name']))
+                    "items": indirect_items
                 }
 
             }
