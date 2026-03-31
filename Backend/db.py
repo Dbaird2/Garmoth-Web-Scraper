@@ -167,19 +167,22 @@ class Database:
 
     async def updateIndirectTable(self, event_dict = {}):
         time1 = datetime.now()
-        logger.info("insertItemTableAsArray called — upserting %d items", len(event_dict))
+        print(event_dict)
+        logger.info("insertItemTableAsArray called — inserting %d items", len(event_dict))
         async with self.conn.acquire() as pool:
             try:
+                rows = [row for sublist in event_dict.values() for row in sublist]
+
                 await pool.execute('''
                     INSERT INTO indirect_event_item (event_name, item_name, pct_diff, end_date)
                     SELECT unnest($1::text[]), unnest($2::text[]), unnest($3::float[]), unnest($4::date[])
                     ON CONFLICT (event_name, item_name, end_date) DO 
                     UPDATE SET pct_diff = EXCLUDED.pct_diff
                 ''', 
-                [i.get('event', '') for i in event_dict],
-                [i.get('item', '') for i in event_dict],
-                [i.get('pct_diff', '') for i in event_dict],
-                [i.get('end_date', '') for i in event_dict])
+                [i.get('event', '') for i in rows],
+                [i.get('item', '') for i in rows],
+                [i.get('pct_diff', '') for i in rows],
+                [i.get('end_date', '') for i in rows])
             except Exception as e:
                 logger.exception("insertItemTableAsArray transaction failed — %d items | error: %s", len(event_dict), e)
                 raise
