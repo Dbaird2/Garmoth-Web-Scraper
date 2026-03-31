@@ -123,7 +123,10 @@ async def websocket_endpoint(websocket: WebSocket):
         event_dict = {}
         item_dict = {}
         for row in events:
-            event = row[0], impact = row[1], start_date = row[2].strftime('%Y-%m-%d'), end_date = row[3].strftime('%Y-%m-%d')
+            event = row[0]
+            impact = row[1]
+            start_date = row[2].strftime('%Y-%m-%d')
+            end_date = row[3].strftime('%Y-%m-%d')            
             if event not in item_dict:
                 item_dict[event] = [{'name': row[4], 'impact': row[5], 'pct_diff': row[6]}]
             else:
