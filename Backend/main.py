@@ -123,11 +123,13 @@ async def websocket_endpoint(websocket: WebSocket):
         event_dict = {}
         item_dict = {}
         json_indirect = {}
+        seen_direct = set()
         for row in events:
             event = row[0]
             impact = row[1]
             start_date = row[2].strftime('%Y-%m-%d')
             end_date = row[3].strftime('%Y-%m-%d')            
+            seen_direct.add((event, row[4]))
             if event not in item_dict:
                 item_dict[event] = [{'name': row[4], 'impact': row[5], 'pct_diff': row[6]}]
             else:
@@ -152,7 +154,8 @@ async def websocket_endpoint(websocket: WebSocket):
             end_date = row[4].isoformat()  # fix date serialization
             if event not in json_indirect:
                 json_indirect[event] = []
-            json_indirect[event].append({'event': event, 'item': item, 'pct_diff': pct_diff, 'end_date': end_date})
+            if (event, item) not in seen_direct:
+                json_indirect[event].append({'event': event, 'item': item, 'pct_diff': pct_diff, 'end_date': end_date})
         # Merge indirect into event_dict
         for event, indirect_rows in json_indirect.items():
             if event in event_dict:

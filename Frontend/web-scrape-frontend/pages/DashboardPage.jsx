@@ -21,8 +21,21 @@ const IMPACT_STYLES = {
   },
 };
 
-function EventCard({ event, impact, start_date, end_date, items }) {
+function EventCard({
+  event,
+  impact,
+  start_date,
+  end_date,
+  direct_indirect_items,
+}) {
   const style = IMPACT_STYLES[impact] ?? IMPACT_STYLES.Unknown;
+  console.log(
+    "direct_indirect_items",
+    JSON.stringify(direct_indirect_items, null, 2),
+    JSON.stringify(event, null, 2),
+    JSON.stringify(impact, null, 2),
+    JSON.stringify(start_date, null, 2),
+  );
 
   return (
     <div
@@ -58,34 +71,37 @@ function EventCard({ event, impact, start_date, end_date, items }) {
           </TabList>
           <TabPanel>
             <ul className="flex flex-col max-h-[28rem]  [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-[#0d1520] [&::-webkit-scrollbar-thumb]:bg-teal-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-teal-400 overflow-auto gap-1.5">
-              {Object.entries(items?.direct_items ?? items).map(
-                ([key, item]) => (
-                  <li
-                    key={key}
-                    className="flex flex-row justify-between text-[13px] text-[#8aa8b8] px-2.5 py-1.5 bg-[#0a1018] border-l-2 border-[#1a2a3a] hover:border-teal-400 hover:text-[#c8d8e8] transition-colors"
-                  >
-                    <div>
-                      <DashbaordItemModal item={item} />
-                    </div>
-                    <div className="flex gap-4 text-gray-400 text-[10px]">
-                      <span>Impact</span>
-                      <div
-                        className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 border shrink-0 ${IMPACT_STYLES[item.impact].badge}`}
-                      >
-                        {item.pct_diff?.toFixed(2) ?? 0.0}
+              {(direct_indirect_items?.direct_items?.items ?? []).map(
+                (item) => {
+                  console.log(item)
+                  return (
+                    <li
+                      key={item.name ?? "Error"}
+                      className="flex flex-row justify-between text-[13px] text-[#8aa8b8] px-2.5 py-1.5 bg-[#0a1018] border-l-2 border-[#1a2a3a] hover:border-teal-400 hover:text-[#c8d8e8] transition-colors"
+                    >
+                      <div>
+                        <DashbaordItemModal item={item} /> 
                       </div>
-                    </div>
-                  </li>
-                ),
+                      <div className="flex gap-4 text-gray-400 text-[10px]">
+                        <span>Impact</span>
+                        <div
+                          className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 border shrink-0 ${IMPACT_STYLES[item.impact].badge}`}
+                        >
+                          {item.pct_diff?.toFixed(2) ?? 0.0}
+                        </div>
+                      </div>
+                    </li>
+                  );
+                },
               )}
             </ul>
           </TabPanel>
           <TabPanel>
             <ul className="flex flex-col max-h-[28rem]  [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-[#0d1520] [&::-webkit-scrollbar-thumb]:bg-teal-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-teal-400 overflow-auto gap-1.5">
-              {Object.entries(items?.indirect_items ?? items).map(
-                ([key, item]) => (
+              {(direct_indirect_items?.indirect_items?.items ?? []).map(
+                (item) => (
                   <li
-                    key={key}
+                    key={item.item}
                     className="flex flex-row justify-between text-[13px] text-[#8aa8b8] px-2.5 py-1.5 bg-[#0a1018] border-l-2 border-[#1a2a3a] hover:border-teal-400 hover:text-[#c8d8e8] transition-colors"
                   >
                     <div>
@@ -94,7 +110,7 @@ function EventCard({ event, impact, start_date, end_date, items }) {
                     <div className="flex gap-4 text-gray-400 text-[10px]">
                       <span>Impact</span>
                       <div
-                        className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 border shrink-0 ${IMPACT_STYLES[item.impact].badge}`}
+                        className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 border shrink-0 `}
                       >
                         {item.pct_diff?.toFixed(2) ?? 0.0}
                       </div>
@@ -159,7 +175,7 @@ export default function EventsDashboard() {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {Object.values(event_info).map((value, index) => (
-              <EventCard key={index} {...value} />
+              <EventCard key={index} {...value} direct_indirect_items={value} />
             ))}
           </div>
         </div>
