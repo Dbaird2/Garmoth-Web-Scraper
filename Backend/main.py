@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 import asyncio
 import logging
 from web_socket import ConnectionManager
-from datetime import datetime, date
+from datetime import datetime
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -68,7 +68,7 @@ class Item(BaseModel):
     price: float
 
 async def repeatInsert():
-    from misc_functions import updateImpactLevel
+    from misc_functions import updateImpactLevel, updateIndirectItemsImpact
 
     logger.info("repeatInsert loop started")
     while True:
@@ -91,6 +91,11 @@ async def repeatInsert():
             await updateImpactLevel(db)
         except Exception as e:
             logger.exception("Scheduled impact level update failed: %s", e)
+
+        try:
+            await updateIndirectItemsImpact(db)
+        except Exception as e:
+            logger.exception("Scheduled indirect impact update failed: %s", e)
         await asyncio.sleep(3600)
         
 
@@ -113,22 +118,27 @@ async def websocket_endpoint(websocket: WebSocket):
 async def websocket_endpoint(websocket: WebSocket):
     try:
         await dash_manager.connect(websocket)
-        
+        indirect_items = await db.selectCurrentIndirectItem()
         events = await db.selectAllEvents()
-    
         event_dict = {}
         item_dict = {}
         for row in events:
-            if row[0] not in item_dict:
-                item_dict[row[0]] = [{'name': row[4], 'impact': row[5], 'pct_diff': row[6]}]
+            event = row[0], impact = row[1], start_date = row[2].strftime('%Y-%m-%d'), end_start = row[3].strftime('%Y-%m-%d')
+            if event not in item_dict:
+                item_dict[event] = [{'name': row[4], 'impact': row[5], 'pct_diff': row[6]}]
             else:
-                item_dict[row[0]].append({'name': row[4], 'impact': row[5], 'pct_diff': row[6]})
-            event_dict[row[0]] = {
-                "event": row[0],
-                "impact": row[1],
-                "start_date": row[2].strftime('%Y-%m-%d'),
-                "end_date": row[3].strftime('%Y-%m-%d'),
-                "items": sorted(item_dict[row[0]], key=lambda x: (x['pct_diff'], x['name']))
+                item_dict[event].append({'name': row[4], 'impact': row[5], 'pct_diff': row[6]})
+            event_dict[event] = {
+                "event": event,
+                "impact": impact,
+                "start_date": start_date,
+                "end_date": end_start,
+                "direct_items": {
+                    "items": sorted(item_dict, key=lambda x: (x['pct_diff'], x['name']))},
+                "indirect_items": {
+                    "items": sorted(indirect_items, key=lambda x: (x['pct_diff'], x['name']))
+                }
+
             }
         
         await dash_manager.send_personal_message(event_dict, websocket)

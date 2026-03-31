@@ -1,6 +1,8 @@
 import { useState } from "react";
 import useWebsocket from "../hooks/useDashboardWs";
 import DashbaordItemModal from "../components/DashboardModal";
+import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
+import "react-tabs/style/react-tabs.css";
 
 const IMPACT_STYLES = {
   High: { border: "border-t-red-500", badge: "border-red-500 text-red-500" },
@@ -24,7 +26,7 @@ function EventCard({ event, impact, start_date, end_date, items }) {
 
   return (
     <div
-      className={`bg-[#0d1520] border border-[#1a2a3a] border-t-2 ${style.border} p-5 flex flex-col gap-4 max-h-[40rem]`}
+      className={`bg-[#0d1520] border border-[#1a2a3a] border-t-2 ${style.border} p-5 flex flex-col gap-4 max-h-[45rem] overflowy-auto`}
     >
       <div className="flex justify-between items-start gap-3">
         <span className="font-bold text-[#e8f0f8] text-sm leading-snug tracking-wide">
@@ -44,29 +46,61 @@ function EventCard({ event, impact, start_date, end_date, items }) {
       <div className="h-px bg-gradient-to-r from-[#1a2a3a] to-transparent" />
 
       <div>
-        <p className="font-mono text-[10px] tracking-widest uppercase text-[#2a4a5a] mb-2">
-          Affected Items
-        </p>
-        <ul className="flex flex-col h-[30rem] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-[#0d1520] [&::-webkit-scrollbar-thumb]:bg-teal-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-teal-400 overflow-auto gap-1.5">
-          {Object.entries(items).map(([key, item]) => (
-            <li
-              key={key}
-              className="flex flex-row justify-between text-[13px] text-[#8aa8b8] px-2.5 py-1.5 bg-[#0a1018] border-l-2 border-[#1a2a3a] hover:border-teal-400 hover:text-[#c8d8e8] transition-colors"
-            >
-              <div>
-                <DashbaordItemModal item={item} />
-              </div>
-              <div className="flex gap-4 text-gray-400 text-[10px]">
-                <span>Impact</span>
-                <div
-                  className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 border shrink-0 ${IMPACT_STYLES[item.impact].badge}`}
+        <Tabs>
+          <TabList className="flex flex-row gap-4 p-4">
+            <Tab className="font-bold text-[#e8f0f8] text-sm leading-snug tracking-wide cursor-pointer hover:scale-105">
+              Affect Items
+            </Tab>
+
+            <Tab className="font-bold text-[#e8f0f8] text-sm leading-snug tracking-wide cursor-pointer hover:scale-105 hover:bg-teal-400 rounded-lg">
+              Indirectly Affect
+            </Tab>
+          </TabList>
+          <TabPanel>
+            <ul className="flex flex-col max-h-[28rem]  [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-[#0d1520] [&::-webkit-scrollbar-thumb]:bg-teal-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-teal-400 overflow-auto gap-1.5">
+              {Object.entries(items).map(([key, item]) => (
+                <li
+                  key={key}
+                  className="flex flex-row justify-between text-[13px] text-[#8aa8b8] px-2.5 py-1.5 bg-[#0a1018] border-l-2 border-[#1a2a3a] hover:border-teal-400 hover:text-[#c8d8e8] transition-colors"
                 >
-                  {item.pct_diff?.toFixed(2) ?? 0.0}
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+                  <div>
+                    <DashbaordItemModal item={item} />
+                  </div>
+                  <div className="flex gap-4 text-gray-400 text-[10px]">
+                    <span>Impact</span>
+                    <div
+                      className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 border shrink-0 ${IMPACT_STYLES[item.impact].badge}`}
+                    >
+                      {item.pct_diff?.toFixed(2) ?? 0.0}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </TabPanel>
+          <TabPanel>
+            <ul className="flex flex-col max-h-[28rem]  [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-[#0d1520] [&::-webkit-scrollbar-thumb]:bg-teal-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-teal-400 overflow-auto gap-1.5">
+              {Object.entries(items).map(([key, item]) => (
+                <li
+                  key={key}
+                  className="flex flex-row justify-between text-[13px] text-[#8aa8b8] px-2.5 py-1.5 bg-[#0a1018] border-l-2 border-[#1a2a3a] hover:border-teal-400 hover:text-[#c8d8e8] transition-colors"
+                >
+                  <div>
+                    <DashbaordItemModal item={item} />
+                  </div>
+                  <div className="flex gap-4 text-gray-400 text-[10px]">
+                    <span>Impact</span>
+                    <div
+                      className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 border shrink-0 ${IMPACT_STYLES[item.impact].badge}`}
+                    >
+                      {item.pct_diff?.toFixed(2) ?? 0.0}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </TabPanel>
+        </Tabs>
       </div>
     </div>
   );

@@ -5,6 +5,13 @@ def ScrapeForItems():
     from selenium.webdriver.support import expected_conditions as EC
     import time
 
+    count = 0
+    categories = ['enhancement-upgrade', 'enhancement-upgrade', 
+                  'accessories', 'accessories', 'accessories', 'accessories',
+                  'materials', 'materials', 'materials', 'materials', 'materials', 'materials',
+                   'mount', 'weapon', 'helmet', 'armor', 'gloves', 'shoes', 'weapon', 'weapon',
+                   'enhancement-upgrade', 'mount', 'mount', 'mount', 'mount', 'mount',
+                   'alchemy-stone', 'alchemy-stone', 'alchemy-stone', 'alchemy-stone']
     urls = [
         'https://garmoth.com/market/category/enhancement-upgrade/black-stone',
         "https://garmoth.com/market/category/enhancement-upgrade/reforge",

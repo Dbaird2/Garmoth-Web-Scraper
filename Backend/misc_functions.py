@@ -23,6 +23,42 @@ async def updateImpactLevel(db):
     for i, val in enumerate(impact_dict):
         await db.updateEventImpact(impact_dict[val], val)
 
+async def updateIndirectItemsImpact(db):
+    # 1)
+    events = await db.selectAllEvents()
+    impact_dict: dict[str, str] = {}
+    item_dict: dict[str, str] = {}
+    start_date_dict: dict[str, str] = {}
+    # 2)
+    for ename, curr_impact, start_date, end_date, item_name, item_impact, item_pct_diff, category in events:
+        if not ename in item_dict:
+            item_dict[ename] = [item_name]
+            start_date_dict[ename] = end_date
+        else:
+            item_dict[ename].append(item_name)
+    # Get indirect items from each event
+    for ename in item_dict:
+        indirect_items = await db.selectIndirectItems(item_dict[ename])
+        # Iterate through each indirect item
+        for row in indirect_items:
+            price_range = await db.selectWeekBeforePrice(row['name'], start_date_dict[ename])
+            if not price_range:
+                continue
+            baseline_avg = sum(r['price'] for r in price_range) / len(price_range)
+            if baseline_avg == 0:
+                continue
+            item_data = await db.selectItemRecentPrice(row['name'])
+            pct_diff = (int(item_data[0]["full_price"]) - baseline_avg) / baseline_avg * 100
+            logger.info(
+                "updateIndirectItemsImpact — item=%s | event=%s | baseline_avg=%.1f | pct_diff=%.2f%%",
+                row['name'], ename, baseline_avg, pct_diff
+            )
+            if not ename in impact_dict:
+                impact_dict[ename] = [{'event': ename, 'item': row['name'], 'pct_diff': pct_diff, 'end_date':start_date_dict[ename]}]
+            else:
+                impact_dict[ename].append({'event': ename, 'item': row['name'], 'pct_diff': pct_diff, 'end_date':start_date_dict[ename]})
+    await db.updateIndirectTable(impact_dict)
+
 async def calculateImpact(db, price_range, item, event_name):
     """Calculates the impact level of an item based on its pre-event price baseline."""
     try:

@@ -135,6 +135,58 @@ class Database:
         except Exception as e:
             logger.exception("selectAllEvents failed: %s", e)
 
+    async def selectIndirectItems(self, items = []):
+        logger.debug("selectAllEvents — querying active events")
+        try:
+            indirect_items = await self.conn.fetch('''
+                WITH cte AS (
+                    select co.id 
+                        from bdo_categories co left join item i on i.category_id = co.id 
+                        where i.name in (unnest($1::text[]))
+                                           )
+                    SELECT * from item, cte 
+                        where cte.id = item.category_id and item.name not in (unnest($1::text[]))  
+            ''', items)
+            logger.debug("selectAllEvents — returned %d rows", len(indirect_items))
+            return indirect_items
+        except Exception as e:
+            logger.exception("selectAllEvents failed: %s", e)
+
+    async def selectCurrentIndirectItem(self):
+        logger.debug("selectIndirectItems — querying active events")
+        try:
+            indirect_items = await self.conn.fetch('''
+                SELECT * FROM indirect_event_item WHERE end_date >= CURRENT_DATE
+            ''',)
+            logger.debug("selectAllEvents — returned %d rows", len(indirect_items))
+            return indirect_items
+        except Exception as e:
+            logger.exception("selectAllEvents failed: %s", e)
+
+
+
+    async def updateIndirectTable(self, event_dict = {}):
+        time1 = datetime.now()
+        logger.info("insertItemTableAsArray called — upserting %d items", len(event_dict))
+        async with self.conn.acquire() as pool:
+            try:
+                await pool.execute('''
+                    INSERT INTO indirect_event_item (event_name, item_name, pct_diff, end_date)
+                    SELECT unnest($1::text[]), unnest($2::text[]), unnest($3::float[]), unnest($4::date[])
+                    ON CONFLICT (event_name, item_name, end_date) DO 
+                    UPDATE SET pct_diff = EXCLUDED.pct_diff
+                ''', 
+                [i.get('event', '') for i in event_dict],
+                [i.get('item', '') for i in event_dict],
+                [i.get('pct_diff', '') for i in event_dict],
+                [i.get('end_date', '') for i in event_dict])
+            except Exception as e:
+                logger.exception("insertItemTableAsArray transaction failed — %d items | error: %s", len(event_dict), e)
+                raise
+        time2 = datetime.now()
+        diff = time2 - time1
+        logger.info("insertItemTableAsArray completed in %d.%06ds", diff.seconds, diff.microseconds)
+
     async def updateEventImpact(self, impact, event_name):
         try:
             logger.info("updateEventImpact — event=%s | impact=%s", event_name, impact)
