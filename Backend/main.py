@@ -122,6 +122,7 @@ async def websocket_endpoint(websocket: WebSocket):
         events = await db.selectAllEvents()
         event_dict = {}
         item_dict = {}
+        json_indirect = {}
         for row in events:
             event = row[0]
             impact = row[1]
@@ -139,10 +140,25 @@ async def websocket_endpoint(websocket: WebSocket):
                 "direct_items": {
                     "items": sorted(item_dict[event], key=lambda x: (x['pct_diff'], x['name']))},
                 "indirect_items": {
-                    "items": indirect_items
+                    "items": []
                 }
 
             }
+        # Build indirect lookup
+        for row in indirect_items:
+            event = row[1]
+            item = row[2]
+            pct_diff = row[3]
+            end_date = row[4].isoformat()  # fix date serialization
+            if event not in json_indirect:
+                json_indirect[event] = []
+            json_indirect[event].append({'event': event, 'item': item, 'pct_diff': pct_diff, 'end_date': end_date})
+        # Merge indirect into event_dict
+        for event, indirect_rows in json_indirect.items():
+            if event in event_dict:
+                event_dict[event]["indirect_items"] = {
+                    "items": sorted(indirect_rows, key=lambda x: (x['pct_diff'], x['item']))
+                }
         
         await dash_manager.send_personal_message(event_dict, websocket)
         while True:                             
