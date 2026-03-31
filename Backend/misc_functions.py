@@ -30,7 +30,7 @@ async def updateIndirectItemsImpact(db):
     item_dict: dict[str, str] = {}
     start_date_dict: dict[str, str] = {}
     # 2)
-    for ename, curr_impact, start_date, end_date, item_name, item_impact, item_pct_diff, category in events:
+    for ename, curr_impact, start_date, end_date, item_name, item_impact, item_pct_diff in events:
         if not ename in item_dict:
             item_dict[ename] = [item_name]
             start_date_dict[ename] = end_date
