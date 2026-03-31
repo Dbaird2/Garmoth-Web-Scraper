@@ -167,7 +167,6 @@ class Database:
 
     async def updateIndirectTable(self, event_dict = {}):
         time1 = datetime.now()
-        print(event_dict[0:3])
         logger.info("insertItemTableAsArray called — inserting %d items", len(event_dict))
         async with self.conn.acquire() as pool:
             try:
@@ -189,13 +188,6 @@ class Database:
         time2 = datetime.now()
         diff = time2 - time1
         logger.info("insertItemTableAsArray completed in %d.%06ds", diff.seconds, diff.microseconds)
-
-        for event, rows in event_dict.items():
-            for row in rows:
-                event_name = row['event']
-                item = row['item']
-                pct_diff = row['pct_diff']
-                end_date = row['end_date']
 
     async def updateEventImpact(self, impact, event_name):
         try:
