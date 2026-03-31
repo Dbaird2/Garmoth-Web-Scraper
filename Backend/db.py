@@ -167,7 +167,6 @@ class Database:
 
     async def updateIndirectTable(self, event_dict = {}):
         time1 = datetime.now()
-        event_dict = [dict(frozenset(d.items())) for d in set(frozenset(d.items())) for d in event_dict]
         print(event_dict[0:3])
         logger.info("insertItemTableAsArray called — inserting %d items", len(event_dict))
         async with self.conn.acquire() as pool:
