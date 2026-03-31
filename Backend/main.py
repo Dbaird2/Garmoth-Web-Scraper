@@ -123,7 +123,7 @@ async def websocket_endpoint(websocket: WebSocket):
         event_dict = {}
         item_dict = {}
         for row in events:
-            event = row[0], impact = row[1], start_date = row[2].strftime('%Y-%m-%d'), end_start = row[3].strftime('%Y-%m-%d')
+            event = row[0], impact = row[1], start_date = row[2].strftime('%Y-%m-%d'), end_date = row[3].strftime('%Y-%m-%d')
             if event not in item_dict:
                 item_dict[event] = [{'name': row[4], 'impact': row[5], 'pct_diff': row[6]}]
             else:
@@ -132,11 +132,11 @@ async def websocket_endpoint(websocket: WebSocket):
                 "event": event,
                 "impact": impact,
                 "start_date": start_date,
-                "end_date": end_start,
+                "end_date": end_date,
                 "direct_items": {
-                    "items": sorted(item_dict, key=lambda x: (x['pct_diff'], x['name']))},
+                    "items": sorted(item_dict[event], key=lambda x: (x['pct_diff'], x['name']))},
                 "indirect_items": {
-                    "items": sorted(indirect_items, key=lambda x: (x['pct_diff'], x['name']))
+                    "items": sorted(indirect_items[event], key=lambda x: (x['pct_diff'], x['name']))
                 }
 
             }
