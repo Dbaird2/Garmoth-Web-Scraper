@@ -94,6 +94,8 @@ async def repeatInsert():
 
         try:
             await updateIndirectItemsImpact(db)
+            event_dict = await getIndirectItems()
+            await dash_manager.broadcast(event_dict)
         except Exception as e:
             logger.exception("Scheduled indirect impact update failed: %s", e)
         await asyncio.sleep(3600)
@@ -118,56 +120,59 @@ async def websocket_endpoint(websocket: WebSocket):
 async def websocket_endpoint(websocket: WebSocket):
     try:
         await dash_manager.connect(websocket)
-        indirect_items = await db.selectCurrentIndirectItem()
-        events = await db.selectAllEvents()
-        event_dict = {}
-        item_dict = {}
-        json_indirect = {}
-        seen_direct = set()
-        for row in events:
-            event = row[0]
-            impact = row[1]
-            start_date = row[2].strftime('%Y-%m-%d')
-            end_date = row[3].strftime('%Y-%m-%d')            
-            seen_direct.add((event, row[4]))
-            if event not in item_dict:
-                item_dict[event] = [{'name': row[4], 'impact': row[5], 'pct_diff': row[6]}]
-            else:
-                item_dict[event].append({'name': row[4], 'impact': row[5], 'pct_diff': row[6]})
-            event_dict[event] = {
-                "event": event,
-                "impact": impact,
-                "start_date": start_date,
-                "end_date": end_date,
-                "direct_items": {
-                    "items": sorted(item_dict[event], key=lambda x: (x['pct_diff'], x['name']))},
-                "indirect_items": {
-                    "items": []
-                }
-
-            }
-        # Build indirect lookup
-        for row in indirect_items:
-            event = row[1]
-            item = row[2]
-            pct_diff = row[3]
-            end_date = row[4].isoformat()  # fix date serialization
-            if event not in json_indirect:
-                json_indirect[event] = []
-            if (event, item) not in seen_direct:
-                json_indirect[event].append({'event': event, 'item': item, 'pct_diff': pct_diff, 'end_date': end_date})
-        # Merge indirect into event_dict
-        for event, indirect_rows in json_indirect.items():
-            if event in event_dict:
-                event_dict[event]["indirect_items"] = {
-                    "items": sorted(indirect_rows, key=lambda x: (x['pct_diff'], x['item']))
-                }
-        
+        event_dict = await getIndirectItems()
         await dash_manager.send_personal_message(event_dict, websocket)
         while True:                             
             data = await websocket.receive_text() 
     except WebSocketDisconnect:
         dash_manager.disconnect(websocket)
+
+async def getIndirectItems():
+    indirect_items = await db.selectCurrentIndirectItem()
+    events = await db.selectAllEvents()
+    event_dict = {}
+    item_dict = {}
+    json_indirect = {}
+    seen_direct = set()
+    for row in events:
+        event = row[0]
+        impact = row[1]
+        start_date = row[2].strftime('%Y-%m-%d')
+        end_date = row[3].strftime('%Y-%m-%d')            
+        seen_direct.add((event, row[4]))
+        if event not in item_dict:
+            item_dict[event] = [{'name': row[4], 'impact': row[5], 'pct_diff': row[6]}]
+        else:
+            item_dict[event].append({'name': row[4], 'impact': row[5], 'pct_diff': row[6]})
+        event_dict[event] = {
+            "event": event,
+            "impact": impact,
+            "start_date": start_date,
+            "end_date": end_date,
+            "direct_items": {
+                "items": sorted(item_dict[event], key=lambda x: (x['pct_diff'], x['name']))},
+            "indirect_items": {
+                "items": []
+            }
+
+        }
+    # Build indirect lookup
+    for row in indirect_items:
+        event = row[1]
+        item = row[2]
+        pct_diff = row[3]
+        end_date = row[4].isoformat()  # fix date serialization
+        if event not in json_indirect:
+            json_indirect[event] = []
+        if (event, item) not in seen_direct:
+            json_indirect[event].append({'event': event, 'item': item, 'pct_diff': pct_diff, 'end_date': end_date})
+    # Merge indirect into event_dict
+    for event, indirect_rows in json_indirect.items():
+        if event in event_dict:
+            event_dict[event]["indirect_items"] = {
+                "items": sorted(indirect_rows, key=lambda x: (x['pct_diff'], x['item']))
+            }
+    return event_dict        
 
 @app.get("/items/all")
 @limiter.limit("5/minute")
