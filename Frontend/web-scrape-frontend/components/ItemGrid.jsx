@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import ItemCard from "./ItemCard";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { getFavorites } from "../hooks/favorites";
+import { FadeIn } from "../hooks/FadeIn";
 
 const COLUMNS = 5;
 const GAP = 30; // gap-4 = 16px
@@ -78,12 +79,14 @@ export function ItemGrid({ items, isFavorite, toggleFavorite }) {
               >
                 {row_items.map((item) => {
                   return (
-                    <ItemCard
-                      key={item.name}
-                      item={item}
-                      favorite={favorites.includes(item.name)}
-                      toggleFavorite={handleToggle}
-                    />
+                    <FadeIn delay={100}>
+                      <ItemCard
+                        key={item.name}
+                        item={item}
+                        favorite={favorites.includes(item.name)}
+                        toggleFavorite={handleToggle}
+                      />
+                    </FadeIn>
                   );
                 })}
               </div>

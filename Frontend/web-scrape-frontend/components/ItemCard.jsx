@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ItemModal from "./ItemModal";
+import { FadeIn } from "../hooks/FadeIn";
 
 export function ItemCard({ item, favorite, toggleFavorite }) {
   // filled star &#9733;
@@ -15,7 +16,7 @@ export function ItemCard({ item, favorite, toggleFavorite }) {
     <>
       <div
         key={item.name}
-        className={`relative bg-[#111d2e] border-0 border-b-1 border-t-1 border-t-red-900/40 border-b-teal-900/40 rounded-xl border border-[#1a2a3a] ${item.percentage >= 0 ? 'hover:border-1 hover:border-teal-500/50' : 'hover:border-1 hover:border-red-500/50'} transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/10 p-4 flex flex-col gap-3 group`}
+        className={`relative bg-[#111d2e] border-0 border-b-1 border-t-1 border-t-red-900/40 border-b-teal-900/40 rounded-xl border border-[#1a2a3a] ${item.percentage >= 0 ? "hover:border-1 hover:border-teal-500/50" : "hover:border-1 hover:border-red-500/50"} transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/10 p-4 flex flex-col gap-3 group`}
       >
         {/* Header */}
         <div className="flex flex-row justify-between items-start gap-2">
@@ -34,7 +35,6 @@ export function ItemCard({ item, favorite, toggleFavorite }) {
         <div
           className={`h-px ${item.percentage >= 0 ? "bg-gradient-to-r from-teal-500/70 via-purple-500/50 to-transparent" : "bg-gradient-to-r from-red-500/50 via-blue-500/50 to-transparent"}`}
         />
-        
 
         {/* Stats */}
         <div className="flex flex-col gap-2">

@@ -1,151 +1,91 @@
-# Garmoth Web Scraper
+# Garmoth — Black Desert Online Market Tracker
 
-Real-time Black Desert Online market data tracker with live WebSocket updates, price history charts, advanced filtering, and event impact analysis.
+Garmoth is a full-stack market intelligence application for Black Desert Online. It tracks item prices across the in-game marketplace and analyzes the economic impact of game events — surfacing which items are meaningfully affected, by how much, and why.
 
-![Tests](https://github.com/Dbaird2/Garmoth-Web-Scraper/actions/workflows/test.yml/badge.svg)
+Live: [garmoth.vercel.app](https://garmoth-web-scraper.vercel.app) *(backend hosted on Render — allow a few seconds for cold start)*
 
-## Overview
+---
 
-Scrapes BDO market data twice daily using headless Chrome, stores time-series price and stock data in PostgreSQL, and pushes live updates to connected React clients via WebSockets. Users can filter by % change threshold, search by name, sort by any column, and view historical price charts per item. An event impact system automatically calculates how active in-game events affect market prices using pre-event price baselines.
+## What It Does
+
+Black Desert Online runs limited-time events that reliably shift the in-game economy. Garmoth quantifies those shifts by comparing current item prices against a pre-event baseline, then classifies the impact and surfaces the results in real time through a WebSocket-powered dashboard.
+
+### Event Impact Analysis
+
+The core feature is an algorithmic system that detects and classifies market impact for both directly and indirectly affected items.
+
+**Baseline & threshold detection**
+
+For each active event, Garmoth computes a 3–7 day pre-event price baseline per item. The percentage difference between the baseline and current price is compared against calibrated thresholds:
+
+| Impact Level | Threshold |
+|---|---|
+| None | < 15.5% |
+| Low | 15.5% – 30% |
+| Medium | 30% – 50% |
+| High | 50%+ |
+
+The 15.5% floor is derived from BDO's in-game market tax — movements below that threshold are economically indistinguishable from noise. High impact is treated as a ceiling: once an item reaches High, it cannot be downgraded by subsequent recalculations.
+
+**Indirect market pressure**
+
+Beyond items explicitly tied to an event, Garmoth models second-order effects through a `CATEGORY_SIDE_EFFECTS` mapping. For example, a costume event increases player enhancement activity, which drives up demand for Sharp and Hard Black Crystal Shards — items not listed in the event at all. This indirect pressure is tracked separately and displayed alongside direct impact in the dashboard.
+
+**Recalculation schedule**
+
+Impact recalculation runs as an hourly background job piggybacked on the scraper's scheduler. WebSocket endpoints only fetch and broadcast precomputed results, keeping latency low.
+
+---
 
 ## Tech Stack
 
 **Backend**
-- FastAPI — async REST + WebSocket endpoints with lifespan context manager
-- asyncpg — connection pool, bulk `unnest` inserts, `ON CONFLICT` upserts
-- SlowAPI — rate limiting on REST endpoints
-- undetected-chromedriver — headless Selenium with Cloudflare bypass
-- Pytest + AsyncMock — unit tests for impact logic, mocked DB layer
+- FastAPI + uvicorn
+- asyncpg + PostgreSQL
+- WebSockets for real-time data delivery
+- SlowAPI for rate limiting
 
 **Frontend**
-- React + Vite — custom hooks (`useWebSocket`, `useFilter`), component architecture
-- Recharts — `LineChart` price history per item in modal
-- Tailwind CSS — dark theme, teal accent, responsive grid
+- React + Vite
+- Tailwind CSS
+- TanStack Virtual (virtualized grid)
+- Recharts
 
-**Infrastructure**
-- PostgreSQL — time-series schema with `(item, recent_time)` unique constraint
-- GitHub Actions — CI runs pytest suite on every push to main
+**Data Collection**
+- Selenium-based scraper (runs locally)
+- `httpx` calls to the arsha.io API v2
+
+**Deployment**
+- Frontend: Vercel
+- Backend: Render
+- Scraper: local
+
+---
 
 ## Architecture
+
+Garmoth uses a monorepo structure with three components:
+
 ```
-Local Machine (Selenium scraper) — runs once daily, before impact refresh
-    ↓ scrapes BDO market categories
-FastAPI (background task)
-    ↓ bulk upserts via unnest
-PostgreSQL
-    ↑ queries on WS connect + hourly impact refresh
-FastAPI WebSocket
-    ↓ broadcasts JSON to all clients
-React / Vite frontend
+/
+├── Backend/       # FastAPI application, database layer, background scheduler
+├── Frontend/      # React + Vite client
+└── WebScraper/    # Selenium scraper and data ingestion
 ```
+
+Price data is collected by the scraper and written to PostgreSQL. The backend exposes REST endpoints for item and event management, and a WebSocket endpoint that pushes the current event impact payload to connected clients. Business logic — including baseline averaging, ratio analysis, and impact classification — is handled entirely in Python, not embedded in SQL.
+
+Data modeling separates recurring events from their individual occurrences, with junction tables used to associate items with events. Prices are stored as `BIGINT` to accommodate BDO's market values, which routinely exceed 2.1 billion silver. Items with enhancement levels use composite primary keys.
+
+---
 
 ## Key Features
 
-- Scrapes 13 BDO market categories in a single headless browser session
-- WebSocket connection broadcasts fresh data to all clients on connect
-- Event impact system — calculates High / Medium / Low / None impact per active event using a 3–7 day pre-event price baseline; worst-case impact wins across all event items
-- Side effect tracking — infers indirect market pressure from item category relationships (e.g. costume events → sharp price increases)
-- `% change` slider filter, item name search, multi-column sort
-- Per-item price and % difference vs previous day's data
-- Recharts `LineChart` price history in per-item modal
-- Bulk DB inserts via PostgreSQL `unnest` for performance
-- Rate limited REST endpoints via SlowAPI
-
-## Event Impact System
-
-Active in-game events are tracked against a pre-event price baseline (3–7 day average before event start). Each item's current price is compared to its baseline and assigned an impact level:
-
-| % Deviation from Baseline | Impact Level |
-|---------------------------|--------------|
-| < 15.5% | None |
-| 15.5% – 30% | Low |
-| 30% – 50% | Medium |
-| 50%+ | High |
-
-The worst impact level across all event items determines the overall event impact. Side effects (indirect price pressure from related item categories) are tracked separately but can bubble up to the overall impact level.
-
-## Getting Started
-
-### Prerequisites
-
-- Python 3.13
-- Node.js 18+
-- PostgreSQL
-- Chrome 145
-
-### Backend
-```bash
-cd Backend
-pip install -r requirements.txt
-uvicorn main:app --reload
-```
-
-### Frontend
-```bash
-cd Frontend/web-scrape-frontend
-npm install
-npm run dev
-```
-
-### Database setup
-```sql
-CREATE TABLE bdo_items (
-    id SERIAL PRIMARY KEY,
-    item TEXT,
-    percentage REAL,
-    stock INTEGER,
-    price REAL,
-    recent_time DATE,
-    CONSTRAINT unique_item_date UNIQUE (item, recent_time)
-);
-
-CREATE TABLE bdo_events (
-    id SERIAL PRIMARY KEY,
-    name TEXT UNIQUE,
-    impact TEXT DEFAULT 'Unknown',
-    start_date DATE,
-    end_date DATE
-);
-
-CREATE TABLE event_contents (
-    id SERIAL PRIMARY KEY,
-    event_name TEXT REFERENCES bdo_events(name),
-    item_name TEXT
-);
-```
-
-### Running tests
-```bash
-cd Backend
-pytest unit_tests/ -v
-```
-
-## API Endpoints
-
-| Method | Endpoint | Rate Limit | Description |
-|--------|----------|------------|-------------|
-| GET | `/items/all` | 5/min | All items for today ordered by % change |
-| GET | `/items/{item_name}` | 5/min | Single item history |
-| GET | `/items/range/{percentage}` | 5/min | Items outside ±% threshold |
-| WS | `/ws/dashboard` | — | Live market + event updates |
-
-## To-do
-
-### In progress
-
-- [ ] Loading states — spinner on WS connect, skeleton cards, chart fetch indicator
-- [X] Pagination or virtual scrolling — performance fix for 500+ items
-- [X] Dark/light mode toggle — Tailwind `dark:` classes + navbar button
-- [ ] Export to CSV — client-side download of current filtered list
-- [X] Add Events with impact level and affected items
-- [X] Unit tests for impact logic (`calculateImpact`, `updateImpactLevel`)
-
-### Planned
-
-- [ ] Side effect category map — define all item category relationships
-- [ ] Docker + docker-compose — containerize FastAPI + Postgres for local dev
-- [ ] Deploy — Render (FastAPI) + Supabase (DB) + Vercel (React frontend)
-
-## License
-
-MIT
+- Real-time dashboard via WebSockets
+- Algorithmic event impact classification (None / Low / Medium / High)
+- Indirect market pressure detection via category side-effect mapping
+- Virtualized item grid for performance at scale
+- Favorites / watchlist (localStorage)
+- Skeleton loading states
+- Keyboard shortcuts
+- Dark glass UI themed to BDO's aesthetic

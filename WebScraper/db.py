@@ -40,7 +40,7 @@ class Database:
             # Start a transaction on the acquired connection
             try:
                 await pool.execute('''
-                    INSERT INTO bdo_items (item, percentage, stock, price, recent_time, category)
+                    INSERT INTO bdo_items (item, percentage, stock, price, recent_time)
                     SELECT unnest($1::text[]), unnest($2::real[]), unnest($3::int[]), unnest($4::real[]), CURRENT_DATE
                     ON CONFLICT (item, recent_time) DO 
                     UPDATE SET stock = EXCLUDED.stock, 

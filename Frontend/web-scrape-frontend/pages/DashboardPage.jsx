@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import useWebsocket from "../hooks/useDashboardWs";
+import { FadeIn } from "../hooks/FadeIn";
 import DashbaordItemModal from "../components/DashboardModal";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
@@ -37,89 +38,95 @@ function EventCard({
     JSON.stringify(start_date, null, 2),
   );
 
+
   return (
     <div
       className={`bg-[#0d1520] border border-[#1a2a3a] border-t-2 ${style.border} p-5 flex flex-col gap-4 max-h-[45rem] overflowy-auto`}
     >
-      <div className="flex justify-between items-start gap-3">
-        <span className="font-bold text-[#e8f0f8] text-sm leading-snug tracking-wide">
-          {event}
+      <FadeIn delay={50}>
+        <div className="flex justify-between items-start gap-3">
+          <span className="font-bold text-[#e8f0f8] text-sm leading-snug tracking-wide">
+            {event}
+          </span>
+          <span
+            className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 border shrink-0 ${style.badge}`}
+          >
+            {impact}
+          </span>
+        </div>
+
+        <span className="font-mono text-[11px] text-[#4a6070]">
+          {start_date} <span className="text-[#2a3a4a]">→</span> {end_date}
         </span>
-        <span
-          className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 border shrink-0 ${style.badge}`}
-        >
-          {impact}
-        </span>
-      </div>
 
-      <span className="font-mono text-[11px] text-[#4a6070]">
-        {start_date} <span className="text-[#2a3a4a]">→</span> {end_date}
-      </span>
-
-      <div className="h-px bg-gradient-to-r from-[#1a2a3a] to-transparent" />
-
+        <div className="h-px bg-gradient-to-r from-[#1a2a3a] to-transparent" />
+      </FadeIn>
       <div>
         <Tabs>
-          <TabList className="flex flex-row gap-4 p-4">
-            <Tab className="font-bold text-[#e8f0f8] text-sm leading-snug tracking-wide cursor-pointer hover:scale-105">
-              Affect Items
-            </Tab>
+          <FadeIn delay={100}>
+            <TabList className="flex flex-row gap-4 p-4">
+              <Tab className="font-bold text-[#e8f0f8] text-sm leading-snug tracking-wide cursor-pointer hover:scale-105">
+                Affect Items
+              </Tab>
 
-            <Tab className="font-bold text-[#e8f0f8] text-sm leading-snug tracking-wide cursor-pointer hover:scale-105 hover:bg-teal-400 rounded-lg">
-              Indirectly Affect
-            </Tab>
-          </TabList>
-          <TabPanel>
-            <ul className="flex flex-col max-h-[28rem]  [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-[#0d1520] [&::-webkit-scrollbar-thumb]:bg-teal-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-teal-400 overflow-auto gap-1.5">
-              {(direct_indirect_items?.direct_items?.items ?? []).map(
-                (item) => {
-                  console.log(item)
-                  return (
+              <Tab className="font-bold text-[#e8f0f8] text-sm leading-snug tracking-wide cursor-pointer hover:scale-105 hover:bg-teal-400 rounded-lg">
+                Indirectly Affect
+              </Tab>
+            </TabList>
+          </FadeIn>
+          <FadeIn delay={200}>
+            <TabPanel>
+              <ul className="flex flex-col max-h-[28rem]  [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-[#0d1520] [&::-webkit-scrollbar-thumb]:bg-teal-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-teal-400 overflow-auto gap-1.5">
+                {(direct_indirect_items?.direct_items?.items ?? []).map(
+                  (item) => {
+                    console.log(item);
+                    return (
+                      <li
+                        key={item.name ?? "Error"}
+                        className="flex flex-row justify-between text-[13px] text-[#8aa8b8] px-2.5 py-1.5 bg-[#0a1018] border-l-2 border-[#1a2a3a] hover:border-teal-400 hover:text-[#c8d8e8] transition-colors"
+                      >
+                        <div>
+                          <DashbaordItemModal item={item} />
+                        </div>
+                        <div className="flex gap-4 text-gray-400 text-[10px]">
+                          <span>Impact</span>
+                          <div
+                            className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 border shrink-0 ${IMPACT_STYLES[item.impact].badge}`}
+                          >
+                            {item.pct_diff?.toFixed(2) ?? 0.0}
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  },
+                )}
+              </ul>
+            </TabPanel>
+            <TabPanel>
+              <ul className="flex flex-col max-h-[28rem]  [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-[#0d1520] [&::-webkit-scrollbar-thumb]:bg-teal-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-teal-400 overflow-auto gap-1.5">
+                {(direct_indirect_items?.indirect_items?.items ?? []).map(
+                  (item) => (
                     <li
-                      key={item.name ?? "Error"}
+                      key={item.item}
                       className="flex flex-row justify-between text-[13px] text-[#8aa8b8] px-2.5 py-1.5 bg-[#0a1018] border-l-2 border-[#1a2a3a] hover:border-teal-400 hover:text-[#c8d8e8] transition-colors"
                     >
                       <div>
-                        <DashbaordItemModal item={item} /> 
+                        <DashbaordItemModal item={item} />
                       </div>
                       <div className="flex gap-4 text-gray-400 text-[10px]">
                         <span>Impact</span>
                         <div
-                          className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 border shrink-0 ${IMPACT_STYLES[item.impact].badge}`}
+                          className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 border shrink-0 `}
                         >
                           {item.pct_diff?.toFixed(2) ?? 0.0}
                         </div>
                       </div>
                     </li>
-                  );
-                },
-              )}
-            </ul>
-          </TabPanel>
-          <TabPanel>
-            <ul className="flex flex-col max-h-[28rem]  [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-[#0d1520] [&::-webkit-scrollbar-thumb]:bg-teal-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-teal-400 overflow-auto gap-1.5">
-              {(direct_indirect_items?.indirect_items?.items ?? []).map(
-                (item) => (
-                  <li
-                    key={item.item}
-                    className="flex flex-row justify-between text-[13px] text-[#8aa8b8] px-2.5 py-1.5 bg-[#0a1018] border-l-2 border-[#1a2a3a] hover:border-teal-400 hover:text-[#c8d8e8] transition-colors"
-                  >
-                    <div>
-                      <DashbaordItemModal item={item} />
-                    </div>
-                    <div className="flex gap-4 text-gray-400 text-[10px]">
-                      <span>Impact</span>
-                      <div
-                        className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 border shrink-0 `}
-                      >
-                        {item.pct_diff?.toFixed(2) ?? 0.0}
-                      </div>
-                    </div>
-                  </li>
-                ),
-              )}
-            </ul>
-          </TabPanel>
+                  ),
+                )}
+              </ul>
+            </TabPanel>
+          </FadeIn>
         </Tabs>
       </div>
     </div>
