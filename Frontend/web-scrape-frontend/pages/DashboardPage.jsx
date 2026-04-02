@@ -3,7 +3,7 @@ import useWebsocket from "../hooks/useDashboardWs";
 import { FadeIn } from "../hooks/FadeIn";
 import DashbaordItemModal from "../components/DashboardModal";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
-import "react-tabs/style/react-tabs.css";
+import DashboardHero from "../components/DashboardHero";
 
 const IMPACT_STYLES = {
   High: { border: "border-t-red-500", badge: "border-red-500 text-red-500" },
@@ -30,18 +30,11 @@ function EventCard({
   direct_indirect_items,
 }) {
   const style = IMPACT_STYLES[impact] ?? IMPACT_STYLES.Unknown;
-  console.log(
-    "direct_indirect_items",
-    JSON.stringify(direct_indirect_items, null, 2),
-    JSON.stringify(event, null, 2),
-    JSON.stringify(impact, null, 2),
-    JSON.stringify(start_date, null, 2),
-  );
 
 
   return (
     <div
-      className={`bg-[#0d1520] border border-[#1a2a3a] border-t-2 ${style.border} p-5 flex flex-col gap-4 max-h-[45rem] overflowy-auto`}
+      className={`bg-[#0d1520] rounded-xl border border-[#1a2a3a] border-t-2 ${style.border} p-5 flex flex-col gap-4 max-h-[45rem] overflowy-auto`}
     >
       <FadeIn delay={50}>
         <div className="flex justify-between items-start gap-3">
@@ -65,11 +58,17 @@ function EventCard({
         <Tabs>
           <FadeIn delay={100}>
             <TabList className="flex flex-row gap-4 p-4">
-              <Tab className="font-bold text-[#e8f0f8] text-sm leading-snug tracking-wide cursor-pointer hover:scale-105">
+              <Tab
+                className="hover:scale-105 hover:text-yellow-400/70 font-mono text-[10px] uppercase tracking-widest text-[#4a6070] px-3 py-1.5 rounded-sm cursor-pointer transition-all duration-200 outline-none"
+                selectedClassName="hover:scale-105 bg-[#0d1520] text-teal-400 border border-[#1a2a3a]"
+              >
                 Affect Items
               </Tab>
 
-              <Tab className="font-bold text-[#e8f0f8] text-sm leading-snug tracking-wide cursor-pointer hover:scale-105 hover:bg-teal-400 rounded-lg">
+              <Tab
+                className="hover:scale-105 hover:text-yellow-400/70 font-mono text-[10px] uppercase tracking-widest text-[#4a6070] px-3 py-1.5 rounded-sm cursor-pointer transition-all duration-200 outline-none"
+                selectedClassName="hover:scale-105 bg-[#0d1520] text-teal-400 border border-[#1a2a3a]"
+              >
                 Indirectly Affect
               </Tab>
             </TabList>
@@ -79,7 +78,6 @@ function EventCard({
               <ul className="flex flex-col max-h-[28rem]  [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-[#0d1520] [&::-webkit-scrollbar-thumb]:bg-teal-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-teal-400 overflow-auto gap-1.5">
                 {(direct_indirect_items?.direct_items?.items ?? []).map(
                   (item) => {
-                    console.log(item);
                     return (
                       <li
                         key={item.name ?? "Error"}
@@ -137,7 +135,6 @@ export default function EventsDashboard() {
   const [event_info, setEventInfo] = useState({});
   const { loading } = useWebsocket((events) => setEventInfo(events));
   const numbers = Array.from({ length: 4 }, (e, i) => i);
-  console.log(loading);
   return (
     <div
       className="p-6 min-h-screen bg-[#090e14]"
@@ -176,11 +173,13 @@ export default function EventsDashboard() {
           </div>
         </div>
       ) : (
-        <div>
+        <div className="">
+          <DashboardHero event_info={event_info} />
+
           <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-teal-400 opacity-70 mb-6">
-            // Active Events
+            
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 ml-4">
             {Object.values(event_info).map((value, index) => (
               <EventCard key={index} {...value} direct_indirect_items={value} />
             ))}

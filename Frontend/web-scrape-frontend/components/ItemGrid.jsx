@@ -3,6 +3,9 @@ import ItemCard from "./ItemCard";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { getFavorites } from "../hooks/favorites";
 import { FadeIn } from "../hooks/FadeIn";
+import Itemstatebar from "./ItemStatBar";
+
+
 
 const COLUMNS = 5;
 const GAP = 30; // gap-4 = 16px
@@ -64,6 +67,7 @@ export function ItemGrid({ items, isFavorite, toggleFavorite }) {
           className="relative"
           style={{ height: `${virtualizer.getTotalSize()}px` }}
         >
+          <Itemstatebar items={items} />
           {virtualizer.getVirtualItems().map((v_row) => {
             const from = v_row.index * COLUMNS;
             const row_items = items.slice(from, from + COLUMNS);

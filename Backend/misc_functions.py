@@ -6,22 +6,21 @@ async def updateImpactLevel(db):
     """Calculates and persists the worst-case impact level per active event."""
     events = await db.selectAllEvents()
     impact_dict: dict[str, str] = {}
+    impact_ints = {'High': 3, 'Medium': 2, 'Low': 1, 'None': 0}
     try:
         for event_name, curr_impact, start_date, end_date, item_name, item_impact, item_pct_diff in events:
             price_range = await db.selectWeekBeforePrice(item_name, start_date)
             impact = await calculateImpact(db, price_range, item_name, event_name)
 
             if event_name not in impact_dict:
-                impact_dict[event_name] = impact
+                impact_dict[event_name] = impact_ints[impact]
                 continue
-            if impact_dict[event_name] == "High":
-                continue
-            if impact != "Medium":
-                impact_dict[event_name] = impact
+            if impact_ints[impact_dict[event_name]] <= impact_ints[impact]:
+                impact_ints[impact_dict[event_name]] = impact_ints[impact]
     except Exception as e:
         logger.exception("updateImpactLevel failed while iterating events: %s", e)
-    for i, val in enumerate(impact_dict):
-        await db.updateEventImpact(impact_dict[val], val)
+    for val in impact_dict:
+        await db.updateEventImpact(list(impact_ints.keys())[list(impact_ints.values()).index(val)], val)
 
 async def updateIndirectItemsImpact(db):
     # 1)

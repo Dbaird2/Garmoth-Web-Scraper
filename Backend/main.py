@@ -26,7 +26,7 @@ item_manager = ConnectionManager()
 dash_manager = ConnectionManager()
 
 origins = [
-    "https://garmoth-web-scraper.vercel.app",
+    "https://bdo-event-tracker.vercel.app/",
 ]
 
 @asynccontextmanager

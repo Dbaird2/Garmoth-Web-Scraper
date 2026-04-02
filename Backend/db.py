@@ -163,8 +163,6 @@ class Database:
         except Exception as e:
             logger.exception("selectAllEvents failed: %s", e)
 
-
-
     async def updateIndirectTable(self, event_dict = {}):
         time1 = datetime.now()
         logger.info("insertItemTableAsArray called — inserting %d items", len(event_dict))
