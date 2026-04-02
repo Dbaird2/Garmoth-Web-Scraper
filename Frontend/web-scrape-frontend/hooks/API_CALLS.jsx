@@ -1,5 +1,5 @@
 export async function getAllItems() {
-    console.log('getAllItems', 'calling fetch')
+  console.log("getAllItems", "calling fetch");
   try {
     const res = await fetch("https://web-scraper-68z5.onrender.com/items/all");
     console.log("status", res);
@@ -19,4 +19,14 @@ export async function getItem(item) {
   const json_item = await res.json();
   console.log("Db res", json_item);
   return json_item;
+}
+
+export async function sendEvent(form_data) {
+  const res = await fetch("https://web-scraper-68z5.onrender.com/addEvent", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(form_data),
+  });
+  if (!res.ok) throw new Error(`Server error: ${res.status}`);
+  return res.json();
 }

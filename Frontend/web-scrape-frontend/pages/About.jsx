@@ -54,6 +54,8 @@ export default function About() {
       className="min-h-screen text-[#c8d8e8]"
       style={{ background: "#0a1018", fontFamily: "'DM Mono', monospace" }}
     >
+      <title>Event Tracker: About</title>
+
       {/* Subtle grid overlay */}
       <div
         className="fixed inset-0 pointer-events-none"

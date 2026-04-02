@@ -14,6 +14,8 @@ export default function ItemPage() {
 
   return (
     <>
+      <title>Event Tracker: Items</title>
+
       <div>
         <SearchBar {...filter_props} />
       </div>

@@ -28,6 +28,15 @@ export default function Navbar() {
         <div className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40">
           <Link
             className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
+            to="/forms"
+          >
+            Forms
+          </Link>
+        </div>
+
+        <div className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40">
+          <Link
+            className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
             to="/about"
           >
             About

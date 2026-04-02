@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import ItemPage from "../pages/ItemPage";
 import Dashboard from "../pages/DashboardPage"
+import EventForm from "../pages/EventForm"
 import About from "../pages/About";
 import Navbar from "../components/Navbar"
 
@@ -18,6 +19,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/items" element={<ItemPage />} />
+        <Route path="/forms" element={<EventForm />} />
         <Route path="/about" element={<About />} />
       </Routes>
     </div>

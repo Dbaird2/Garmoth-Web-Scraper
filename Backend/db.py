@@ -233,5 +233,30 @@ class Database:
         diff = time2 - time1
         logger.info("updateEventItem completed in %d.%06ds", diff.seconds, diff.microseconds)
 
+    async def insertEvent(self, form_data):
+        logger.info(
+            "insertEvent called "
+        )
+        async with self.conn.acquire() as pool:
+            try:
+                await pool.execute('''
+                    INSERT INTO bdo_events (name, start_date, end_date) VALUES
+                    ($1, $2, $3) ON CONFLICT (name, start_date) DO NOTHING
+                ''',
+                form_data.event_name, form_data.start_date, form_data.end_date)
+
+                await pool.execute('''
+                    INSERT INTO event_contents (event_name, item_name)
+                    SELECT $1, unnest($2::text[])
+                ''',
+                form_data.event_name, form_data.items)
+            except Exception as e:
+                logger.exception(
+                    "insertEvent transaction failed — event=%s | error: %s",
+                    form_data.event_name, e
+                )
+                raise
+
+
     async def closeConnection(self):
         await self.conn.close()

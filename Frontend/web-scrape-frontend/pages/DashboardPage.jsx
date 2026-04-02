@@ -144,6 +144,7 @@ export default function EventsDashboard() {
         backgroundSize: "40px 40px",
       }}
     >
+      <title>Event Tracker: Dashboard</title>
       {loading ? (
         <div className="animate-pulse bg-[#0d1520] border border-[#1a2a3a] border-t-2 border-t-slate-600 p-5 flex flex-col gap-4">
           {/* Title area */}
@@ -176,9 +177,7 @@ export default function EventsDashboard() {
         <div className="">
           <DashboardHero event_info={event_info} />
 
-          <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-teal-400 opacity-70 mb-6">
-            
-          </p>
+          <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-teal-400 opacity-70 mb-6"></p>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 ml-4">
             {Object.values(event_info).map((value, index) => (
               <EventCard key={index} {...value} direct_indirect_items={value} />

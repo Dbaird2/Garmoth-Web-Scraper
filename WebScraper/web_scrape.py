@@ -42,7 +42,12 @@ def ScrapeForItems():
         "https://garmoth.com/market/category/alchemy-stone/destruction",
         "https://garmoth.com/market/category/alchemy-stone/protection",
         "https://garmoth.com/market/category/alchemy-stone/life",
-        "https://garmoth.com/market/category/alchemy-stone/spirit-stone"
+        "https://garmoth.com/market/category/alchemy-stone/spirit-stone",
+        "https://garmoth.com/market/category/consumables/other-consumables",
+        "https://garmoth.com/market/category/consumables/defensive-elixir",
+        "https://garmoth.com/market/category/consumables/offensive-elixir",
+        "https://garmoth.com/market/category/consumables/functional-elixir",
+        "https://garmoth.com/market/category/consumables/item-parts"
     ]
     counter = 0
     options = uc.ChromeOptions()
