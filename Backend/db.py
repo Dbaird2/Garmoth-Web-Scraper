@@ -247,7 +247,7 @@ class Database:
 
                 await pool.execute('''
                     INSERT INTO event_contents (event_name, item_name)
-                    SELECT $1, unnest($2::text[])
+                    SELECT $1, unnest($2::text[]) as item 
                 ''',
                 form_data.event_name, form_data.items)
             except Exception as e:

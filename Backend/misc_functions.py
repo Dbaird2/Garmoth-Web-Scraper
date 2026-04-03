@@ -24,15 +24,19 @@ async def updateImpactLevel(db):
 
 async def updateIndirectItemsImpact(db):
     # 1)
+    logger.info("updateIndirectItemsImpact")
     events = await db.selectAllEvents()
     impact_dict: dict[str, str] = {}
     item_dict: dict[str, str] = {}
+    end_date_dict: dict[str, str] = {}
     start_date_dict: dict[str, str] = {}
+
     # 2)
     for ename, curr_impact, start_date, end_date, item_name, item_impact, item_pct_diff in events:
         if not ename in item_dict:
             item_dict[ename] = [item_name]
-            start_date_dict[ename] = end_date
+            end_date_dict[ename] = end_date
+            start_date_dict[ename] = start_date
         else:
             item_dict[ename].append(item_name)
     # Get indirect items from each event
@@ -53,9 +57,9 @@ async def updateIndirectItemsImpact(db):
                 row['name'], ename, baseline_avg, pct_diff
             )
             if not ename in impact_dict:
-                impact_dict[ename] = [{'event': ename, 'item': row['name'], 'pct_diff': pct_diff, 'end_date':start_date_dict[ename]}]
+                impact_dict[ename] = [{'event': ename, 'item': row['name'], 'pct_diff': pct_diff, 'end_date':end_date_dict[ename]}]
             else:
-                impact_dict[ename].append({'event': ename, 'item': row['name'], 'pct_diff': pct_diff, 'end_date':start_date_dict[ename]})
+                impact_dict[ename].append({'event': ename, 'item': row['name'], 'pct_diff': pct_diff, 'end_date':end_date_dict[ename]})
     await db.updateIndirectTable(impact_dict)
 
 async def calculateImpact(db, price_range, item, event_name):
