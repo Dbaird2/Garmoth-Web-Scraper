@@ -1,6 +1,6 @@
 import asyncpg
 import logging
-from datetime import datetime
+from datetime import datetime, date
 
 logger = logging.getLogger(__name__)
 
@@ -243,7 +243,7 @@ class Database:
                     INSERT INTO bdo_events (name, start_date, end_date) VALUES
                     ($1, $2, $3) ON CONFLICT (name, start_date) DO NOTHING
                 ''',
-                form_data.event_name, form_data.start_date, form_data.end_date)
+                form_data.event_name, date.fromisoformat(form_data.start_date), date.fromisoformat(form_data.end_date))
 
                 await pool.execute('''
                     INSERT INTO event_contents (event_name, item_name)
