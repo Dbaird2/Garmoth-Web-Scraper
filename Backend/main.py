@@ -188,7 +188,7 @@ async def fetchAllItems():
             raise HTTPException(status_code=404, detail="Items not found")
         item_list = []
         for item in items:
-            item_list.append({'id': item[0], 'name': item[1], 'percentage': item[2], 'stock': item[3], 'price': float(item[4]), 'percent_diff': item[5] if item[5] is not None else 0, 'price_diff': item[6] if item[6] is not None else 0})
+            item_list.append({'id': item[0], 'name': item[1], 'percentage': item[2], 'stock': item[3], 'price': float(item[4]), 'percent_diff': item[5] if item[5] is not None else 0, 'price_diff': item[6] if item[6] is not None else 0, 'category': item[7] if item[7] is not None else ''})
         return item_list
     except Exception as e:
         logger.exception("fetchAllItems failed: %s", e)
