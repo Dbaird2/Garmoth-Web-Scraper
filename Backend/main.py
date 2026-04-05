@@ -83,7 +83,7 @@ async def repeatInsert():
             items = await db.selectAllItemRows()
             item_list = []
             for item in items:
-                item_list.append({'id': item[0], 'name': item[1], 'percentage': item[2], 'stock': item[3], 'price': float(item[4]), 'percent_diff': item[5] if item[5] is not None else 0, 'price_diff': item[6] if item[6] is not None else 0})
+                item_list.append({'id': item[0], 'name': item[1], 'percentage': item[2], 'stock': item[3], 'price': float(item[4]), 'percent_diff': item[5] if item[5] is not None else 0, 'price_diff': item[6] if item[6] is not None else 0, 'category': item[7] if item[7] is not None else ''})
             
         except Exception as e:
             logger.exception("Failed to build item list from DB rows: %s", e)

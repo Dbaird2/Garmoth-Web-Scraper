@@ -64,8 +64,23 @@ class Database:
         try:
             time1 = datetime.now()
             items = await self.conn.fetch(''' 
-                SELECT id, item, percentage, stock, price::numeric(15,1) AS full_price, percentage - (select percentage from bdo_items b where b.item = bdo_items.item and b.recent_time < CURRENT_DATE ORDER BY b.recent_time DESC LIMIT 1) as percent_diff, price - (select price from bdo_items b where b.item = bdo_items.item and b.recent_time < CURRENT_DATE ORDER BY b.recent_time DESC LIMIT 1) as price_diff from bdo_items WHERE recent_time = CURRENT_DATE ORDER BY percentage desc;
-            ''')
+                SELECT g.id as id, item, percentage, stock, price::numeric(15,1) AS full_price, 
+                    percentage - (
+                                SELECT percentage 
+                                    FROM bdo_items b 
+                                    WHERE b.item = g.item AND b.recent_time < CURRENT_DATE 
+                                    ORDER BY b.recent_time DESC LIMIT 1) AS percent_diff, 
+                    price - (
+                            SELECT price 
+                                FROM bdo_items b 
+                                WHERE b.item = g.item AND b.recent_time < CURRENT_DATE 
+                                ORDER BY b.recent_time DESC LIMIT 1) AS price_diff, 
+                    c.name as category_name
+                FROM bdo_items AS g 
+                    LEFT JOIN item AS i ON i.name = g.item 
+                    LEFT JOIN bdo_categories c ON i.category_id = c.id 
+                WHERE recent_time = CURRENT_DATE ORDER BY percentage desc
+                ''')
             time2 = datetime.now()
             diff = time2 - time1
             logger.info("selectAllItemRows returned %d rows in %d.%06ds", len(items), diff.seconds, diff.microseconds)
