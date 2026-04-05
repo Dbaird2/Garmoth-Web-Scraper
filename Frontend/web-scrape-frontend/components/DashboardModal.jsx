@@ -3,13 +3,13 @@ import { useState } from "react";
 import { getItem } from "../hooks/API_CALLS";
 
 export default function DashbaordItemModal({ item }) {
-  const modal_id = `dialog-${item.item}`;
+  const modal_id = `dialog-${item?.name ?? item.item}`;
   const [data, setData] = useState([]);
   const [modal, setOpen] = useState(false);
   const handleOpen = async () => {
     setOpen(true);
     try {
-      const response = await getItem(item.item);
+      const response = await getItem(item?.name ?? item.item);
       // ensure we always have an array
       setData(Array.isArray(response) ? response : []);
     } catch (err) {
@@ -56,7 +56,7 @@ export default function DashbaordItemModal({ item }) {
                           id="dialog-title"
                           className="text-[15px] font-extrabold tracking-tight text-slate-200 "
                         >
-                          {item.name}
+                          {item?.name ?? item.item}
                         </h3>
                       </div>
 
