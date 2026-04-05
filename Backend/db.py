@@ -192,6 +192,17 @@ class Database:
             logger.info("updateEventImpact — event=%s | impact=%s", event_name, impact)
             await self.conn.execute("""
                 UPDATE bdo_events SET impact = $1 WHERE name = $2
+                AND CASE impact
+                    WHEN 'High'   THEN 3
+                    WHEN 'Medium' THEN 2
+                    WHEN 'Low'    THEN 1
+                    ELSE 0
+                END < CASE $1
+                    WHEN 'High'   THEN 3
+                    WHEN 'Medium' THEN 2
+                    WHEN 'Low'    THEN 1
+                    ELSE 0
+                END
             """, impact, event_name)
             return True
         except Exception as e:
