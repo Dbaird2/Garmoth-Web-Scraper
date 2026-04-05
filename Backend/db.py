@@ -36,9 +36,9 @@ class Database:
             logger.exception("Database connection pool failed — host=%s | db=%s | error: %s", DB_HOST, DB_NAME, e)
             raise
 
-    async def upsertItems(self, items = []):
+    async def insertItems(self, items = []):
         time1 = datetime.now()
-        logger.info("upsertItems called — upserting %d items", len(items))
+        logger.info("insertItems called — upserting %d items", len(items))
         async with self.conn.acquire() as pool:
             try:
                 await pool.execute('''
@@ -54,11 +54,11 @@ class Database:
                 [i[2] for i in items],
                 [i[3] for i in items])
             except Exception as e:
-                logger.exception("upsertItems transaction failed — %d items | error: %s", len(items), e)
+                logger.exception("insertItems transaction failed — %d items | error: %s", len(items), e)
                 raise
         time2 = datetime.now()
         diff = time2 - time1
-        logger.info("upsertItems completed in %d.%06ds", diff.seconds, diff.microseconds)
+        logger.info("insertItems completed in %d.%06ds", diff.seconds, diff.microseconds)
         
     async def selectAllItemRows(self):
         try:
@@ -290,7 +290,6 @@ class Database:
                     form_data.event_name, e
                 )
                 raise
-
 
     async def closeConnection(self):
         await self.conn.close()

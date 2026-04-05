@@ -116,6 +116,6 @@ async def recalculateAllEventImpacts(db):
     # --- Persist indirect items ---
     if indirect_impact_dict:
         try:
-            await db.updateIndirectTable(indirect_impact_dict)
+            await db.upsertIndirectEventItems(indirect_impact_dict)
         except Exception as e:
             logger.exception("updateIndirectTable failed: %s", e)
