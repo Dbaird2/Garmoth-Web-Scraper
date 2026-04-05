@@ -6,7 +6,6 @@ export function ItemCard({ item, favorite, toggleFavorite }) {
   const [popped, setPopped] = useState(false);
 
   const handleFavorite = (name) => {
-    console.log(name);
     toggleFavorite(name);
     setPopped(true);
     setTimeout(() => setPopped(false), 600);
@@ -24,7 +23,7 @@ export function ItemCard({ item, favorite, toggleFavorite }) {
       {/* Header */}
       <div className="flex flex-row justify-between items-start gap-2">
         <h3 className="font-mono text-[11px] uppercase tracking-widest text-yellow-400/70 truncate">
-          {item.name}
+          {item.name} - {item.category}
         </h3>
         <button
           onClick={() => handleFavorite(item.name)}

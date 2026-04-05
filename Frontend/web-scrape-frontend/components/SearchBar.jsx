@@ -1,18 +1,19 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect } from "react";
 
 export default function SearchBar({ ...props_from_filter }) {
   const search_ref = useRef(null);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.altKey && e.key === '/') {
+      if (e.altKey && e.key === "/") {
         e.preventDefault();
         search_ref.current?.focus();
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
   return (
     <div className="inset-0">
       <div
@@ -68,6 +69,21 @@ export default function SearchBar({ ...props_from_filter }) {
             }
             className="w-full accent-teal-400"
           />
+        </div>
+
+        {/* Category */}
+        <div className="p-0 mr-0">
+          <span className="cursor-pointer flex items-center gap-1.5 rounded-md border border-transparent px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-400 transition-all duration-150 hover:-translate-y-px hover:border-yellow-400/30 hover:bg-yellow-400/[0.07] hover:text-yellow-400">
+            <select
+              onChange={(e) =>
+                props_from_filter.filterByCategory(e.target.value)
+              }
+            >
+              <option value="all">All</option>
+              <option value="upgrade">Upgrade</option>
+              <option value="enhancement">Enhancement</option>
+            </select>
+          </span>
         </div>
 
         {/* Favorites */}

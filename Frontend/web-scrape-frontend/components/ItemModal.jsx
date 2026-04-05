@@ -18,7 +18,6 @@ export function ItemModal({ item }) {
       setData([]);
     }
   };
-  console.log(data, modal);
   return (
     <>
       <div className="flex justify-center">

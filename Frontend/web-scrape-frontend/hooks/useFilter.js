@@ -46,9 +46,28 @@ export function useFilter(item_list) {
 
   const filterByFavorites = () => {
     const list = getFavorites();
-    console.log(item_list, list)
+    console.log(item_list, list);
     const new_list = item_list.filter((a) => list.includes(a.name));
-    console.log(new_list)
+    console.log(new_list);
+    setTempList(new_list);
+  };
+
+  const filterByCategory = (category) => {
+    if (category == "all") {
+      const targets = ["enhancement", "upgrade", ""];
+
+      const new_list = item_list.filter((a) =>
+        targets.some(
+          (target) => a.category.toLowerCase() === target.toLowerCase(),
+        ),
+      );
+      setTempList(new_list);
+      return;
+    }
+    const new_list = item_list.filter((a) =>
+      a.category.toLowerCase().includes(category.toLowerCase()),
+    );
+    console.log(new_list, category, item_list);
     setTempList(new_list);
   };
 
@@ -62,6 +81,7 @@ export function useFilter(item_list) {
     resetItems,
     filterBySlider,
     filterByFavorites,
+    filterByCategory,
   };
 }
 export default useFilter;

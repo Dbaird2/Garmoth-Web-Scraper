@@ -32,7 +32,6 @@ export function ItemGrid({ items, isFavorite, toggleFavorite }) {
   };
 
   const scrollToTop = () => {
-    console.log("Clicked scrollToTop");
     scroll_ref.current.scrollTo({
       top: 0,
       left: 0,

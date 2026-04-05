@@ -35,7 +35,6 @@ function getDaysRemaining(end_date) {
 }
 
 function getWorstDrop(items = []) {
-    console.log(items)
   if (!items.length) return null;
   return items.reduce(
     (worst, item) =>
@@ -45,7 +44,6 @@ function getWorstDrop(items = []) {
 }
 
 export default function DashboardHero({ event_info = {} }) {
-    console.log(event_info)
   const events = Object.values(event_info);
   if (!events.length) return null;
 
@@ -54,7 +52,6 @@ export default function DashboardHero({ event_info = {} }) {
   );
 
   const hero = sorted[0];
-  console.log('hero', hero)
   const rest = sorted.slice(1);
   const heroStyle = IMPACT_STYLES[hero.impact] ?? IMPACT_STYLES.None;
   const heroItems = hero.direct_items?.items ?? [];
