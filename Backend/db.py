@@ -106,7 +106,7 @@ class Database:
             logger.exception("selectItemsByRange failed — range=%s | error: %s", range, e)
             raise
 
-    async def selectWeekBeforePrice(self, items: str, event_start_date: str):
+    async def selectThreeWeekBeforePrice(self, items: str, event_start_date: str):
         from datetime import timedelta
         try:
             if not items:
@@ -115,7 +115,7 @@ class Database:
             select_start = 'SELECT item, price, recent_time FROM bdo_items ' \
             'WHERE recent_time >= $1 AND recent_time < $2 AND item = $3 ORDER BY recent_time'
 
-            last_week_date = event_start_date - timedelta(days=7)
+            last_week_date = event_start_date - timedelta(days=21)
 
             price_range = await self.conn.fetch(select_start, last_week_date, event_start_date, items)
             return price_range

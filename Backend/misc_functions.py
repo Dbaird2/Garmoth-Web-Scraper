@@ -124,7 +124,7 @@ def worst_impact(a: str, b: str) -> str:
 
 async def get_pct_diff(db, item_name: str, start_date) -> float | None:
     """Fetches baseline and recent price for an item, returns pct_diff or None."""
-    price_range = await db.selectWeekBeforePrice(item_name, start_date)
+    price_range = await db.selectThreeWeekBeforePrice(item_name, start_date)
     baseline_avg = get_baseline_avg(price_range)
     if baseline_avg is None:
         return None
