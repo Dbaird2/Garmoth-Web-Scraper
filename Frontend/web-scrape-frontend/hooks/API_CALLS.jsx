@@ -2,9 +2,7 @@ export async function getAllItems() {
   console.log("getAllItems", "calling fetch");
   try {
     const res = await fetch("https://web-scraper-68z5.onrender.com/items/all");
-    console.log("status", res);
     const json_items = await res.json();
-    console.log("json_items", json_items);
     return json_items;
   } catch (e) {
     console.error("getAllItems error", e);
@@ -17,7 +15,6 @@ export async function getItem(item) {
   const res = await fetch(url);
 
   const json_item = await res.json();
-  console.log("Db res", json_item);
   return json_item;
 }
 

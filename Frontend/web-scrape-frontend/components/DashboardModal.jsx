@@ -3,13 +3,13 @@ import { useState } from "react";
 import { getItem } from "../hooks/API_CALLS";
 
 export default function DashbaordItemModal({ item }) {
-  const modal_id = `dialog-${item.name}`;
+  const modal_id = `dialog-${item.item}`;
   const [data, setData] = useState([]);
   const [modal, setOpen] = useState(false);
   const handleOpen = async () => {
     setOpen(true);
     try {
-      const response = await getItem(item.name);
+      const response = await getItem(item.item);
       // ensure we always have an array
       setData(Array.isArray(response) ? response : []);
     } catch (err) {

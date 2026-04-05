@@ -24,7 +24,6 @@ export default function EventForm() {
   const addItemToSet = () => {
     const item = item_name.trim();
     if (!item_set.includes(item)) {
-      console.log(item);
       setItem((prev_stack) => [...prev_stack, item]);
       setFormData((prev_state) => ({ ...prev_state, ["items"]: item_set }));
     }
@@ -33,13 +32,11 @@ export default function EventForm() {
   const deleteFromSet = (item) => {
     item = item.trim();
     const new_item_set = item_set.filter((item_name) => item_name != item);
-    console.log(new_item_set, item);
     setItem(new_item_set);
   };
 
   const handleSubmit = async () => {
     setLoading(true);
-    console.log("handlingSubmit called");
     try {
       const res = await sendEvent(form_data);
       if (res == "Error") {

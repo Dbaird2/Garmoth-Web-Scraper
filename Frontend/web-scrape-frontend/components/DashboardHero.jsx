@@ -27,7 +27,6 @@ function getDaysRemaining(end_date) {
   const now = new Date();
   const end = new Date(end_date.replace(/-/g, "/"));
   const diffMs = end - now;
-  console.log(diffMs, end, now, end_date)
   if (diffMs <= 0) return "Ended";
   const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));

@@ -24,9 +24,7 @@ const IMPACT_STYLES = {
 };
 
 const calculateImpactLevel = (percentage) => {
-  console.log("after", percentage);
   percentage = parseFloat(percentage);
-  console.log("before", percentage);
   if (percentage <= -200.0 || percentage >= 200.0) {
     return "Very_High";
   } else if (percentage <= -100.0 || percentage >= 100.0) {
