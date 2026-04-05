@@ -10,13 +10,14 @@ async def test_connect_adds_to_active_connections():
     await manager.connect(mock_ws)
     assert mock_ws in manager.active_connections
 
-async def test_disconnect_removes_from_active_connections():
+def test_disconnect_removes_from_active_connections():
     manager = ConnectionManager()
     mock_ws = AsyncMock()
     manager.active_connections.append(mock_ws)
     manager.disconnect(mock_ws)
     assert mock_ws not in manager.active_connections
 
+@pytest.mark.asyncio
 async def test_broadcast_removes_dead_connection():
     manager = ConnectionManager()
     dead_ws = AsyncMock()
