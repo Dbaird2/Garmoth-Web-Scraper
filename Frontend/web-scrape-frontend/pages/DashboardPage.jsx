@@ -22,6 +22,21 @@ const IMPACT_STYLES = {
   },
 };
 
+const calculateImpactLevel = (percentage) => {
+  console.log("after", percentage);
+  percentage = parseFloat(percentage);
+  console.log("before", percentage);
+  if (percentage <= -50.0 || percentage >= 50.0) {
+    return "High";
+  } else if (percentage <= -30.0 || percentage >= 30.0) {
+    return "Medium";
+  } else if (percentage <= -15.5 || percentage >= 15.5) {
+    return "Low";
+  } else {
+    return "None";
+  }
+};
+
 function EventCard({
   event,
   impact,
@@ -30,7 +45,6 @@ function EventCard({
   direct_indirect_items,
 }) {
   const style = IMPACT_STYLES[impact] ?? IMPACT_STYLES.Unknown;
-
 
   return (
     <div
@@ -78,6 +92,7 @@ function EventCard({
               <ul className="flex flex-col max-h-[28rem]  [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-[#0d1520] [&::-webkit-scrollbar-thumb]:bg-teal-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-teal-400 overflow-auto gap-1.5">
                 {(direct_indirect_items?.direct_items?.items ?? []).map(
                   (item) => {
+                    
                     return (
                       <li
                         key={item.name ?? "Error"}
@@ -103,24 +118,29 @@ function EventCard({
             <TabPanel>
               <ul className="flex flex-col max-h-[28rem]  [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-[#0d1520] [&::-webkit-scrollbar-thumb]:bg-teal-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-teal-400 overflow-auto gap-1.5">
                 {(direct_indirect_items?.indirect_items?.items ?? []).map(
-                  (item) => (
-                    <li
-                      key={item.item}
-                      className="flex flex-row justify-between text-[13px] text-[#8aa8b8] px-2.5 py-1.5 bg-[#0a1018] border-l-2 border-[#1a2a3a] hover:border-teal-400 hover:text-[#c8d8e8] transition-colors"
-                    >
-                      <div>
-                        <DashbaordItemModal item={item} />
-                      </div>
-                      <div className="flex gap-4 text-gray-400 text-[10px]">
-                        <span>Impact</span>
-                        <div
-                          className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 border shrink-0 `}
-                        >
-                          {item.pct_diff?.toFixed(2) ?? 0.0}
+                  (item) => {
+                    const impact = calculateImpactLevel(
+                      item?.pct_diff?.toFixed(2),
+                    );
+                    return (
+                      <li
+                        key={item.item}
+                        className="flex flex-row justify-between text-[13px] text-[#8aa8b8] px-2.5 py-1.5 bg-[#0a1018] border-l-2 border-[#1a2a3a] hover:border-teal-400 hover:text-[#c8d8e8] transition-colors"
+                      >
+                        <div>
+                          <DashbaordItemModal item={item} />
                         </div>
-                      </div>
-                    </li>
-                  ),
+                        <div className="flex gap-4 text-gray-400 text-[10px]">
+                          <span>Impact</span>
+                          <div
+                            className={`font-mono text-[10px] tracking-widest uppercase px-2 py-1 border shrink-0 ${IMPACT_STYLES[impact].badge}`}
+                          >
+                            {item.pct_diff?.toFixed(2) ?? 0.0}
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  },
                 )}
               </ul>
             </TabPanel>
