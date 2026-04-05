@@ -30,7 +30,7 @@ def higherImpact(a: str, b: str) -> str:
 
 async def calculatePctDiff(db, item_name: str, start_date) -> float | None:
     """Fetches baseline and recent price for an item, returns pct_diff or None."""
-    price_range = await db.selectThreeWeekBeforePrice(item_name, start_date)
+    price_range = await db.selectBaselinePriceRange(item_name, start_date)
     baseline_avg = getBaselineAvg(price_range)
     if baseline_avg is None:
         return None
