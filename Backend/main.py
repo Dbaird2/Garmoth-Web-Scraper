@@ -74,9 +74,10 @@ class EventForm(BaseModel):
     items: list[str]
 
 async def repeatInsert():
-    from misc_functions import updateImpactLevel, updateIndirectItemsImpact
+    from misc_functions import updateAllImpact
 
     logger.info("repeatInsert loop started")
+
     while True:
         try:
             items = await db.selectAllItemRows()
@@ -94,16 +95,11 @@ async def repeatInsert():
             logger.exception("WebSocket broadcast to item_manager failed: %s", e)
         
         try:
-            await updateImpactLevel(db)
-        except Exception as e:
-            logger.exception("Scheduled impact level update failed: %s", e)
-
-        try:
-            await updateIndirectItemsImpact(db)
+            await updateAllImpact(db)
             event_dict = await getIndirectItems()
             await dash_manager.broadcast(event_dict)
         except Exception as e:
-            logger.exception("Scheduled indirect impact update failed: %s", e)
+            logger.exception("Scheduled impact update failed: %s", e)
         await asyncio.sleep(3600)
         
 
