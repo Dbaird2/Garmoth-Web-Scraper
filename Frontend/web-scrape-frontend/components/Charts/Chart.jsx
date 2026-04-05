@@ -6,6 +6,7 @@ import {
   YAxis,
   ResponsiveContainer,
   Tooltip,
+  Legend,
 } from "recharts";
 
 export function Chart({ data, y_axis_1, y_axis_2, x_axis }) {
@@ -36,10 +37,17 @@ export function Chart({ data, y_axis_1, y_axis_2, x_axis }) {
         >
           <CartesianGrid strokeDasharray="5 5" />
           <XAxis dataKey={x_axis} stroke="#94a3b8" />
-          <YAxis stroke="#94a3b8" />
+          {/* Left Y-axis */}
+          <YAxis yAxisId="left" stroke="#94a3b8" />
+
+          {/* Right Y-axis */}
+          <YAxis yAxisId="right" orientation="right" stroke="#94a3b8" />
           <Tooltip />
+          <Legend />
+
           <Line
             type="monotone"
+            yAxisId="left"
             dataKey={y_axis_1}
             stroke="#2dd4bf"
             dot={{ fill: "blue" }}
@@ -49,6 +57,7 @@ export function Chart({ data, y_axis_1, y_axis_2, x_axis }) {
           />
           <Line
             type="monotone"
+            yAxisId="right"
             dataKey={y_axis_2}
             stroke="#d4542d"
             dot={{ fill: "red" }}
