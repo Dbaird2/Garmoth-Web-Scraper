@@ -6,6 +6,7 @@ import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import DashboardHero from "../components/DashboardHero";
 
 const IMPACT_STYLES = {
+  Very_High: { border: "border-t-yellow-500", badge: "border-yellow-500 text-yellow-500" },
   High: { border: "border-t-red-500", badge: "border-red-500 text-red-500" },
   Medium: {
     border: "border-t-amber-400",
@@ -26,9 +27,11 @@ const calculateImpactLevel = (percentage) => {
   console.log("after", percentage);
   percentage = parseFloat(percentage);
   console.log("before", percentage);
-  if (percentage <= -50.0 || percentage >= 50.0) {
+  if (percentage <= -200.0 || percentage >= 200.0) {
+    return "Very_High";
+  } else if (percentage <= -100.0 || percentage >= 100.0) {
     return "High";
-  } else if (percentage <= -30.0 || percentage >= 30.0) {
+  } else if (percentage <= -50.0 || percentage >= 50.0) {
     return "Medium";
   } else if (percentage <= -15.5 || percentage >= 15.5) {
     return "Low";

@@ -3,7 +3,7 @@ from discord_webhook import sendDiscordMessage
 
 logger = logging.getLogger(__name__)
 
-IMPACT_INTS = {'High': 3, 'Medium': 2, 'Low': 1, 'None': 0}
+IMPACT_INTS = {'Very High': 4, 'High': 3, 'Medium': 2, 'Low': 1, 'None': 0}
 
 def getBaselineAvg(price_range) -> float | None:
     """Returns the baseline average price, or None if it can't be computed."""
@@ -19,8 +19,9 @@ def calculateImpactLevel(pct_diff: float, directional: bool = True) -> str:
     directional=False → absolute value used (indirect items, can move either way)
     """
     value = pct_diff if directional else abs(pct_diff)
-    if value <= -50 or (not directional and value >= 50): return "High"
-    if value <= -30 or (not directional and value >= 30): return "Medium"
+    if value <= -200 or (not directional and value >= 200): return "Very High"
+    if value <= -100 or (not directional and value >= 100): return "High"
+    if value <= -50 or (not directional and value >= 50): return "Medium"
     if value <= -15.5 or (not directional and value >= 15.5): return "Low"
     return "None"
 
