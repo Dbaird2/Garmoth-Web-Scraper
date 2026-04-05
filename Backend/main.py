@@ -74,7 +74,7 @@ class EventForm(BaseModel):
     items: list[str]
 
 async def repeatInsert():
-    from misc_functions import updateAllImpact
+    from misc_functions import recalculateAllEventImpacts
 
     logger.info("repeatInsert loop started")
 
@@ -95,7 +95,7 @@ async def repeatInsert():
             logger.exception("WebSocket broadcast to item_manager failed: %s", e)
         
         try:
-            await updateAllImpact(db)
+            await recalculateAllEventImpacts(db)
             event_dict = await getIndirectItems()
             await dash_manager.broadcast(event_dict)
         except Exception as e:
