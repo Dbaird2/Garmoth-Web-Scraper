@@ -1,4 +1,3 @@
-
 async def sendDiscordMessage(message) -> None:
     import requests
     from dotenv import load_dotenv

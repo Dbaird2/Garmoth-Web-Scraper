@@ -33,7 +33,6 @@ class Database:
             print(f"Connection failed: {e}")
 
     async def insertItemTableAsArray(self, items = []):
-        # items = ScrapeForItems()
         time1 = datetime.now()
         print(f"insertItemTableAsArray called with {len(items)} items")
         async with self.conn.acquire() as pool:

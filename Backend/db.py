@@ -1,6 +1,7 @@
 import asyncpg
 import logging
 from datetime import datetime, date
+from discord_webhook import sendDiscordMessage
 
 logger = logging.getLogger(__name__)
 
@@ -35,9 +36,9 @@ class Database:
             logger.exception("Database connection pool failed — host=%s | db=%s | error: %s", DB_HOST, DB_NAME, e)
             raise
 
-    async def insertItemTableAsArray(self, items = []):
+    async def upsertItems(self, items = []):
         time1 = datetime.now()
-        logger.info("insertItemTableAsArray called — upserting %d items", len(items))
+        logger.info("upsertItems called — upserting %d items", len(items))
         async with self.conn.acquire() as pool:
             try:
                 await pool.execute('''
@@ -53,11 +54,11 @@ class Database:
                 [i[2] for i in items],
                 [i[3] for i in items])
             except Exception as e:
-                logger.exception("insertItemTableAsArray transaction failed — %d items | error: %s", len(items), e)
+                logger.exception("upsertItems transaction failed — %d items | error: %s", len(items), e)
                 raise
         time2 = datetime.now()
         diff = time2 - time1
-        logger.info("insertItemTableAsArray completed in %d.%06ds", diff.seconds, diff.microseconds)
+        logger.info("upsertItems completed in %d.%06ds", diff.seconds, diff.microseconds)
         
     async def selectAllItemRows(self):
         try:
@@ -106,7 +107,7 @@ class Database:
             logger.exception("selectItemsByRange failed — range=%s | error: %s", range, e)
             raise
 
-    async def selectThreeWeekBeforePrice(self, items: str, event_start_date: str):
+    async def selectBaselinePriceRange(self, items: str, event_start_date: str):
         from datetime import timedelta
         try:
             if not items:
@@ -120,7 +121,7 @@ class Database:
             price_range = await self.conn.fetch(select_start, last_week_date, event_start_date, items)
             return price_range
         except Exception as e:
-            logger.exception("selectWeekBeforePrice failed — item=%s | event_start=%s | error: %s", items, event_start_date, e)
+            logger.exception("selectBaselinePriceRange failed — item=%s | event_start=%s | error: %s", items, event_start_date, e)
 
     async def selectAllEvents(self):
         logger.debug("selectAllEvents — querying active events")
@@ -152,8 +153,8 @@ class Database:
         except Exception as e:
             logger.exception("selectIndirectItems failed: %s", e)
 
-    async def selectCurrentIndirectItem(self):
-        logger.debug("selectCurrentIndirectItem — querying active events")
+    async def selectActiveIndirectItems(self):
+        logger.debug("selectActiveIndirectItems — querying active events")
         try:
             indirect_items = await self.conn.fetch('''
                 SELECT * FROM indirect_event_item WHERE end_date >= CURRENT_DATE
@@ -163,9 +164,9 @@ class Database:
         except Exception as e:
             logger.exception("selectAllEvents failed: %s", e)
 
-    async def updateIndirectTable(self, event_dict = {}):
+    async def upsertIndirectEventItems(self, event_dict = {}):
         time1 = datetime.now()
-        logger.info("insertItemTableAsArray called — inserting %d items", len(event_dict))
+        logger.info("upsertIndirectEventItems called — inserting %d items", len(event_dict))
         async with self.conn.acquire() as pool:
             try:
                 for event, rows in event_dict.items():
@@ -181,16 +182,17 @@ class Database:
                     [i['pct_diff'] for i in rows],
                     [i['end_date'] for i in rows])
             except Exception as e:
-                logger.exception("insertItemTableAsArray transaction failed — %d items | error: %s", len(event_dict), e)
+                logger.exception("upsertIndirectEventItems transaction failed — %d items | error: %s", len(event_dict), e)
                 raise
         time2 = datetime.now()
         diff = time2 - time1
-        logger.info("insertItemTableAsArray completed in %d.%06ds", diff.seconds, diff.microseconds)
+        logger.info("upsertIndirectEventItems completed in %d.%06ds", diff.seconds, diff.microseconds)
 
     async def updateEventImpact(self, impact, event_name):
+        
         try:
             logger.info("updateEventImpact — event=%s | impact=%s", event_name, impact)
-            await self.conn.execute("""
+            status = await self.conn.execute("""
                 UPDATE bdo_events SET impact = $1 WHERE name = $2
                 AND CASE impact
                     WHEN 'High'   THEN 3
@@ -204,6 +206,10 @@ class Database:
                     ELSE 0
                 END
             """, impact, event_name)
+            if status == 'UPDATE 1':
+                await sendDiscordMessage(f"Updated event {event_name} to impact level {impact}")
+                logger.info("updateEventImpact — updated event=%s | impact=%s", event_name, impact)
+
             return True
         except Exception as e:
             logger.exception("updateEventImpact failed — event=%s | impact=%s | error: %s", event_name, impact, e)
@@ -217,7 +223,7 @@ class Database:
         )
         async with self.conn.acquire() as pool:
             try:
-                await pool.execute('''
+                status = await pool.execute('''
                     WITH cte AS 
                         (
                             SELECT * FROM event_contents WHERE item_name = $2
@@ -234,6 +240,8 @@ class Database:
                             AND $4 < cte.pct_diff
                 ''', 
                 arg_dict['impact'], arg_dict['item'], arg_dict['event_name'], arg_dict['pct_diff'])
+                count = 1 if status == 'UPDATE 1' else 0
+                return count
             except Exception as e:
                 logger.exception(
                     "updateEventItem transaction failed — item=%s | event=%s | error: %s",

@@ -29,7 +29,6 @@ app = FastAPI(lifespan=lifespan)
 
 
 async def repeatInsert():
-
     print('repeatInsert Started')
     while True:
 

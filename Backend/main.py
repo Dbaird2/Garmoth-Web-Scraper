@@ -130,7 +130,7 @@ async def websocket_endpoint(websocket: WebSocket):
         dash_manager.disconnect(websocket)
 
 async def getIndirectItems():
-    indirect_items = await db.selectCurrentIndirectItem()
+    indirect_items = await db.selectActiveIndirectItems()
     events = await db.selectAllEvents()
     event_dict = {}
     item_dict = {}
