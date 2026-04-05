@@ -68,19 +68,9 @@ export default function DashbaordItemModal({ item }) {
                           </div>
                           <Chart
                             data={data}
+                            y_axis_1="full_price"
+                            y_axis_2="percentage"
                             x_axis="recent_time"
-                            line="full_price"
-                          />
-                        </div>
-                        <div className="mt-2 rounded-lg border border-white/[0.07] p-4 transition-colors hover:border-teal-400/30">
-                          <div className="mb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.12em] text-teal-400">
-                            <span className="inline-block h-px w-4 bg-teal-400/50" />
-                            Percentage
-                          </div>
-                          <Chart
-                            data={data}
-                            x_axis="recent_time"
-                            line="percentage"
                           />
                         </div>
                       </div>

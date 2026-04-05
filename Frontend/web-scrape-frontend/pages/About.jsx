@@ -9,21 +9,27 @@ const THRESHOLD_ROWS = [
   },
   {
     level: "Low",
-    range: "15.5% – 30%",
+    range: "15.5% – 49.9%",
     color: "text-green-400",
     badge: "border-green-700 bg-green-900/40 text-green-400",
   },
   {
     level: "Medium",
-    range: "30% – 50%",
+    range: "50% – 99.9%",
     color: "text-amber-400",
     badge: "border-amber-700 bg-amber-900/40 text-amber-400",
   },
   {
     level: "High",
-    range: "50%+",
+    range: "100% – 199.9%",
     color: "text-red-400",
     badge: "border-red-700 bg-red-900/40 text-red-400",
+  },
+  {
+    level: "Very High",
+    range: "200%+",
+    color: "text-purple-400",
+    badge: "border-purple-700 bg-purple-900/40 text-purple-400",
   },
 ];
 
@@ -125,7 +131,7 @@ export default function About() {
                 Baseline window
               </p>
               <p className="text-[15px] text-[#c8d8e8] mb-5">
-                3–7 day pre-event average per item. Movements below the baseline
+                21-day pre-event average per item. Movements below the baseline
                 window are treated as market noise.
               </p>
 
@@ -150,9 +156,10 @@ export default function About() {
               <p className="text-[13px] text-[#6a8a9a] leading-relaxed">
                 The 15.5% floor is derived from BDO's in-game market tax — price
                 movements below that threshold are economically
-                indistinguishable from noise. Once an item reaches{" "}
-                <span className="text-red-400">High</span>, that classification
-                cannot be downgraded by subsequent recalculations.
+                indistinguishable from noise. Once an event reaches{" "}
+                <span className="text-purple-400">Very High</span>, that
+                classification cannot be downgraded by subsequent
+                recalculations.
               </p>
             </div>
 
