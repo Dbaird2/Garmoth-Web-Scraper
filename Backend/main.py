@@ -185,8 +185,8 @@ async def getFormattedInvestmentData(email):
             'item': investment[0],
             'qty': investment[2],
             'buyPrice': investment[3],
-            'impact': 'Low',
-            'pnl': (investment[5] - investment[3]) * investment[2] * 0.855,
+            'impact': calculateImpact(investment[3], investment[5]),
+            'pnl': (investment[5] - investment[3]) * 0.855,
             'currentPrice': investment[5]
             })
     chart_data = await db.getChartInvestmentData(email)
@@ -196,6 +196,19 @@ async def getFormattedInvestmentData(email):
             formatted_investments['chart_data'][row[3]] = []  # initialize first
         formatted_investments['chart_data'][row[3]].append({'date': row[1].isoformat(),'actual': row[5],'projected': 100000})
     return formatted_investments
+
+def calculateImpact(buy, current):
+    percentage = ((current - buy) / buy) * 100
+    if percentage >= 200:
+        return "Very High"
+    elif percentage >= 100:
+        return "High"
+    elif percentage >= 50:
+        return "Medium"
+    elif percentage >= 15.5:
+        return "Low"
+    else:
+        return "None"
 
 async def getIndirectItems():
     indirect_items = await db.selectActiveIndirectItems()

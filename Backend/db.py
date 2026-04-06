@@ -304,10 +304,25 @@ class Database:
     async def getInvestments(self, email):
         try:
             investments = await self.conn.fetch('''
-            SELECT distinct on (i.name) i.name, i.id, i.qty, i.buy_price, i.pnl, j.price, j.recent_time 
-                    FROM investment i left join bdo_items j on i.name = j.item 
-                        WHERE email = $1 AND sold = FALSE order by i.name, j.recent_time desc
-                                                ''', email)
+            SELECT 
+                i.name, 
+                i.id, 
+                i.qty, 
+                i.buy_price,
+                (j.price - i.buy_price) as pnl,
+                j.price,
+                j.recent_time
+            FROM investment i
+            LEFT JOIN LATERAL (
+                SELECT price, recent_time 
+                FROM bdo_items 
+                WHERE item = i.name 
+                ORDER BY recent_time DESC 
+                LIMIT 1
+            ) j ON true
+            WHERE i.email = $1 AND i.sold = FALSE
+            ORDER BY i.name
+                    ''', email)
             return investments
         except Exception as e:
             logger.exception("getInvestments failed — email=%s | error: %s", email, e)
