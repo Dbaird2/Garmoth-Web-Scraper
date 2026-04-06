@@ -135,6 +135,7 @@ export default function Investments() {
   });
   const setData = useCallback((data) => {
     console.log('data', data)
+    if (!data?.positions || !data?.chart_data) return;
     setPositions(data.positions);
     setChartData(data.chart_data);
     setSelected(data.positions[0]);

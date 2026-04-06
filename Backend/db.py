@@ -329,6 +329,7 @@ class Database:
             raise
 
     async def upsertInvestment(self, email, data = {}):
+        from datetime import datetime
         try:
             await self.conn.execute('''
                 INSERT INTO investment (bought_at, name, qty, buy_price, email, wanted_price, notes)
@@ -336,10 +337,10 @@ class Database:
                                     ON CONFLICT (bought_at, name, email, buy_price) DO UPDATE
                                     SET qty = EXCLUDED.qty, wanted_price = EXCLUDED.wanted_price, notes = EXCLUDED.notes
                                     ''',
-                                    data['date'].strftime('%Y-%m-%d'), data['item'], data['qty'], data['buyPrice'], email, data.get('event', ''), data.get('notes', ''))
+                                    datetime.strptime(data['date'], "%Y-%m-%d").date(), data['item'], int(data['qty']), int(data['buyPrice']), email, data.get('event', ''), data.get('notes', ''))
         except Exception as e:
             logger.exception("upsertInvestment failed — email=%s | error: %s", email, e)
-        raise
+            raise
     
     async def deleteInvestment(self, id):
         try:
