@@ -379,7 +379,7 @@ export default function Investments() {
                       className={`py-2 px-1 border-t border-[#1a2a3a] ${p.pnl >= 0 ? "text-teal-400" : "text-red-400"}`}
                     >
                       {p.pnl >= 0 ? "+" : ""}
-                      {p.pnl.toFixed(1)}%
+                      {p.pnl?.toFixed(1) ?? 0}%
                     </td>
                     <td className="py-2 px-1 border-t border-[#1a2a3a]">
                       <button
