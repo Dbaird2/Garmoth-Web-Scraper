@@ -337,7 +337,7 @@ class Database:
                                     ON CONFLICT (bought_at, name, email, buy_price) DO UPDATE
                                     SET qty = EXCLUDED.qty, wanted_price = EXCLUDED.wanted_price, notes = EXCLUDED.notes
                                     ''',
-                                    datetime.strptime(data['date'], "%Y-%m-%d").date(), data['item'], int(data['qty']), int(data['buyPrice']), email, data.get('event', ''), data.get('notes', ''))
+                                    datetime.strptime(data['date'], "%Y-%m-%d").date(), data['item'], int(data['qty']), int(data['buyPrice']), email, int(data.get('event', 0)) if data.get('event') else None, data.get('notes', ''))
         except Exception as e:
             logger.exception("upsertInvestment failed — email=%s | error: %s", email, e)
             raise
