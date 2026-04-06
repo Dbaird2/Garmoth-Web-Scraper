@@ -1,15 +1,15 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Navbar() {
   const [jwt, setJwt] = useState(localStorage.getItem("jwt"));
-
+  console.log(jwt)
   useEffect(() => {
     const handleStorage = () => setJwt(localStorage.getItem("jwt"));
     window.addEventListener("storage", handleStorage);
     return () => window.removeEventListener("storage", handleStorage);
   }, []);
-  
+
   return (
     <>
       <div
@@ -18,7 +18,7 @@ export default function Navbar() {
       >
         <div className="flex justify-center">
           <div className="w-fit p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40">
-            {jwt.length <= 0 ? (
+            {jwt?.length ?? 0 <= 0 ? (
               <a
                 className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
                 href="https://web-scraper-68z5.onrender.com/auth/google/login"
