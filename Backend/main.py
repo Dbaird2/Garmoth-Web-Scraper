@@ -137,6 +137,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
 @app.websocket("/investmentWs")
 async def investments_ws(websocket: WebSocket, token: str):
+    logger.debug("/investmentWs called token=%s", token)
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
         email = payload["sub"]

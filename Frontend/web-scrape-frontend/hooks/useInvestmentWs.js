@@ -3,10 +3,10 @@ import { useState, useEffect, useRef, useCallback } from "react";
 export function useWebsocket(onMessage, token) {
   const [loading, setLoading] = useState(true);
   const wsRef = useRef(null);
-  console.log(token);
+  console.log('token in useWebsocket', token);
   useEffect(() => {
     if (!token) return;
-
+    console.log('past token return')
     const ws = new WebSocket(
       `wss://web-scraper-68z5.onrender.com/investmentWs?token=` + token,
     );
