@@ -18,7 +18,7 @@ export default function Navbar() {
       >
         <div className="flex justify-center">
           <div className="w-fit p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40">
-            {jwt?.length ?? 0 <= 0 ? (
+            {!jwt ? (
               <a
                 className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
                 href="https://web-scraper-68z5.onrender.com/auth/google/login"
