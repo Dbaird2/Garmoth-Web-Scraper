@@ -291,5 +291,16 @@ class Database:
                 )
                 raise
 
+    async def upsertUser(self, email: str, name: str):
+        try:
+            await self.conn.execute('''
+                INSERT INTO users (email, name) VALUES ($1, $2)
+                ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name
+            ''', email, name)
+        except Exception as e:
+            logger.exception("upsertUser failed — email=%s | error: %s", email, e)
+            raise
+    
     async def closeConnection(self):
         await self.conn.close()
+    

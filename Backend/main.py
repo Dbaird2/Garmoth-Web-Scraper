@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, APIRouter, Depends, Security
+from fastapi.responses import RedirectResponse
 from starlette.requests import Request  
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -7,10 +8,14 @@ from contextlib import asynccontextmanager
 import asyncio
 import logging
 from web_socket import ConnectionManager
-from datetime import datetime
+from datetime import datetime, timedelta
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+import httpx, jwt, os
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+bearer = HTTPBearer()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -230,3 +235,71 @@ async def addEvent(request: Request, event_data: EventForm):
     except Exception as e:
         logger.exception("addEvent failed for form_data=%s", event_data)
         raise HTTPException(status_code=500, detail=str(e))
+    
+###################################################################################################
+""" OAuth Login needed Functions/Routes """
+
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+REDIRECT_URI = os.getenv("REDIRECT_URI")  
+JWT_SECRET = os.getenv("JWT_SECRET")
+
+@app.get("/auth/google/login")
+def google_login():
+    url = (
+        "https://accounts.google.com/o/oauth2/v2/auth"
+        f"?client_id={GOOGLE_CLIENT_ID}"
+        f"&redirect_uri={REDIRECT_URI}"
+        "&response_type=code"
+        "&scope=openid email profile"
+    )
+    return RedirectResponse(url)
+
+@app.get("/auth/google/callback")
+async def google_callback(code: str):
+    async with httpx.AsyncClient() as client:
+        # Exchange code for token
+        token_res = await client.post("https://oauth2.googleapis.com/token", data={
+            "code": code,
+            "client_id": GOOGLE_CLIENT_ID,
+            "client_secret": GOOGLE_CLIENT_SECRET,
+            "redirect_uri": REDIRECT_URI,
+            "grant_type": "authorization_code",
+        })
+        token_data = token_res.json()
+
+        # Get user info
+        user_res = await client.get(
+            "https://www.googleapis.com/oauth2/v2/userinfo",
+            headers={"Authorization": f"Bearer {token_data['access_token']}"}
+        )
+        user = user_res.json()  # { email, name, picture }
+
+    # Upsert user in your DB here
+    await db.upsertUser(user['email'], user['name'])
+
+    # Issue your own JWT
+    payload = {
+        "sub": user["email"],
+        "name": user["name"],
+        "exp": datetime.utcnow() + timedelta(days=7)
+    }
+    token = jwt.encode(payload, JWT_SECRET, algorithm="HS256")
+
+    # Redirect to frontend with token
+    return RedirectResponse(f"https://bdo-event-tracker.vercel.app/auth?token={token}")
+
+
+def getCurrentUser(credentials: HTTPAuthorizationCredentials = Security(bearer)):
+    try:
+        payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=["HS256"])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+
+@app.get("/investments")
+async def get_investments(user=Depends(getCurrentUser)):
+    pass

@@ -3,6 +3,8 @@ import ItemPage from "../pages/ItemPage";
 import Dashboard from "../pages/DashboardPage"
 import EventForm from "../pages/EventForm"
 import About from "../pages/About";
+import AuthCallback from "../pages/Auth";
+import Investments from "../pages/Investments"
 import Navbar from "../components/Navbar"
 
 export default function App() {
@@ -18,9 +20,11 @@ export default function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Dashboard />} />
+        <Route path="/investments" element={<Investments />} />
         <Route path="/items" element={<ItemPage />} />
         <Route path="/forms" element={<EventForm />} />
         <Route path="/about" element={<About />} />
+        <Route path="/auth" element={<AuthCallback />} />
       </Routes>
     </div>
   );
