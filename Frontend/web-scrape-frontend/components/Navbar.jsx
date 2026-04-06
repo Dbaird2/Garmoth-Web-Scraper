@@ -88,8 +88,10 @@ export default function Navbar() {
               </Link>
             </div>
 
-            <div className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40 
-              active:scale-95 active:bg-teal-400/20 active:rounded-md active:animate-pulse">
+            <div
+              className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40 
+              active:scale-95 active:bg-teal-400/20 active:rounded-md active:animate-pulse"
+            >
               <Link
                 className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
                 to="/items"
@@ -98,8 +100,10 @@ export default function Navbar() {
               </Link>
             </div>
             {jwt && (
-              <div className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40 
-                active:scale-95 active:bg-teal-400/20 active:rounded-md active:animate-pulse">
+              <div
+                className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40 
+                active:scale-95 active:bg-teal-400/20 active:rounded-md active:animate-pulse"
+              >
                 <Link
                   className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
                   to="/investments"
@@ -109,8 +113,10 @@ export default function Navbar() {
               </div>
             )}
 
-            <div className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40 
-              active:scale-95 active:bg-teal-400/20 active:rounded-md active:animate-pulse">
+            <div
+              className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40 
+              active:scale-95 active:bg-teal-400/20 active:rounded-md active:animate-pulse"
+            >
               <Link
                 className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
                 to="/forms"
@@ -119,8 +125,10 @@ export default function Navbar() {
               </Link>
             </div>
 
-            <div className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40 
-              active:scale-95 active:bg-teal-400/20 active:rounded-md active:animate-pulse">
+            <div
+              className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40 
+              active:scale-95 active:bg-teal-400/20 active:rounded-md active:animate-pulse"
+            >
               <Link
                 className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
                 to="/about"
