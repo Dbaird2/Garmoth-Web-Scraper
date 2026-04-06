@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
 export function useWebsocket(onMessage, token) {
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
   const wsRef = useRef(null);
-  console.log(token)
+  console.log(token);
   useEffect(() => {
     if (!token) return;
-    
+
     const ws = new WebSocket(
-      `wss://web-scraper-68z5.onrender.com/investmentWs?token=`+token,
+      `wss://web-scraper-68z5.onrender.com/investmentWs?token=` + token,
     );
     wsRef.current = ws;
     ws.onopen = () => {
@@ -20,14 +20,13 @@ export function useWebsocket(onMessage, token) {
       console.log("received message", event);
       const items = JSON.parse(event.data);
       onMessage(items);
-      setLoading(false)
-    //   setTempList(items);
+      setLoading(false);
+      //   setTempList(items);
     };
 
-    
     ws.onerror = (error) => console.error("WebSocket error:", error);
     ws.onclose = () => console.log("WebSocket Disconnected");
-    
+
     return () => {
       ws.close();
     };
@@ -66,15 +65,15 @@ export function useWebsocket(onMessage, token) {
     //   },
     // };
     // onMessage(mockData);
-  }, [token]);  
+  }, [token]);
   const sendMessage = useCallback((type, message) => {
-      if (wsRef.current?.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify({ [type]: message}));
-        return true;
-      }
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ [type]: message }));
+      return true;
+    }
   }, []);
   return { loading, sendMessage };
-  
+
   // return { loading };
 }
 

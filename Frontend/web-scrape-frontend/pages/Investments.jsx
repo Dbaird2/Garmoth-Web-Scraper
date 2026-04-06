@@ -140,10 +140,7 @@ export default function Investments() {
     setSelected(data.positions[0]);
   }, []);
   const token = localStorage.getItem("token");
-  const { loading, sendMessage } = useWebsocket(
-    (events) => setData(events),
-    token,
-  );
+  const { loading, sendMessage } = useWebsocket(setData, token);
 
   const [range, setRange] = useState("60d");
 

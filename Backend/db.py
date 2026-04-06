@@ -348,8 +348,8 @@ class Database:
                                     ''',
                                     id)
         except Exception as e:
-            logger.exception("deleteInvestment failed — email=%s | error: %s", email, e)
-        raise
+            logger.exception("deleteInvestment failed — id=%s | error: %s", id, e)
+            raise
 
     async def closeConnection(self):
         await self.conn.close()
