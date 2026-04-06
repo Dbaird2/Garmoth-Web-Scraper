@@ -301,6 +301,56 @@ class Database:
             logger.exception("upsertUser failed — email=%s | error: %s", email, e)
             raise
     
+    async def getInvestments(self, email):
+        try:
+            investments = await self.conn.fetch('''
+            SELECT distinct on (i.name) i.name, i.id, i.qty, i.buy_price, i.pnl, j.price, j.recent_time 
+                    FROM investment i left join bdo_items j on i.name = j.item 
+                        WHERE email = $1 AND sold = FALSE order by i.name, j.recent_time desc
+                                                ''', email)
+            return investments
+        except Exception as e:
+            logger.exception("getInvestments failed — email=%s | error: %s", email, e)
+            raise
+
+    async def getChartInvestmentData(self, email):
+        try:
+            chart_data = await self.conn.fetch('''
+                select * 
+                    from bdo_items as b 
+                        where b.item in (
+                                    select distinct on (name) name from investment where email = $1 AND sold = FALSE
+                                        ) 
+                        order by b.item, b.recent_time desc
+                                               ''', email)
+            return chart_data
+        except Exception as e:
+            logger.exception("getChartInvestmentData failed — email=%s | error: %s", email, e)
+            raise
+
+    async def upsertInvestment(self, email, data = {}):
+        try:
+            await self.conn.execute('''
+                INSERT INTO investment (bought_at, name, qty, buy_price, email, wanted_price, notes)
+                                    VALUES ($1, $2, $3, $4, $5, $6, $7) 
+                                    ON CONFLICT (bought_at, name, email, buy_price) DO UPDATE
+                                    SET qty = EXCLUDED.qty, wanted_price = EXCLUDED.wanted_price, notes = EXCLUDED.notes
+                                    ''',
+                                    data['date'].strftime('%Y-%m-%d'), data['item'], data['qty'], data['buyPrice'], email, data.get('event', ''), data.get('notes', ''))
+        except Exception as e:
+            logger.exception("upsertInvestment failed — email=%s | error: %s", email, e)
+        raise
+    
+    async def deleteInvestment(self, id):
+        try:
+            await self.conn.execute('''
+                DELETE FROM investment WHERE id = $1
+                                    ''',
+                                    id)
+        except Exception as e:
+            logger.exception("deleteInvestment failed — email=%s | error: %s", email, e)
+        raise
+
     async def closeConnection(self):
         await self.conn.close()
     

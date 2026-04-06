@@ -29,6 +29,7 @@ db = Database()
 
 item_manager = ConnectionManager()
 dash_manager = ConnectionManager()
+investment_manager = ConnectionManager()
 
 origins = [
     "https://bdo-event-tracker.vercel.app",
@@ -133,6 +134,67 @@ async def websocket_endpoint(websocket: WebSocket):
             data = await websocket.receive_text() 
     except WebSocketDisconnect:
         dash_manager.disconnect(websocket)
+
+@app.websocket("/investmentWs")
+async def investments_ws(websocket: WebSocket, token: str):
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        email = payload["sub"]
+    except jwt.ExpiredSignatureError:
+        await websocket.close(code=1008, reason="Token expired")
+        return
+    except jwt.InvalidTokenError:
+        await websocket.close(code=1008, reason="Invalid token")
+        return
+
+    await investment_manager.connect(websocket)
+    formatted_investments = await getFormattedInvestmentData(email)
+    await investment_manager.send_personal_message(formatted_investments, websocket)
+    try:
+        while True:
+            data = await websocket.receive_json()
+            try:
+                if data.get('create') or data.get('update'):
+                    await db.upsertInvestment(email, data.get('create'))
+                elif data.get('delete'):
+                    await db.deleteInvestment(data.get('delete'))
+                else:
+                    continue
+                    
+                formatted_investments = await getFormattedInvestmentData(email)
+                await investment_manager.send_personal_message(formatted_investments, websocket)
+
+            except Exception as e:
+                logger.exception("Investment WS operation failed — email=%s | error: %s", email, e)
+                await websocket.send_json({"error": "Operation failed, please try again"})
+
+    except WebSocketDisconnect:
+        investment_manager.disconnect(websocket)
+
+async def getFormattedInvestmentData(email):
+    formatted_investments = {
+        'positions': [],
+        'chart_data': {}
+    }
+
+    user_investments = await db.getInvestments(email)
+    for investment in user_investments:
+        formatted_investments['positions'].append({
+            'id': investment[1],
+            'item': investment[0],
+            'qty': investment[2],
+            'buyPrice': investment[3],
+            'impact': 'Low',
+            'pnl': investment[4],
+            'currentPrice': investment[5]
+            })
+    chart_data = await db.getChartInvestmentData(email)
+    formatted_investments['chart_data'] = {}
+    for row in chart_data:
+        if row[3] not in formatted_investments['chart_data']:
+            formatted_investments['chart_data'][row[3]] = []  # initialize first
+        formatted_investments['chart_data'][row[3]].append({'date': row[1],'actual': row[5],'projected': 100000})
+    return formatted_investments
 
 async def getIndirectItems():
     indirect_items = await db.selectActiveIndirectItems()
@@ -245,7 +307,7 @@ REDIRECT_URI = os.getenv("REDIRECT_URI")
 JWT_SECRET = os.getenv("JWT_SECRET")
 
 @app.get("/auth/google/login")
-def google_login():
+def googleLogin():
     url = (
         "https://accounts.google.com/o/oauth2/v2/auth"
         f"?client_id={GOOGLE_CLIENT_ID}"
@@ -256,7 +318,7 @@ def google_login():
     return RedirectResponse(url)
 
 @app.get("/auth/google/callback")
-async def google_callback(code: str):
+async def googleCallback(code: str):
     async with httpx.AsyncClient() as client:
         # Exchange code for token
         token_res = await client.post("https://oauth2.googleapis.com/token", data={
@@ -289,7 +351,6 @@ async def google_callback(code: str):
     # Redirect to frontend with token
     return RedirectResponse(f"https://bdo-event-tracker.vercel.app/auth?token={token}")
 
-
 def getCurrentUser(credentials: HTTPAuthorizationCredentials = Security(bearer)):
     try:
         payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=["HS256"])
@@ -301,5 +362,5 @@ def getCurrentUser(credentials: HTTPAuthorizationCredentials = Security(bearer))
 
 
 @app.get("/investments")
-async def get_investments(user=Depends(getCurrentUser)):
+async def getInvestments(user=Depends(getCurrentUser)):
     pass

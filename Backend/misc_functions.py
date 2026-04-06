@@ -83,7 +83,8 @@ async def recalculateAllEventImpacts(db):
                 event['higherImpact'] = higherImpact(event['higherImpact'], level)
             except Exception as e:
                 logger.exception("Failed processing direct item=%s | event=%s | error: %s", item_name, ename, e)
-        await sendDiscordMessage(f"Update: Upgraded {count} amount of items impact for event {ename}")
+        if count > 0:
+            await sendDiscordMessage(f"Update: Upgraded {count} amount of items impact for event {ename}")
         # --- Indirect items ---
         try:
             indirect_items = await db.selectIndirectItems(event['direct_items'])
