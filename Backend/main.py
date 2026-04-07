@@ -186,7 +186,7 @@ async def getFormattedInvestmentData(email):
             'qty': investment[2],
             'buyPrice': investment[3],
             'impact': calculateImpact(investment[3], investment[5]),
-            'pnl': ((investment[5] - investment[3]) / investment[3]) * 0.855,
+            'pnl': ((investment[5] - investment[3]) / investment[3]) * 100 * 0.855,
             'currentPrice': investment[5]
             })
     chart_data = await db.getChartInvestmentData(email)
