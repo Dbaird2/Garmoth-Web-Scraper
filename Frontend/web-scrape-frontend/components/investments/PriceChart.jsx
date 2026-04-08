@@ -6,9 +6,15 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import CustomTooltip from "./CustomToolTip";
 
-export default function PriceChart({ selected, range, setRange, sliced_data, formatSilver }) {
+export default function PriceChart({
+  selected,
+  range,
+  setRange,
+  sliced_data,
+  formatSilver,
+  CustomTooltip,
+}) {
   return (
     <>
       {/* Chart */}
@@ -52,7 +58,7 @@ export default function PriceChart({ selected, range, setRange, sliced_data, for
               tickFormatter={(v) => formatSilver(v)}
               width={42}
             />
-            <Tooltip content={<CustomTooltip active={selected} payload={sliced_data} label='date' formatSilver={formatSilver} />} />
+            <Tooltip content={<CustomTooltip />} />
             <Line
               dataKey="actual"
               name="Actual"

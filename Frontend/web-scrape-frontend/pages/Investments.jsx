@@ -5,6 +5,7 @@ import PositionsTable from "../components/investments/PositionsTable";
 import AddInvestmentForm from "../components/investments/AddInvestmentForm";
 import PriceChart from "../components/investments/PriceChart";
 import useWebsocket from "../hooks/useInvestmentWs";
+import CustomTooltip from "../components/investments/CustomTooltip";
 import { useInvestments } from "../hooks/investmentHooks";
 import { useInvestmentActions } from "../hooks/useInvestmentActions";
 import { formatSilver } from "../utility/formatSilver";
@@ -21,7 +22,7 @@ export default function Investments() {
   const [positions, setPositions] = useState([]);
   const [selected, setSelected] = useState({});
   const [chart_data, setChartData] = useState({});
-  
+
   const setData = useCallback((data) => {
     console.log("data", data);
     if (!data?.positions || !data?.chart_data) return;
@@ -31,7 +32,7 @@ export default function Investments() {
   }, []);
 
   const token = localStorage.getItem("jwt");
-  
+
   const { loading, sendMessage } = useWebsocket(setData, token);
 
   const [range, setRange] = useState("60d");
@@ -88,8 +89,8 @@ export default function Investments() {
             setRange={setRange}
             sliced_data={sliced_data}
             formatSilver={formatSilver}
+            CustomTooltip={CustomTooltip}
           />
-        
         </div>
       </div>
     </div>
