@@ -58,7 +58,16 @@ export default function PriceChart({
               tickFormatter={(v) => formatSilver(v)}
               width={42}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip
+              content={
+                <CustomTooltip
+                  active={selected}
+                  payload={sliced_data}
+                  label="date"
+                  formatSilver={formatSilver}
+                />
+              }
+            />
             <Line
               dataKey="actual"
               name="Actual"

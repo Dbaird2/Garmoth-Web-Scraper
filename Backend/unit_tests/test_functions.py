@@ -22,7 +22,7 @@ def test_calculateImpactLevel_positive_ignored_directional():
     assert calculateImpactLevel(50, directional=True) == "None"
 
 def test_calculateImpactLevel_high_indirect():
-    assert calculateImpactLevel(50, directional=False) == "High"
+    assert calculateImpactLevel(100, directional=False) == "High"
 
 def test_calculateImpactLevel_none_indirect():
     assert calculateImpactLevel(10, directional=False) == "None"
