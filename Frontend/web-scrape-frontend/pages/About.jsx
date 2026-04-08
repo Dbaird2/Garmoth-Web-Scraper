@@ -39,6 +39,7 @@ const STACK = [
   { label: "PostgreSQL", category: "Backend" },
   { label: "WebSockets", category: "Backend" },
   { label: "SlowAPI", category: "Backend" },
+  { label: "JWT", category: "Backend" },
   { label: "React", category: "Frontend" },
   { label: "Vite", category: "Frontend" },
   { label: "Tailwind CSS", category: "Frontend" },
@@ -87,7 +88,7 @@ export default function About() {
             Event Analyzer
           </h1>
           <p className="text-[#6a8a9a] text-sm tracking-widest uppercase mb-10 font-mono">
-            Market Intelligence · Event Impact Analysis
+            Market Intelligence · Event Impact Analysis · Investment Tracking
           </p>
         </FadeIn>
 
@@ -111,7 +112,10 @@ export default function About() {
               economy. Garmoth quantifies those shifts algorithmically:
               comparing current prices to a pre-event baseline, classifying the
               impact level, and delivering results in real time through a
-              WebSocket-powered dashboard.
+              WebSocket-powered dashboard. A built-in investment tracker lets
+              players log purchase lots, track per-lot cost basis, and monitor
+              real-time PnL against live scraped prices — with ML-based price
+              forecasting planned as data matures.
             </p>
           </section>
         </FadeIn>
@@ -182,6 +186,46 @@ export default function About() {
                 impact in the dashboard. Impact recalculation runs as an hourly
                 background job; WebSocket endpoints only fetch and broadcast
                 precomputed results.
+              </p>
+            </div>
+          </section>
+        </FadeIn>
+
+        <FadeIn delay={260}>
+          <section className="mb-14">
+            <h2 className="text-xs tracking-[0.2em] uppercase text-teal-400 mb-6">
+              Investment Tracker
+            </h2>
+            <div
+              className="rounded-lg border border-[#1a2a3a] p-6"
+              style={{ background: "#0f1622" }}
+            >
+              <p className="text-[13px] text-[#6a8a9a] mb-1 uppercase tracking-widest">
+                Portfolio tracking
+              </p>
+              <p className="text-[15px] text-[#c8d8e8] mb-5">
+                Players can log individual purchase lots with date, quantity,
+                and buy price — preserving per-lot cost basis across multiple
+                buys of the same item.
+              </p>
+              <p className="text-[13px] text-[#6a8a9a] mb-1 uppercase tracking-widest">
+                Real-time PnL
+              </p>
+              <p className="text-[15px] text-[#c8d8e8] mb-5">
+                PnL is calculated live as{" "}
+                <span className="text-teal-300 font-mono">
+                  ((currentPrice − buyPrice) / buyPrice) × 100% × tax
+                </span>{" "}
+                against the latest scraped price, updating automatically over
+                the same WebSocket connection.
+              </p>
+              <p className="text-[13px] text-[#6a8a9a] mb-1 uppercase tracking-widest">
+                Planned
+              </p>
+              <p className="text-[13px] text-[#6a8a9a] leading-relaxed">
+                Time series price forecasting using a model trained on
+                historical scraped data — surfacing projected price curves per
+                item alongside current event impact classifications.
               </p>
             </div>
           </section>

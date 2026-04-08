@@ -194,7 +194,7 @@ async def getFormattedInvestmentData(email):
     for row in chart_data:
         if row[3] not in formatted_investments['chart_data']:
             formatted_investments['chart_data'][row[3]] = []  # initialize first
-        formatted_investments['chart_data'][row[3]].append({'date': row[1].isoformat(),'actual': row[5],'projected': 100000})
+        formatted_investments['chart_data'][row[3]].append({'date': row[1].isoformat(),'actual': row[5],'projected': row[5] * 1.3})
     return formatted_investments
 
 def calculateImpact(buy, current):

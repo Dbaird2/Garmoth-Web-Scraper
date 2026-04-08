@@ -4,10 +4,13 @@ import pytest
 from datetime import date
 
 def test_calculateImpactLevel_high_directional():
-    assert calculateImpactLevel(-50, directional=True) == "High"
+    assert calculateImpactLevel(-200, directional=True) == "Very High"
+
+def test_calculateImpactLevel_high_directional():
+    assert calculateImpactLevel(-100, directional=True) == "High"
 
 def test_calculateImpactLevel_medium_directional():
-    assert calculateImpactLevel(-30, directional=True) == "Medium"
+    assert calculateImpactLevel(-50, directional=True) == "Medium"
 
 def test_calculateImpactLevel_low_directional():
     assert calculateImpactLevel(-15.5, directional=True) == "Low"
@@ -16,7 +19,6 @@ def test_calculateImpactLevel_none_directional():
     assert calculateImpactLevel(-10, directional=True) == "None"
 
 def test_calculateImpactLevel_positive_ignored_directional():
-    # positive move should be None for direct items
     assert calculateImpactLevel(50, directional=True) == "None"
 
 def test_calculateImpactLevel_high_indirect():
