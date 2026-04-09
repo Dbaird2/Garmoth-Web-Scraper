@@ -186,7 +186,7 @@ class Database:
             try:
                 for event, rows in event_dict.items():
 
-                    await pool.execute('''
+                    status = await pool.execute('''
                         INSERT INTO indirect_event_item (event_name, item_name, pct_diff, end_date)
                         SELECT unnest($1::text[]), unnest($2::text[]), unnest($3::float[]), unnest($4::date[])
                         ON CONFLICT (event_name, item_name, end_date) DO 
@@ -196,6 +196,8 @@ class Database:
                     [i['item'] for i in rows],
                     [i['pct_diff'] for i in rows],
                     [i['end_date'] for i in rows])
+                    await sendDiscordMessage(f"{rows['event'][0]}: Updated {status.split()[-1]} indirect Items")
+
             except Exception as e:
                 logger.exception("upsertIndirectEventItems transaction failed — %d items | error: %s", len(event_dict), e)
                 raise
@@ -311,7 +313,8 @@ class Database:
                 i.buy_price,
                 (j.price - i.buy_price) as pnl,
                 j.price,
-                j.recent_time
+                j.recent_time,
+                i.sold_qty
             FROM investment i
             LEFT JOIN LATERAL (
                 SELECT price, recent_time 
@@ -350,13 +353,33 @@ class Database:
                 INSERT INTO investment (bought_at, name, qty, buy_price, email, wanted_price, notes)
                                     VALUES ($1, $2, $3, $4, $5, $6, $7) 
                                     ON CONFLICT (bought_at, name, email, buy_price) DO UPDATE
-                                    SET qty = EXCLUDED.qty, wanted_price = EXCLUDED.wanted_price, notes = EXCLUDED.notes
+                                    SET qty = EXCLUDED.qty, wanted_price = EXCLUDED.wanted_price, notes = EXCLUDED.notes, buy_price = EXCLUDED.buy_price
                                     ''',
-                                    datetime.strptime(data['date'], "%Y-%m-%d").date(), data['item'], int(data['qty']), int(data['buyPrice']), email, int(data.get('event', 0)) if data.get('event') else None, data.get('notes', ''))
+                                    datetime.strptime(data['date'], "%Y-%m-%d").date(), data['item'], int(data['qty']), int(data['buyPrice']), email, int(data.get('wanted_sell_price', 0)) if data.get('wanted_sell_price') else None, data.get('notes', ''))
         except Exception as e:
             logger.exception("upsertInvestment failed — email=%s | error: %s", email, e)
             raise
     
+    async def updateInvestment(self, investment_data = {}) -> None:
+        try:
+            await self.conn.execute('''
+                UPDATE investment SET buy_price = $1, qty = $2, sold_qty = $3 WHERE id = $4
+                                    ''',
+                                    investment_data['buy_price'], investment_data['qty'], investment_data['sold_qty'], investment_data['id'])
+        except Exception as e:
+            logger.exception("updateInvestment failed | error: %s", id, e)
+            raise
+
+    async def soldAllInvestment(self, id):
+        try:
+            await self.conn.execute('''
+                UPDATE investment SET sold_qty = qty, sold = TRUE WHERE id = $1
+                                    ''', id)
+            pass
+        except Exception as e:
+            logger.exception("soldAllInvestment failed — id=%s | error: %s", id, e)
+            raise
+
     async def deleteInvestment(self, id):
         try:
             await self.conn.execute('''

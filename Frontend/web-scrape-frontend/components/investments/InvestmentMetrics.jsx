@@ -4,6 +4,7 @@ export default function InvestmentMetrics({
   total_pnl,
   positions,
   formatSilver,
+  total_pnl_pct,
 }) {
   return (
     <>
@@ -17,15 +18,17 @@ export default function InvestmentMetrics({
           },
           {
             label: "Current value",
+            sub_label: "After Tax",
             value: formatSilver(total_val),
             colored: total_val < total_invested ? false : true,
-            pos: total_val > total_invested
+            pos: total_val > total_invested,
           },
           {
             label: "Total P&L",
-            value: `${total_pnl >= 0 ? "+" : "-"}${formatSilver(total_pnl)}`,
+            sub_label: "%",
+            value: `${total_pnl_pct >= 0 ? "+" : ""}${formatSilver(total_pnl_pct)}`,
             colored: true,
-            pos: total_pnl >= 0,
+            pos: total_pnl_pct >= 0,
           },
           { label: "Investments", value: positions.length, colored: false },
         ].map((m) => (
@@ -36,11 +39,18 @@ export default function InvestmentMetrics({
             <p className="text-[10px] uppercase tracking-[.15em] text-[#4a6a7a] mb-1">
               {m.label}
             </p>
-            <p
+            <div
               className={`text-xl font-medium ${m.colored ? (m.pos ? "text-teal-400" : "text-red-400") : "text-[#e8f4f8]"}`}
             >
-              {m.value}
-            </p>
+              <div className="flex items-baseline gap-2">
+                <span>{m.value}</span>
+                {m.sub_label && (
+                  <span className="text-[10px] tracking-[.15em] text-[#4a6a7a]">
+                    {m.sub_label}
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
         ))}
       </div>

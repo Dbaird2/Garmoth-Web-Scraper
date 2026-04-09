@@ -1,3 +1,6 @@
+import { useState, useRef, useEffect } from "react";
+import Kebab from "./Kebab";
+
 export default function PositionsTable({
   positions,
   formatSilver,
@@ -5,7 +8,25 @@ export default function PositionsTable({
   setSelected,
   selected,
   IMPACT_STYLES,
+  setEditModal,
+  setModalId,
+  modal_open,
+  handleSoldAll,
 }) {
+  const menu_ref = useRef(null);
+  const [open, setOpen] = useState(false);
+  const [id, setId] = useState(false);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (menu_ref.current && !menu_ref.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <>
       <div className="bg-[#0f1a26] border border-[#1a2a3a] rounded-xl p-5">
@@ -58,25 +79,19 @@ export default function PositionsTable({
                   {p.pnl?.toFixed(1) ?? 0}%
                 </td>
                 <td className="py-2 px-1  border-t border-[#1a2a3a]">
-                  <button className="text-[11px] font-mono uppercase tracking-widest px-2 py-1 border border-teal-400/30 text-teal-400/70 hover:text-teal-400 hover:border-teal-400 rounded transition-colors duration-150">
-                    Sell
-                  </button>
-                </td>
-                <td className="py-2 px-1  border-t border-[#1a2a3a]">
-                  <button className="text-[11px] font-mono uppercase tracking-widest px-2 py-1 border border-teal-400/30 text-teal-400/70 hover:text-teal-400 hover:border-teal-400 rounded transition-colors duration-150">
-                    Edit
-                  </button>
-                </td>
-                <td className="py-2 px-1 border-t border-[#1a2a3a]">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(p.id);
-                    }}
-                    className="text-[#4a6a7a] hover:text-red-400 text-[10px]"
-                  >
-                    ✕
-                  </button>
+                  <Kebab
+                    item_id={p.id}
+                    menu_ref={menu_ref}
+                    open={open}
+                    setOpen={setOpen}
+                    id={id}
+                    setId={setId}
+                    setEditModal={setEditModal}
+                    setModalId={setModalId}
+                    modal_open={modal_open}
+                    handleSoldAll={handleSoldAll}
+                    handleDelete={handleDelete}
+                  />
                 </td>
               </tr>
             ))}

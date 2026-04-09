@@ -13,7 +13,7 @@ export function useInvestmentActions(
     buyPrice: "",
     qty: "",
     date: "",
-    event: "",
+    wanted_sell_price: "",
     notes: "",
   });
 
@@ -37,6 +37,7 @@ export function useInvestmentActions(
       buyPrice: parseInt(form.buyPrice),
       date: form.date,
       pnl: 0,
+      wanted_sell_price: parseInt(form?.wanted_sell_price),
     };
     setPositions((prev) => [...prev, new_pos]);
     sendMessage("create", new_pos);
@@ -45,10 +46,31 @@ export function useInvestmentActions(
       buyPrice: "",
       qty: "",
       date: "",
-      event: "",
+      wanted_sell_price: "",
       notes: "",
     });
   }
 
-  return { form, setForm, handleDelete, handleSubmit };
+  function handleUpdate(id, buy_price, qty, sold_qty) {
+    const update_data = {
+      id: id,
+      buy_price: buy_price,
+      qty: qty,
+      sold_qty: sold_qty,
+    };
+    sendMessage("update", update_data)
+  }
+
+  function handleSoldAll(id) {
+    sendMessage("sold_all", id)
+  }
+
+  return {
+    form,
+    setForm,
+    handleDelete,
+    handleSubmit,
+    handleUpdate,
+    handleSoldAll,
+  };
 }

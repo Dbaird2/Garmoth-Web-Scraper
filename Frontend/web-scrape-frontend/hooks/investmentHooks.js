@@ -2,8 +2,8 @@
 export function useInvestments(positions, selected, chart_data, range) {
   console.log('useInvestments', positions, selected)
   const total_invested = positions.reduce((s, p) => s + p.buyPrice * p.qty, 0);
-  const total_val = positions.reduce((s, p) => s + p.currentPrice * p.qty, 0);
-  const total_pnl = (total_val - total_invested) * 0.855;
+  const total_val = positions.reduce((s, p) => s + p.currentPrice * p.qty * 0.865, 0);
+  const total_pnl = (total_val - total_invested);
   const total_pnl_pct = ((total_pnl / total_invested) * 100).toFixed(1);
   
   const chart_data_select = chart_data[selected?.item] || [];

@@ -1,11 +1,13 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import InvestmentHeader from "../components/investments/InvestmentHeader";
 import InvestmentMetrics from "../components/investments/InvestmentMetrics";
 import PositionsTable from "../components/investments/PositionsTable";
 import AddInvestmentForm from "../components/investments/AddInvestmentForm";
 import PriceChart from "../components/investments/PriceChart";
-import useWebsocket from "../hooks/useInvestmentWs";
 import CustomTooltip from "../components/investments/CustomTooltip";
+import EditItemModal from "../components/investments/EditItemModal";
+import InvestmentsSkeleton from "../components/investments/InvestmentsSkeleton";
+import useWebsocket from "../hooks/useInvestmentWs";
 import { useInvestments } from "../hooks/investmentHooks";
 import { useInvestmentActions } from "../hooks/useInvestmentActions";
 import { formatSilver } from "../utility/formatSilver";
@@ -23,6 +25,10 @@ export default function Investments() {
   const [selected, setSelected] = useState({});
   const [chart_data, setChartData] = useState({});
 
+  const [modal_open, setEditModal] = useState(false);
+  const [modal_id, setModalId] = useState(false);
+  const modal_ref = useRef(null);
+
   const setData = useCallback((data) => {
     console.log("data", data);
     if (!data?.positions || !data?.chart_data) return;
@@ -30,13 +36,19 @@ export default function Investments() {
     setChartData(data.chart_data);
     setSelected(data.positions[0]);
   }, []);
-
   const token = localStorage.getItem("jwt");
 
   const { loading, sendMessage } = useWebsocket(setData, token);
 
   const [range, setRange] = useState("60d");
-  const { form, setForm, handleDelete, handleSubmit } = useInvestmentActions(
+  const {
+    form,
+    setForm,
+    handleDelete,
+    handleSubmit,
+    handleUpdate,
+    handleSoldAll
+  } = useInvestmentActions(
     sendMessage,
     positions,
     setPositions,
@@ -46,53 +58,84 @@ export default function Investments() {
   const { total_invested, total_val, total_pnl, total_pnl_pct, sliced_data } =
     useInvestments(positions, selected, chart_data, range);
 
+  useEffect(() => {
+    function handleClickOutside(e) {
+      console.log(modal_ref.current);
+      if (modal_ref.current && !modal_ref.current.contains(e.target)) {
+        setEditModal(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <div
       className="min-h-screen text-[#c8d8e8]"
       style={{ background: "#0d1520", fontFamily: "'DM Mono', monospace" }}
     >
-      <div className="max-w-[1100px] mx-auto px-6 py-10">
-        {/* Header */}
-        <InvestmentHeader />
-
-        {/* Metrics */}
-        <InvestmentMetrics
-          total_invested={total_invested}
-          total_val={total_val}
-          total_pnl={total_pnl}
-          positions={positions}
-          formatSilver={formatSilver}
-        />
-
-        {/* Add position form */}
-        <AddInvestmentForm
-          form={form}
-          setForm={setForm}
-          handleSubmit={handleSubmit}
-        />
-        {/* Table + Chart */}
-        <div className="grid grid-cols-2 gap-6 mb-6">
-          {/* Positions table */}
-          <PositionsTable
+      {!loading ? (
+        <>
+          <EditItemModal
+            modal_ref={modal_ref}
+            modal_open={modal_open}
+            setEditModal={setEditModal}
+            modal_id={modal_id}
             positions={positions}
-            formatSilver={formatSilver}
-            handleDelete={handleDelete}
-            setSelected={setSelected}
-            selected={selected}
-            IMPACT_STYLES={IMPACT_STYLES}
+            handleUpdate={handleUpdate}
           />
 
-          {/* Chart */}
-          <PriceChart
-            selected={selected}
-            range={range}
-            setRange={setRange}
-            sliced_data={sliced_data}
-            formatSilver={formatSilver}
-            CustomTooltip={CustomTooltip}
-          />
-        </div>
-      </div>
+          <div className="max-w-[1100px] mx-auto px-6 py-10">
+            {/* Header */}
+            <InvestmentHeader />
+
+            {/* Metrics */}
+            <InvestmentMetrics
+              total_invested={total_invested}
+              total_val={total_val}
+              total_pnl={total_pnl}
+              positions={positions}
+              formatSilver={formatSilver}
+              total_pnl_pct={total_pnl_pct}
+            />
+
+            {/* Add position form */}
+            <AddInvestmentForm
+              form={form}
+              setForm={setForm}
+              handleSubmit={handleSubmit}
+            />
+            {/* Table + Chart */}
+            <div className="grid grid-cols-2 gap-6 mb-6">
+              {/* Positions table */}
+              <PositionsTable
+                positions={positions}
+                formatSilver={formatSilver}
+                handleDelete={handleDelete}
+                setSelected={setSelected}
+                selected={selected}
+                IMPACT_STYLES={IMPACT_STYLES}
+                setEditModal={setEditModal}
+                setModalId={setModalId}
+                modal_open={modal_open}
+                handleSoldAll={handleSoldAll}
+              />
+
+              {/* Chart */}
+              <PriceChart
+                selected={selected}
+                range={range}
+                setRange={setRange}
+                sliced_data={sliced_data}
+                formatSilver={formatSilver}
+                CustomTooltip={CustomTooltip}
+              />
+            </div>
+          </div>
+        </>
+      ) : (
+        <InvestmentsSkeleton />
+      )}
     </div>
   );
 }

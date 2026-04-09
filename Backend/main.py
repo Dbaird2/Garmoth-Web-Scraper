@@ -155,8 +155,12 @@ async def investments_ws(websocket: WebSocket, token: str):
         while True:
             data = await websocket.receive_json()
             try:
-                if data.get('create') or data.get('update'):
+                if data.get('create'):
                     await db.upsertInvestment(email, data.get('create'))
+                elif data.get('update'):
+                    await db.updateInvestment(data.get('delete'))
+                elif data.get('sold_all'):
+                    await db.soldAllInvestment(data.get('sold_all'))
                 elif data.get('delete'):
                     await db.deleteInvestment(data.get('delete'))
                 else:
@@ -183,11 +187,13 @@ async def getFormattedInvestmentData(email):
         formatted_investments['positions'].append({
             'id': investment[1],
             'item': investment[0],
-            'qty': investment[2],
+            'qty': investment[2] - investment[7],
             'buyPrice': investment[3],
             'impact': calculateImpact(investment[3], investment[5]),
-            'pnl': ((investment[5] - investment[3]) / investment[3]) * 100 * 0.855,
-            'currentPrice': investment[5]
+            'pnl': ((investment[5] - investment[3]) / investment[3]) * 100,
+            'currentPrice': investment[5],
+            'recent_time': investment[6],
+            'sold_qty': investment[7]
             })
     chart_data = await db.getChartInvestmentData(email)
     formatted_investments['chart_data'] = {}
