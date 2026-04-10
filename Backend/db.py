@@ -155,7 +155,7 @@ class Database:
         logger.debug("selectIndirectItems — querying indirect items for %d items", len(items))
         try:
             indirect_items = await self.conn.fetch('''
-                SELECT item_b, relationship FROM item_relationship WHERE item_a = ANY($1::TEXT[]) 
+                SELECT DISTINCT ON (item_b) item_b, relationship FROM item_relationship WHERE item_a = ANY($1::TEXT[]) 
             ''', items)
             logger.debug("selectIndirectItems — returned %d rows", len(indirect_items))
             return indirect_items
@@ -180,7 +180,7 @@ class Database:
             try:
                 for event, rows in event_dict.items():
 
-                    status = await pool.execute('''
+                    await pool.execute('''
                         INSERT INTO indirect_event_item (event_name, item_name, pct_diff, end_date)
                         SELECT unnest($1::text[]), unnest($2::text[]), unnest($3::float[]), unnest($4::date[])
                         ON CONFLICT (event_name, item_name, end_date) DO 
