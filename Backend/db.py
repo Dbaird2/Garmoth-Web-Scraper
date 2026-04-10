@@ -155,13 +155,7 @@ class Database:
         logger.debug("selectIndirectItems — querying indirect items for %d items", len(items))
         try:
             indirect_items = await self.conn.fetch('''
-                WITH cte AS (
-                    select co.id 
-                        from bdo_categories co left join item i on i.category_id = co.id 
-                        where i.name = ANY($1::text[])
-                                           )
-                    SELECT DISTINCT ON (item.name) * from item, cte 
-                        where cte.id = item.category_id and item.name != ANY($1::text[])  
+                SELECT item_b, relationship FROM item_relationship WHERE item_a = ANY($1::TEXT[]) 
             ''', items)
             logger.debug("selectIndirectItems — returned %d rows", len(indirect_items))
             return indirect_items
