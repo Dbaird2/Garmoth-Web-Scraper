@@ -74,11 +74,15 @@ class Item(BaseModel):
     stock: int
     price: float
 
+class EventItem(BaseModel):
+    item: str
+    qty: int
+
 class EventForm(BaseModel):
     event_name: str
     start_date: str
     end_date: str
-    items: list[str]
+    items: list[EventItem]
 
 async def repeatInsert():
     from misc_functions import recalculateAllEventImpacts

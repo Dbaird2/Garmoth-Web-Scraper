@@ -10,6 +10,8 @@ export default function EventForm() {
     items: item_set,
   });
   const [item_name, setItemName] = useState("Memory Fragment");
+  const [qty, setQty] = useState(1);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -23,16 +25,19 @@ export default function EventForm() {
 
   const addItemToSet = () => {
     const item = item_name.trim();
-    if (!item_set.includes(item)) {
-      setItem((prev_stack) => [...prev_stack, item]);
-      setFormData((prev_state) => ({ ...prev_state, ["items"]: item_set }));
-    }
+    if (!item || item_set.some((i) => i.item === item)) return;
+
+    const new_item_set = [...item_set, { item, qty }];
+    setItem(new_item_set);
+    setFormData((prev) => ({ ...prev, items: new_item_set }));
+    setItemName("");
+    setQty(1);
   };
 
   const deleteFromSet = (item) => {
-    item = item.trim();
-    const new_item_set = item_set.filter((item_name) => item_name != item);
+    const new_item_set = item_set.filter((i) => i.item !== item.item);
     setItem(new_item_set);
+    setFormData((prev) => ({ ...prev, items: new_item_set }));
   };
 
   const handleSubmit = async () => {
@@ -187,6 +192,14 @@ export default function EventForm() {
               <div className="flex gap-2">
                 <input
                   type="text"
+                  name="qty"
+                  value={qty}
+                  onChange={(e) => setQty(e.target.value)}
+                  placeholder="Quantity"
+                  className={`${inputClass} flex-1`}
+                />
+                <input
+                  type="text"
                   name="items"
                   value={item_name}
                   onChange={(e) => setItemName(e.target.value)}
@@ -204,25 +217,29 @@ export default function EventForm() {
               {/* Item list */}
               {item_set.length > 0 && (
                 <ul className="mt-3 flex flex-col gap-1.5">
-                  {item_set.map((item, key) => (
-                    <li
-                      key={item}
-                      className="flex flex-row justify-between items-center text-[13px] text-[#8aa8b8] px-2.5 py-1.5 bg-[#0a1018] border-l-2 border-[#1a2a3a] hover:border-teal-400 hover:text-[#c8d8e8] transition-colors"
-                    >
-                      <span className="font-mono">
-                        <span className="text-[#2d4555] mr-2">
-                          {String(key + 1).padStart(2, "0")}
-                        </span>
-                        {item}
-                      </span>
-                      <button
-                        onClick={() => deleteFromSet(item)}
-                        className="font-mono text-[10px] text-red-500/50 hover:text-red-400 px-2 py-0.5 border border-transparent hover:border-red-500/30 rounded-sm transition-all duration-200"
+                  {item_set.map((entry, index) => {
+                    console.log(entry, index);
+                    return (
+                      <li
+                        key={entry.item}
+                        className="flex flex-row justify-between items-center text-[13px] text-[#8aa8b8] px-2.5 py-1.5 bg-[#0a1018] border-l-2 border-[#1a2a3a] hover:border-teal-400 hover:text-[#c8d8e8] transition-colors"
                       >
-                        remove
-                      </button>
-                    </li>
-                  ))}
+                        <span className="font-mono">
+                          <span className="text-[#2d4555] mr-2">
+                            {String(index + 1).padStart(2, "0")}
+                          </span>
+                          <span>{entry.item}</span>
+                          <span className="p-1">x{entry.qty}</span>
+                        </span>
+                        <button
+                          onClick={() => deleteFromSet(entry)}
+                          className="font-mono text-[10px] text-red-500/50 hover:text-red-400 px-2 py-0.5 border border-transparent hover:border-red-500/30 rounded-sm transition-all duration-200"
+                        >
+                          remove
+                        </button>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
 

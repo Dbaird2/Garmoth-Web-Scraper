@@ -304,10 +304,10 @@ class Database:
                 form_data.event_name, date.fromisoformat(form_data.start_date), date.fromisoformat(form_data.end_date))
 
                 await pool.execute('''
-                    INSERT INTO event_contents (event_name, item_name)
-                    SELECT $1, unnest($2::text[]) as item 
+                    INSERT INTO event_contents (event_name, item_name, quantity)
+                    SELECT $1, unnest($2::text[]) as item, unnest($3::int[])
                 ''',
-                form_data.event_name, form_data.items)
+                form_data.event_name, [i.item for i in form_data.items], [i.qty for i in form_data.qty])
             except Exception as e:
                 logger.exception(
                     "insertEvent transaction failed — event=%s | error: %s",
