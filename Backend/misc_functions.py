@@ -112,7 +112,7 @@ async def recalculateAllEventImpacts(db):
         # --- Write final event impact ---
         try:
             await db.updateEventImpact(event['higherImpact'], ename)
-            if direct_count > 0 or indirect_count > 0:
+            if direct_count > 0:
                 await sendDiscordMessage(f"[{ename}] {count} direct item{'s' if count != 1 else ''} updated")
         except Exception as e:
             logger.exception("Failed writing event impact — event=%s | error: %s", ename, e)
