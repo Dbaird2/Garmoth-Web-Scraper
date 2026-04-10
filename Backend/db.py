@@ -190,7 +190,6 @@ class Database:
                     [i['item'] for i in rows],
                     [i['pct_diff'] for i in rows],
                     [i['end_date'] for i in rows])
-                    await sendDiscordMessage(f"{rows['event'][0]}: Updated {status.split()[-1]} indirect Items")
 
             except Exception as e:
                 logger.exception("upsertIndirectEventItems transaction failed — %d items | error: %s", len(event_dict), e)
