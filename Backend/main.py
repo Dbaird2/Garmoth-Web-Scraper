@@ -187,12 +187,12 @@ async def getFormattedInvestmentData(email):
         formatted_investments['positions'].append({
             'id': investment[1],
             'item': investment[0],
-            'qty': investment[2] - investment[7],
+            'qty': investment[2] - (investment[7] or 0),
             'buyPrice': investment[3],
             'impact': calculateImpact(investment[3], investment[5]),
             'pnl': ((investment[5] - investment[3]) / investment[3]) * 100,
             'currentPrice': investment[5],
-            'recent_time': investment[6],
+            'recent_time': investment[6].isoformat() if investment[6] else None,
             'sold_qty': investment[7]
             })
     chart_data = await db.getChartInvestmentData(email)
