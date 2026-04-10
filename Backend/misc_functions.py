@@ -79,7 +79,7 @@ async def recalculateAllEventImpacts(db):
                     "Direct item — item=%s | event=%s | pct_diff=%.2f%% | level=%s",
                     item_name, ename, pct_diff, level
                 )
-                count += await db.updateEventItem(impact=level, item=item_name, event_name=ename, pct_diff=pct_diff)
+                direct_count += await db.updateEventItem(impact=level, item=item_name, event_name=ename, pct_diff=pct_diff)
                 event['higherImpact'] = higherImpact(event['higherImpact'], level)
             except Exception as e:
                 logger.exception("Failed processing direct item=%s | event=%s | error: %s", item_name, ename, e)
@@ -89,19 +89,20 @@ async def recalculateAllEventImpacts(db):
         try:
             indirect_items = await db.selectIndirectItems(event['direct_items'])
             for row in indirect_items:
-                pct_diff = await calculatePctDiff(db, row['name'], start_date)
+                pct_diff = await calculatePctDiff(db, row['item_b'], start_date)
                 if pct_diff is None:
                     continue
                 level = calculateImpactLevel(pct_diff, directional=False)
                 logger.info(
                     "Indirect item — item=%s | event=%s | pct_diff=%.2f%% | level=%s",
-                    row['name'], ename, pct_diff, level
+                    row['item_b'], ename, pct_diff, level
                 )
                 if ename not in indirect_impact_dict:
                     indirect_impact_dict[ename] = []
                 indirect_impact_dict[ename].append({
                     'event': ename,
-                    'item': row['name'],
+                    'item': row['item_b'],
+                    'relationship': row['relationship'],
                     'pct_diff': pct_diff,
                     'end_date': end_date,
                 })
@@ -113,15 +114,14 @@ async def recalculateAllEventImpacts(db):
         try:
             await db.updateEventImpact(event['higherImpact'], ename)
             if direct_count > 0:
-                await sendDiscordMessage(f"[{ename}] {count} direct item{'s' if count != 1 else ''} updated")
+                await sendDiscordMessage(f"[{ename}] {direct_count} direct, {len(indirect_impact_dict.get(ename, []))} indirect items updated | overall: {event['higherImpact']}")
         except Exception as e:
             logger.exception("Failed writing event impact — event=%s | error: %s", ename, e)
+            raise
 
     # --- Persist indirect items ---
     if indirect_impact_dict:
         try:
-            indirect_impact = await db.upsertIndirectEventItems(indirect_impact_dict)
-            if direct_count > 0:
-                await sendDiscordMessage(f"[{ename}] {count} direct item{'s' if count != 1 else ''} updated")
+            await db.upsertIndirectEventItems(indirect_impact_dict)
         except Exception as e:
             logger.exception("updateIndirectTable failed: %s", e)
