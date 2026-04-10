@@ -14,6 +14,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 import httpx, jwt, os
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from discord_webhook import sendDiscordMessage
 
 bearer = HTTPBearer()
 
@@ -106,6 +107,18 @@ async def repeatInsert():
             await dash_manager.broadcast(event_dict)
         except Exception as e:
             logger.exception("Scheduled impact update failed: %s", e)
+
+        try:
+            items = await db.recentDrops()
+            if items is not None:
+                string = "Items Recently dropped:"
+                for item in items:
+                    # percentage, stock, price::numeric(15,1) AS full_price
+                    string = string + "\nItem: " + item[0] + " Percentage Now: " + item[1] + " Stock: " + item[2] + " Current Price: " + item[3]
+                await sendDiscordMessage(string, 'item_drop')
+        except Exception as e:
+            logger.exception("Recent Drops failed in main.py failed: %s", e)
+
         await asyncio.sleep(3600)
         
 

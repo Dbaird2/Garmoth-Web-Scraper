@@ -50,6 +50,7 @@ export default function EventForm() {
           end_date: "",
           items: item_set,
         });
+        setError("");
       }
       setLoading(false);
     } catch (e) {

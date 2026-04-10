@@ -89,6 +89,35 @@ class Database:
             logger.exception("selectAllItemRows failed: %s", e)
             raise
 
+    async def recentDrops(self):
+        try:
+            items = await self.conn.fetch('''
+            SELECT item, percentage, stock, price::numeric(15,1) AS full_price, 
+                    percentage - (
+                                SELECT percentage 
+                                    FROM bdo_items b 
+                                    WHERE b.item = g.item AND b.recent_time < CURRENT_DATE 
+                                    ORDER BY b.recent_time DESC LIMIT 1) AS percent_diff, 
+                    price - (
+                            SELECT price 
+                                FROM bdo_items b 
+                                WHERE b.item = g.item AND b.recent_time < CURRENT_DATE 
+                                ORDER BY b.recent_time DESC LIMIT 1) AS price_diff, 
+                    c.name as category_name
+                FROM bdo_items AS g 
+                    LEFT JOIN item AS i ON i.name = g.item 
+                    LEFT JOIN bdo_categories c ON i.category_id = c.id 
+                WHERE recent_time = CURRENT_DATE and (percentage - (
+                                SELECT percentage 
+                                    FROM bdo_items b 
+                                    WHERE b.item = g.item AND b.recent_time < CURRENT_DATE 
+                                    ORDER BY b.recent_time DESC LIMIT 1)) <= -30 ORDER BY percentage desc
+                                  ''')
+            return items
+        except Exception as e:
+            logger.exception("recentDrops failed: %s", e)
+            raise
+
     async def selectItem(self, item_name = ''):
         try:
             item = await self.conn.fetch(''' 
