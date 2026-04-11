@@ -1,8 +1,8 @@
 import { useRef, useState, useEffect } from "react";
 import ItemCard from "./ItemCard";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { getFavorites } from "../hooks/favorites";
-import { FadeIn } from "../hooks/FadeIn";
+import { getFavorites } from "../../hooks/favorites";
+import { FadeIn } from "../../hooks/FadeIn";
 import Itemstatebar from "./ItemStatBar";
 
 

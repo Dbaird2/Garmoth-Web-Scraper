@@ -1,7 +1,7 @@
-import ItemGrid from "../components/ItemGrid";
-import SkeletonGrid from "../components/SkeletonGrid";
-import SearchBar from "../components/SearchBar";
-import SortBar from "../components/SortBar";
+import ItemGrid from "../components/items/ItemGrid";
+import SkeletonGrid from "../components/items/SkeletonGrid";
+import SearchBar from "../components/items/SearchBar";
+import SortBar from "../components/items/SortBar";
 import useFilter from "../hooks/useFilter";
 import useWebsocket from "../hooks/useWebsocket";
 import { toggleFavorite, isFavorite } from "../hooks/favorites";

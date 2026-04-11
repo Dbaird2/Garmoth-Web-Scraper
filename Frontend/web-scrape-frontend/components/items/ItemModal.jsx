@@ -1,6 +1,6 @@
-import Chart from "./Charts/Chart";
+import Chart from "../Charts/Chart";
 import { useState } from "react";
-import { getItem } from "../hooks/API_CALLS";
+import { getItem } from "../../hooks/API_CALLS";
 
 export function ItemModal({ item }) {
   const modal_id = `dialog-${item.name}`;

@@ -1,5 +1,5 @@
 export const IMPACT_STYLES = {
-  Very_High: {
+  "Very High": {
     border: "border-t-yellow-500",
     badge: "border-yellow-500 text-yellow-500",
   },

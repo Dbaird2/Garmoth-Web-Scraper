@@ -39,7 +39,7 @@ export function SortBar({ ...props_from_filter }) {
           <span
             ref={change}
             data-value="percentage"
-            className="cursor-pointer flex items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-bold uppercase tracking-wide text-slate-500 border border-transparent transition-all duration-150 hover:border-teal-400/30 hover:bg-teal-400/10 hover:text-teal-400"
+            className="custom_button"
             onClick={(e) => props_from_filter.sortItems(e.target.dataset.value)}
           >
             Change
@@ -50,7 +50,7 @@ export function SortBar({ ...props_from_filter }) {
           <span
             ref={price}
             data-value="price"
-            className="cursor-pointer flex items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-bold uppercase tracking-wide text-slate-500 border border-transparent transition-all duration-150 hover:border-teal-400/30 hover:bg-teal-400/10 hover:text-teal-400"
+            className="custom_button"
             onClick={(e) => props_from_filter.sortItems(e.target.dataset.value)}
           >
             Price
@@ -61,7 +61,7 @@ export function SortBar({ ...props_from_filter }) {
           <span
             ref={stock}
             data-value="stock"
-            className="cursor-pointer flex items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-bold uppercase tracking-wide text-slate-500 border border-transparent transition-all duration-150 hover:border-teal-400/30 hover:bg-teal-400/10 hover:text-teal-400"
+            className="custom_button"
             onClick={(e) => props_from_filter.sortItems(e.target.dataset.value)}
           >
             Stock
@@ -72,7 +72,7 @@ export function SortBar({ ...props_from_filter }) {
           <span
             ref={change_diff}
             data-value="percent_diff"
-            className="cursor-pointer flex items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-bold uppercase tracking-wide text-slate-500 border border-transparent transition-all duration-150 hover:border-teal-400/30 hover:bg-teal-400/10 hover:text-teal-400"
+            className="custom_button"
             onClick={(e) => props_from_filter.sortItems(e.target.dataset.value)}
           >
             Change Difference
@@ -83,7 +83,7 @@ export function SortBar({ ...props_from_filter }) {
           <span
             ref={price_diff_ref}
             data-value="price_diff"
-            className="cursor-pointer flex items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-bold uppercase tracking-wide text-slate-500 border border-transparent transition-all duration-150 hover:border-teal-400/30 hover:bg-teal-400/10 hover:text-teal-400"
+            className="custom_button"
             onClick={(e) => props_from_filter.sortItems(e.target.dataset.value)}
           >
             Price Difference

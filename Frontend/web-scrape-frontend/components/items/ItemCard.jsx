@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ItemModal from "./ItemModal";
-import { FadeIn } from "../hooks/FadeIn";
+import { FadeIn } from "../../hooks/FadeIn";
 
 export function ItemCard({ item, favorite, toggleFavorite }) {
   const [popped, setPopped] = useState(false);
