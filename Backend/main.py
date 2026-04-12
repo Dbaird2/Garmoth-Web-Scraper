@@ -223,7 +223,7 @@ async def getFormattedInvestmentData(email):
         if item not in formatted_investments['chart_data']:
             formatted_investments['chart_data'][item] = []  # initialize first
             predictions[item] = {}
-        formatted_investments['chart_data'][item].append({'date': row[1].isoformat(),'actual': row[5],'projected': row[5]})
+        formatted_investments['chart_data'][item].append({'date': row[1].isoformat(),'actual': row[5],'projected': 0})
         if not predictions[item]:
             df_latest = await db.getRecentPriceHistory(item, days=30)
             df_latest = pd.DataFrame(df_latest, columns=['recent_time', 'percentage', 'item', 'stock', 'price'])
@@ -242,7 +242,7 @@ async def getFormattedInvestmentData(email):
             
             formatted_investments['chart_data'][item_name].append({
                 'date': future_date.isoformat(),
-                'actual': pred['predicted_price'],
+                'actual': 0,
                 'projected': pred['predicted_price']
             })
 

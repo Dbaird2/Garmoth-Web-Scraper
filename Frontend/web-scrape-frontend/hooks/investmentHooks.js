@@ -11,7 +11,9 @@ export function useInvestments(positions, selected, chart_data, range) {
     buy: selected.buyPrice,
   }));
   const range_slice = { "7d": 7, "14d": 14, "30d": 30, "60d": 60 }[range];
-  const sliced_data = buy_line.reverse().slice(-range_slice);
+  const first_week = buy_line.splice(-7);
+  const slice = buy_line.reverse().slice(-range_slice);
+  const sliced_data = [...slice, ...first_week];
   
   return { total_invested, total_val, total_pnl, total_pnl_pct, sliced_data };
 }

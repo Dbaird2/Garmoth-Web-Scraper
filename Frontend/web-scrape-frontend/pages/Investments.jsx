@@ -36,7 +36,9 @@ export default function Investments() {
     setChartData(data.chart_data);
     setSelected(data.positions[0]);
   }, []);
-  const token = localStorage.getItem("jwt");
+  const token =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkYXNvbmJhaXJkMjVAZ21haWwuY29tIiwibmFtZSI6IkRhc29uIEJhaXJkIiwiZXhwIjoxNzc2MDUyNjExfQ.BIJFd7xfo-AQOhGUNoG_Z6zW-JdHOUX8GFwmL97ygMA";
+  // const token = localStorage.getItem("jwt");
 
   const { loading, sendMessage } = useWebsocket(setData, token);
 
@@ -47,7 +49,7 @@ export default function Investments() {
     handleDelete,
     handleSubmit,
     handleUpdate,
-    handleSoldAll
+    handleSoldAll,
   } = useInvestmentActions(
     sendMessage,
     positions,
@@ -57,7 +59,7 @@ export default function Investments() {
   );
   const { total_invested, total_val, total_pnl, total_pnl_pct, sliced_data } =
     useInvestments(positions, selected, chart_data, range);
-
+  console.log(positions, sliced_data, chart_data);
   useEffect(() => {
     function handleClickOutside(e) {
       console.log(modal_ref.current);
