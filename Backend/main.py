@@ -226,16 +226,16 @@ async def getFormattedInvestmentData(email):
         df_latest = await db.getRecentPriceHistory(row[3], days=30)
         df_latest = pd.DataFrame(df_latest, columns=['recent_time', 'percentage', 'item', 'stock', 'price'])
         predictions[row[3]].append(predictWeek(row[3], df_latest))
+
     today = date.today()
     day_count = 1
+
     for item_name, predictions_list in predictions.items():
         tomorrow = today + timedelta(days=day_count)
         day_count += 1
-        print(f"Predictions for {item_name}:")
-        for prediction in predictions_list:
-            print(prediction)
-            formatted_investments['chart_data'][item_name].append({'date': tomorrow.isoformat(),'actual': prediction[0],'projected': prediction[0]})
-            print(f"  Pct Change: {prediction['pct_change']} | Predicted Price: {prediction['predicted_price']}")
+        for day_key, prediction in predictions_list.items():
+            predicted_price = prediction['predicted_price']
+            formatted_investments['chart_data'][item_name].append({'date': tomorrow.isoformat(),'actual': predicted_price,'projected': predicted_price})
 
     return formatted_investments
 

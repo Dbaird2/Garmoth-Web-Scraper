@@ -49,7 +49,7 @@ def predictWeek(item_name, df_latest):
         predicted_price = int(current_price * (1 + pct_change / 100))
         predictions[f'day_{day}'] = {
             'pct_change': round(float(pct_change), 2),
-            'predicted_price': predicted_price
+            'predicted_price': predicted_price,
         }
     
     return predictions
