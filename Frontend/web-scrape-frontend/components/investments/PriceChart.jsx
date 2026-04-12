@@ -57,6 +57,7 @@ export default function PriceChart({
               tickLine={false}
               tickFormatter={(v) => formatSilver(v)}
               width={42}
+              domain={["auto", "auto"]}
             />
             <Tooltip
               content={
@@ -68,27 +69,23 @@ export default function PriceChart({
                 />
               }
             />
-            {sliced_data.some((item) => item.actual !== 0) && (
-              <Line
-                dataKey="actual"
-                name="Actual"
-                stroke="#2dd4bf"
-                strokeWidth={1.5}
-                dot={{ r: 2, fill: "#2dd4bf" }}
-                connectNulls={false}
-              />
-            )}
-            {sliced_data.some((item) => item.projected !== 0) && (
-              <Line
-                dataKey="projected"
-                name="Projected"
-                stroke="#fbbf24"
-                strokeWidth={1.5}
-                strokeDasharray="4 3"
-                dot={{ r: 2, fill: "#fbbf24" }}
-                connectNulls={false}
-              />
-            )}
+            <Line
+              dataKey="actual"
+              name="Actual"
+              stroke="#2dd4bf"
+              strokeWidth={1.5}
+              dot={{ r: 2, fill: "#2dd4bf" }}
+              connectNulls={false}
+            />
+
+            <Line
+              dataKey="projected"
+              name="Projected"
+              stroke="#fbbf24"
+              strokeWidth={1.5}
+              dot={{ r: 2, fill: "#fbbf24" }}
+              connectNulls={false}
+            />
             <Line
               dataKey="buy"
               name="Buy price"

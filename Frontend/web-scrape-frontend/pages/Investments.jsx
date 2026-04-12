@@ -36,9 +36,7 @@ export default function Investments() {
     setChartData(data.chart_data);
     setSelected(data.positions[0]);
   }, []);
-  const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkYXNvbmJhaXJkMjVAZ21haWwuY29tIiwibmFtZSI6IkRhc29uIEJhaXJkIiwiZXhwIjoxNzc2MDUyNjExfQ.BIJFd7xfo-AQOhGUNoG_Z6zW-JdHOUX8GFwmL97ygMA";
-  // const token = localStorage.getItem("jwt");
+  const token = localStorage.getItem("jwt");
 
   const { loading, sendMessage } = useWebsocket(setData, token);
 
