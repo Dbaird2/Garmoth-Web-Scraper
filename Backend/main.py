@@ -233,7 +233,8 @@ async def getFormattedInvestmentData(email):
         day_count += 1
         print(f"Predictions for {item_name}:")
         for prediction in predictions_list:
-            formatted_investments['chart_data'][item_name].append({'date': tomorrow.isoformat(),'actual': prediction['predicted_price'],'projected': prediction['predicted_price']})
+            print(prediction)
+            formatted_investments['chart_data'][item_name].append({'date': tomorrow.isoformat(),'actual': prediction[0],'projected': prediction[0]})
             print(f"  Pct Change: {prediction['pct_change']} | Predicted Price: {prediction['predicted_price']}")
 
     return formatted_investments
