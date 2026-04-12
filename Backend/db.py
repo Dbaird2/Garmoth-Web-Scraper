@@ -412,6 +412,17 @@ class Database:
             logger.exception("deleteInvestment failed — id=%s | error: %s", id, e)
             raise
 
+    async def getRecentPriceHistory(self, item_name, days = 30):
+        try:
+            history = await self.conn.fetch('''
+                select recent_time, percentage, item, stock, price from bdo_items where item = $1 order by recent_time limit $2;
+                            ''', item_name, days)
+            return history
+        except:
+            raise
+
+        pass
+
     async def closeConnection(self):
         await self.conn.close()
     

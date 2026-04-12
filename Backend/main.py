@@ -15,6 +15,8 @@ from slowapi.errors import RateLimitExceeded
 import httpx, jwt, os
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from discord_webhook import sendDiscordMessage
+from predict_item import predictWeek
+import pandas as pd
 
 bearer = HTTPBearer()
 
@@ -194,10 +196,12 @@ async def investments_ws(websocket: WebSocket, token: str):
         investment_manager.disconnect(websocket)
 
 async def getFormattedInvestmentData(email):
+    from datetime import date, timedelta
     formatted_investments = {
         'positions': [],
         'chart_data': {}
     }
+    predictions = {}
 
     user_investments = await db.getInvestments(email)
     for investment in user_investments:
@@ -217,7 +221,21 @@ async def getFormattedInvestmentData(email):
     for row in chart_data:
         if row[3] not in formatted_investments['chart_data']:
             formatted_investments['chart_data'][row[3]] = []  # initialize first
-        formatted_investments['chart_data'][row[3]].append({'date': row[1].isoformat(),'actual': row[5],'projected': row[5] * 1.3})
+            predictions[row[3]] = []
+        formatted_investments['chart_data'][row[3]].append({'date': row[1].isoformat(),'actual': row[5],'projected': row[5]})
+        df_latest = await db.getRecentPriceHistory(row[3], days=30)
+        df_latest = pd.DataFrame(df_latest, columns=['recent_time', 'percentage', 'item', 'stock', 'price'])
+        predictions[row[3]].append(predictWeek({row[3], df_latest}))
+    today = date.today()
+    day_count = 1
+    for item_name, predictions_list in predictions.items():
+        tomorrow = today + timedelta(days=day_count)
+        day_count += 1
+        print(f"Predictions for {item_name}:")
+        for prediction in predictions_list:
+            formatted_investments['chart_data'][item_name].append({'date': tomorrow.isoformat(),'actual': prediction['predicted_price'],'projected': prediction['predicted_price']})
+            print(f"  Pct Change: {prediction['pct_change']} | Predicted Price: {prediction['predicted_price']}")
+
     return formatted_investments
 
 def calculateImpact(buy, current):
@@ -303,6 +321,7 @@ async def fetchAllItems():
 async def getItem(request: Request, item_name: str):
     try:
         item = await db.selectItem(item_name)
+        predicted_price = await predictPrice(item_name)
         if not item:
             return []
         return item
@@ -401,3 +420,10 @@ def getCurrentUser(credentials: HTTPAuthorizationCredentials = Security(bearer))
 @app.get("/investments")
 async def getInvestments(user=Depends(getCurrentUser)):
     pass
+
+# @app.get("/predict/{item_name}")
+async def predictPrice(item_name: str):
+    df_latest = await db.getRecentPriceHistory(item_name, days=30)
+    df_latest = pd.DataFrame(df_latest, columns=['recent_time', 'percentage', 'item', 'stock', 'price'])
+    predictions = predictWeek(item_name, df_latest)
+    return {"item": item_name, "predicted_pct_change": predictions}

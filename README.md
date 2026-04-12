@@ -103,3 +103,4 @@ Data modeling separates recurring events from their individual occurrences, with
 - Investment recommendations page ("What to buy" analysis)
 - ML price forecasting model trained on price, stock, event history, and seasonal patterns
 - Weekly and monthly in-game reset market tracking
+- Add Redis for less DB calls

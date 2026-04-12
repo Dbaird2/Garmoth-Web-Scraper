@@ -1,6 +1,5 @@
 // hooks/useInvestments.js
 export function useInvestments(positions, selected, chart_data, range) {
-  console.log('useInvestments', positions, selected)
   const total_invested = positions.reduce((s, p) => s + p.buyPrice * p.qty, 0);
   const total_val = positions.reduce((s, p) => s + p.currentPrice * p.qty * 0.865, 0);
   const total_pnl = (total_val - total_invested);
@@ -14,6 +13,5 @@ export function useInvestments(positions, selected, chart_data, range) {
   const range_slice = { "7d": 7, "14d": 14, "30d": 30, "60d": 60 }[range];
   const sliced_data = buy_line.reverse().slice(-range_slice);
   
-  console.log(total_invested, total_val, sliced_data);
   return { total_invested, total_val, total_pnl, total_pnl_pct, sliced_data };
 }

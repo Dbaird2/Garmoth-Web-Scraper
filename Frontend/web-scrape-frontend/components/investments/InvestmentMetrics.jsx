@@ -1,7 +1,6 @@
 export default function InvestmentMetrics({
   total_invested,
   total_val,
-  total_pnl,
   positions,
   formatSilver,
   total_pnl_pct,
