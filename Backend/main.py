@@ -219,23 +219,32 @@ async def getFormattedInvestmentData(email):
     chart_data = await db.getChartInvestmentData(email)
     formatted_investments['chart_data'] = {}
     for row in chart_data:
-        if row[3] not in formatted_investments['chart_data']:
-            formatted_investments['chart_data'][row[3]] = []  # initialize first
-            predictions[row[3]] = []
-        formatted_investments['chart_data'][row[3]].append({'date': row[1].isoformat(),'actual': row[5],'projected': row[5]})
-        df_latest = await db.getRecentPriceHistory(row[3], days=30)
+        item = row[3]
+        if item not in formatted_investments['chart_data']:
+            formatted_investments['chart_data'][item] = {}  # initialize first
+            predictions[item] = {}
+        formatted_investments['chart_data'][item].append({'date': row[1].isoformat(),'actual': row[5],'projected': row[5]})
+        df_latest = await db.getRecentPriceHistory(item, days=30)
         df_latest = pd.DataFrame(df_latest, columns=['recent_time', 'percentage', 'item', 'stock', 'price'])
-        predictions[row[3]].append(predictWeek(row[3], df_latest))
+        predictions[item] = predictWeek(item, df_latest)
 
     today = date.today()
-    day_count = 1
 
-    for item_name, predictions_list in predictions.items():
-        tomorrow = today + timedelta(days=day_count)
-        day_count += 1
-        for day_key, prediction in predictions_list.items():
-            predicted_price = prediction['predicted_price']
-            formatted_investments['chart_data'][item_name].append({'date': tomorrow.isoformat(),'actual': predicted_price,'projected': predicted_price})
+    for item_name, week_predictions in predictions.items():
+        for day_offset in range(1, 8):                     # 1 to 7
+            day_key = f'day_{day_offset}'
+            prediction = week_predictions[day_key]
+
+            future_date = today + timedelta(days=day_offset)
+
+            formatted_investments['chart_data'][item_name].append({
+                'date': future_date.isoformat(),
+                'actual': prediction['predicted_price'],   # or None if you want to distinguish
+                'projected': prediction['predicted_price']
+            })
+
+            print(f"{item_name} | {day_key} | Pct: {prediction['pct_change']:.2f} | "
+                f"Predicted: {prediction['predicted_price']}")
 
     return formatted_investments
 
