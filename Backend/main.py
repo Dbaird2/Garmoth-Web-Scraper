@@ -221,7 +221,7 @@ async def getFormattedInvestmentData(email):
     for row in chart_data:
         item = row[3]
         if item not in formatted_investments['chart_data']:
-            formatted_investments['chart_data'][item] = {}  # initialize first
+            formatted_investments['chart_data'][item] = []  # initialize first
             predictions[item] = {}
         formatted_investments['chart_data'][item].append({'date': row[1].isoformat(),'actual': row[5],'projected': row[5]})
         if not predictions[item]:
