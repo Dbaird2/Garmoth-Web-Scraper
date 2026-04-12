@@ -225,7 +225,7 @@ async def getFormattedInvestmentData(email):
         formatted_investments['chart_data'][row[3]].append({'date': row[1].isoformat(),'actual': row[5],'projected': row[5]})
         df_latest = await db.getRecentPriceHistory(row[3], days=30)
         df_latest = pd.DataFrame(df_latest, columns=['recent_time', 'percentage', 'item', 'stock', 'price'])
-        predictions[row[3]].append(predictWeek({row[3], df_latest}))
+        predictions[row[3]].append(predictWeek(row[3], df_latest))
     today = date.today()
     day_count = 1
     for item_name, predictions_list in predictions.items():
