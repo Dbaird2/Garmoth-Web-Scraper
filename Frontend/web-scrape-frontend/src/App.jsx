@@ -1,11 +1,18 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import ItemPage from "../pages/ItemPage";
-import Dashboard from "../pages/DashboardPage"
-import EventForm from "../pages/EventForm"
+import Dashboard from "../pages/DashboardPage";
+import EventForm from "../pages/EventForm";
 import About from "../pages/About";
 import AuthCallback from "../pages/Auth";
-import Investments from "../pages/Investments"
-import Navbar from "../components/Navbar"
+import Investments from "../pages/Investments";
+import Landing from "../pages/LandingPage";
+import Navbar from "../components/Navbar";
+
+function ProtectedRoute({ children }) {
+  const token = localStorage.getItem("jwt");
+  return token ? children : <Landing />;
+}
+const jwt = localStorage.getItem("jwt");
 
 export default function App() {
   return (
@@ -17,13 +24,49 @@ export default function App() {
         backgroundSize: "40px 40px",
       }}
     >
-      <Navbar />
+      {jwt ? <Navbar /> : <></>}
       <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/investments" element={<Investments />} />
-        <Route path="/items" element={<ItemPage />} />
-        <Route path="/forms" element={<EventForm />} />
-        <Route path="/about" element={<About />} />
+        {/* <Route path="/" element={<Landing />} /> */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/investments"
+          element={
+            <ProtectedRoute>
+              <Investments />{" "}
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/items"
+          element={
+            <ProtectedRoute>
+              <ItemPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/forms"
+          element={
+            <ProtectedRoute>
+              <EventForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/about"
+          element={
+            <ProtectedRoute>
+              <About />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/auth" element={<AuthCallback />} />
       </Routes>
     </div>

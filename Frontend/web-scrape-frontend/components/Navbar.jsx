@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 
 export default function Navbar() {
   const [jwt, setJwt] = useState(localStorage.getItem("jwt"));
-  console.log(jwt);
   useEffect(() => {
     const handleStorage = () => setJwt(localStorage.getItem("jwt"));
     window.addEventListener("storage", handleStorage);
@@ -18,7 +17,7 @@ export default function Navbar() {
       >
         <div className="">
           <div className="w-fit p-4 transition-all duration-150 border-b-2 border-transparent ">
-            {!jwt ? (
+            {/* {!jwt ? (
               <div className="group">
                 <a
                   href="https://web-scraper-68z5.onrender.com/auth/google/login"
@@ -54,7 +53,7 @@ export default function Navbar() {
                   </span>
                 </a>
               </div>
-            ) : (
+            ) : ( */}
               <div className="flex items-center gap-2 px-3.5 py-2 bg-slate-800/40 border border-slate-700/50 rounded-md">
                 <div className="w-5 h-5 rounded-full bg-teal-500 flex items-center justify-center">
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -71,71 +70,72 @@ export default function Navbar() {
                   Signed in with Google
                 </span>
               </div>
-            )}
+            {/* )} */}
           </div>
         </div>
         <div className="flex justify-center self-center">
           <div className="flex font-bold">
-            <div
-              className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40 
-              active:scale-95 active:bg-teal-400/20 active:rounded-md active:animate-pulse"
-            >
-              <Link
-                className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150 "
-                to="/"
-              >
-                Dashboard
-              </Link>
-            </div>
-
-            <div
-              className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40 
-              active:scale-95 active:bg-teal-400/20 active:rounded-md active:animate-pulse"
-            >
-              <Link
-                className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
-                to="/items"
-              >
-                Items
-              </Link>
-            </div>
             {jwt && (
-              <div
-                className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40 
-                active:scale-95 active:bg-teal-400/20 active:rounded-md active:animate-pulse"
-              >
-                <Link
-                  className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
-                  to="/investments"
+              <>
+                <div
+                  className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40 
+              active:scale-95 active:bg-teal-400/20 active:rounded-md active:animate-pulse"
                 >
-                  Invesments
-                </Link>
-              </div>
+                  <Link
+                    className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150 "
+                    to="/"
+                  >
+                    Dashboard
+                  </Link>
+                </div>
+
+                <div
+                  className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40 
+              active:scale-95 active:bg-teal-400/20 active:rounded-md active:animate-pulse"
+                >
+                  <Link
+                    className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
+                    to="/items"
+                  >
+                    Items
+                  </Link>
+                </div>
+                <div
+                  className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40 
+                active:scale-95 active:bg-teal-400/20 active:rounded-md active:animate-pulse"
+                >
+                  <Link
+                    className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
+                    to="/investments"
+                  >
+                    Invesments
+                  </Link>
+                </div>
+
+                <div
+                  className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40 
+            active:scale-95 active:bg-teal-400/20 active:rounded-md active:animate-pulse"
+                >
+                  <Link
+                    className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
+                    to="/forms"
+                  >
+                    Forms
+                  </Link>
+                </div>
+                <div
+                  className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40 
+              active:scale-95 active:bg-teal-400/20 active:rounded-md active:animate-pulse"
+                >
+                  <Link
+                    className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
+                    to="/about"
+                  >
+                    About
+                  </Link>
+                </div>
+              </>
             )}
-
-            <div
-              className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40 
-              active:scale-95 active:bg-teal-400/20 active:rounded-md active:animate-pulse"
-            >
-              <Link
-                className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
-                to="/forms"
-              >
-                Forms
-              </Link>
-            </div>
-
-            <div
-              className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40 
-              active:scale-95 active:bg-teal-400/20 active:rounded-md active:animate-pulse"
-            >
-              <Link
-                className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
-                to="/about"
-              >
-                About
-              </Link>
-            </div>
           </div>
         </div>
       </div>
