@@ -1,8 +1,11 @@
 import joblib
 import pandas as pd
 import numpy as np
+from pathlib import Path
 
-models = {day: joblib.load(f'market_model_{day}d.pkl') for day in range(1, 8)}
+MODEL_DIR = Path(__file__).resolve().parent
+
+models = {day: joblib.load(MODEL_DIR / f'market_model_{day}d.pkl') for day in range(1, 8)}
 
 def predictItem(item_name, df_latest, day):
     bst = models[day]
