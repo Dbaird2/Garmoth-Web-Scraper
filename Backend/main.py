@@ -224,27 +224,27 @@ async def getFormattedInvestmentData(email):
             formatted_investments['chart_data'][item] = {}  # initialize first
             predictions[item] = {}
         formatted_investments['chart_data'][item].append({'date': row[1].isoformat(),'actual': row[5],'projected': row[5]})
-        df_latest = await db.getRecentPriceHistory(item, days=30)
-        df_latest = pd.DataFrame(df_latest, columns=['recent_time', 'percentage', 'item', 'stock', 'price'])
-        predictions[item] = predictWeek(item, df_latest)
+        if not predictions[item]:
+            df_latest = await db.getRecentPriceHistory(item, days=30)
+            df_latest = pd.DataFrame(df_latest, columns=['recent_time', 'percentage', 'item', 'stock', 'price'])
+            predictions[item] = predictWeek(item, df_latest)
 
     today = date.today()
 
-    for item_name, week_predictions in predictions.items():
-        for day_offset in range(1, 8):                     # 1 to 7
-            day_key = f'day_{day_offset}'
-            prediction = week_predictions[day_key]
-
-            future_date = today + timedelta(days=day_offset)
-
+    for item_name, week_dict in predictions.items():
+        for day_num in range(1, 8):
+            day_key = f"day_{day_num}"
+            if day_key not in week_dict:
+                continue
+                
+            pred = week_dict[day_key]
+            future_date = today + timedelta(days=day_num)
+            
             formatted_investments['chart_data'][item_name].append({
                 'date': future_date.isoformat(),
-                'actual': prediction['predicted_price'],   # or None if you want to distinguish
-                'projected': prediction['predicted_price']
+                'actual': pred['predicted_price'],
+                'projected': pred['predicted_price']
             })
-
-            print(f"{item_name} | {day_key} | Pct: {prediction['pct_change']:.2f} | "
-                f"Predicted: {prediction['predicted_price']}")
 
     return formatted_investments
 
