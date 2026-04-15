@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from db import Database
 from contextlib import asynccontextmanager
 from web_scrape import ScrapeForItems
+from grind_webscraper import ScrapeForGrindSpots
 from datetime import datetime, date
 import asyncio
 
@@ -46,6 +47,21 @@ async def repeatInsert():
         try:
             print(f"Inserting item examples {items[0:3]}; Time took {diff.seconds}.{diff.microseconds}")
             await db.insertItemTableAsArray(items)
+        except Exception as e:
+            print(f"Inserting into database failed: {e}")
+
+        try:
+            print(f"Starting ScrapeForGrindSpots")
+            time1 = datetime.now()
+            grind_info = await loop.run_in_executor(None, ScrapeForGrindSpots)
+            time2 = datetime.now()
+            diff = time2 - time1
+        except Exception as e:
+            print(f"Scrape failed for ScrapeForGrindSpots, retrying next cycle: {e}")
+
+        try:
+            print(f"Inserting grind spots examples {grind_info[0:3]}; Time took {diff.seconds}.{diff.microseconds}")
+            await db.insertGrindValues(grind_info)
         except Exception as e:
             print(f"Inserting into database failed: {e}")
    

@@ -55,7 +55,7 @@ def ScrapeForItems():
     options.add_argument('--disable-images')  # skip loading images
     options.add_argument('--blink-settings=imagesEnabled=false')
     options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36')
-    driver = uc.Chrome(version_main=145, options=options)
+    driver = uc.Chrome(version_main=147, options=options)
     wait = WebDriverWait(driver, 30)
     item_list = []
     seen = set()

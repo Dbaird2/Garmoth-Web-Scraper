@@ -97,8 +97,6 @@ Data modeling separates recurring events from their individual occurrences, with
 - Grind spot data integration from Garmoth.com
 - Material price impact modeling based on grind spot meta shifts
 - Free and paid tier feature segmentation
-- Landing page showcasing core functionality and value proposition
-- **Potentially** Investigate direct marketplace interaction (recurring buy/sell automation)
 - Discord bot with tier-based access control
 - Investment recommendations page ("What to buy" analysis)
 - ML price forecasting model trained on price, stock, event history, and seasonal patterns

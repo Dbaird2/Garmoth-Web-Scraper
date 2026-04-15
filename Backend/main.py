@@ -120,7 +120,7 @@ async def repeatInsert():
                 string = "Items Recently dropped:"
                 for item in items:
                     # percentage, stock, price::numeric(15,1) AS full_price
-                    string = string + "\nItem: " + item[0] + " Percentage Now: " + item[1] + " Stock: " + item[2] + " Current Price: " + item[3]
+                    string += f"\nItem: {item[0]} Percentage Now: {item[1]:.2f} Stock: {item[2]} Current Price: {item[3]:.2f}"                
                 await sendDiscordMessage(string, 'item_drop')
         except Exception as e:
             logger.exception("Recent Drops failed in main.py failed: %s", e)

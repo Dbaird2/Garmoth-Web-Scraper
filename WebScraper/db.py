@@ -56,5 +56,29 @@ class Database:
         diff = time2 - time1
         print(f"Time took to insert {diff.seconds}.{diff.microseconds}")
 
+    async def insertGrindValues(self, spots):
+        time1 = datetime.now()
+        print(f"insertGrindValues called with {len(spots)} items")
+        async with self.conn.acquire() as pool:
+            # Start a transaction on the acquired connection
+            try:
+                await pool.execute('''
+                    INSERT INTO grind_spot_hours (name, hours, silver, trash, recent_time)
+                    SELECT unnest($1::text[]), unnest($2::int[]), unnest($3::bigint[]), unnest($4::int[]), CURRENT_DATE
+                    ON CONFLICT (name, recent_time) DO 
+                    UPDATE SET hours = EXCLUDED.hours, 
+                            silver = EXCLUDED.silver, 
+                            trash = EXCLUDED.trash
+                ''', 
+                [i[0] for i in spots],
+                [i[1] for i in spots],
+                [i[2] for i in spots],
+                [i[3] for i in spots])
+            except Exception as e:
+                print(f"Transaction failed: {e}")
+        time2 = datetime.now()
+        diff = time2 - time1
+        print(f"Time took to insert {diff.seconds}.{diff.microseconds}")
+
     async def closeConnection(self):
         await self.conn.close()
