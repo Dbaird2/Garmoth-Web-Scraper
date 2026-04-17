@@ -2,7 +2,7 @@
 
 Garmoth is a full-stack market intelligence application for Black Desert Online. It tracks item prices across the in-game marketplace and analyzes the economic impact of game events — surfacing which items are meaningfully affected, by how much, and why.
 
-Live: [garmoth.vercel.app](https://garmoth-web-scraper.vercel.app) *(backend hosted on Render — allow a few seconds for cold start)*
+**Live:** [garmoth.vercel.app](https://garmoth-web-scraper.vercel.app) *(backend hosted on Render — allow a few seconds for cold start)*
 
 ---
 
@@ -16,16 +16,18 @@ The core feature is an algorithmic system that detects and classifies market imp
 
 **Baseline & threshold detection**
 
-For each active event, Garmoth computes a 3–7 day pre-event price baseline per item. The percentage difference between the baseline and current price is compared against calibrated thresholds:
+For each active event, Garmoth computes a 3–7 day pre-event price baseline per item. The percentage difference between the baseline and current price is compared against the following thresholds:
 
-| Impact Level | Threshold |
-|---|---|
-| None | < 15.5% |
-| Low | 15.5% – 30% |
-| Medium | 30% – 50% |
-| High | 50%+ |
+| Impact Level  | Threshold          |
+|---------------|--------------------|
+| None          | 0% – 15.5%         |
+| Low           | 15.5% – 30%        |
+| Medium        | 30% – 50%          |
+| High          | 100% – 200%        |
+| Very High     | 200%+              |
 
-The 15.5% floor is derived from BDO's in-game market tax — movements below that threshold are economically indistinguishable from noise. High impact is treated as a ceiling: once an item reaches High, it cannot be downgraded by subsequent recalculations.
+> The 15.5% floor is derived from BDO's in-game market tax — movements below that threshold are economically indistinguishable from noise.  
+> Once an item reaches **High** or **Very High**, it cannot be downgraded by subsequent recalculations.
 
 **Indirect market pressure**
 
@@ -42,6 +44,7 @@ Impact recalculation runs as an hourly background job piggybacked on the scraper
 **Backend**
 - FastAPI + uvicorn
 - asyncpg + PostgreSQL
+- **Redis** (caching, background task coordination, and deduplication)
 - WebSockets for real-time data delivery
 - SlowAPI for rate limiting
 
@@ -58,13 +61,14 @@ Impact recalculation runs as an hourly background job piggybacked on the scraper
 **Deployment**
 - Frontend: Vercel
 - Backend: Render
-- Scraper: local
+- Scraper: local (or scheduled environment)
+- Redis: hosted (Render Redis, Upstash, Redis Cloud, etc.)
 
 ---
 
 ## Architecture
 
-Garmoth uses a monorepo structure with three components:
+Garmoth uses a monorepo structure with three main components:
 
 ```
 /
@@ -73,16 +77,47 @@ Garmoth uses a monorepo structure with three components:
 └── WebScraper/    # Selenium scraper and data ingestion
 ```
 
-Price data is collected by the scraper and written to PostgreSQL. The backend exposes REST endpoints for item and event management, and a WebSocket endpoint that pushes the current event impact payload to connected clients. Business logic — including baseline averaging, ratio analysis, and impact classification — is handled entirely in Python, not embedded in SQL.
 
-Data modeling separates recurring events from their individual occurrences, with junction tables used to associate items with events. Prices are stored as `BIGINT` to accommodate BDO's market values, which routinely exceed 2.1 billion silver. Items with enhancement levels use composite primary keys.
+Price data is collected by the scraper and written to PostgreSQL. The backend exposes REST endpoints for item and event management, and a WebSocket endpoint that pushes the current event impact payload to connected clients. Business logic — including baseline averaging, ratio analysis, and impact classification — is handled entirely in Python.
+
+**Redis is now integrated** for caching frequent queries, coordinating background jobs, preventing duplicate scraper runs, and reducing load on PostgreSQL. This has greatly improved the reliability of automatic updates.
+
+---
+
+## Data Updating & Reliability (Improved)
+
+**Automatic updating has been fixed and significantly stabilized.**
+
+Previous issues with stalled scraper jobs, missed recalculations, and inconsistent impact updates have been resolved through Redis-backed improvements.
+
+### Key Fixes Implemented:
+- Redis-based distributed locking to prevent overlapping scraper runs
+- Improved retry logic and error handling in the WebScraper
+- More resilient hourly impact recalculation scheduler
+- Better coordination between scraper, database, and background tasks
+- Enhanced logging and health monitoring
+
+### How Updating Works Now:
+1. WebScraper pulls fresh market data (arsha.io + Selenium)
+2. Data is persisted to PostgreSQL
+3. Redis caches recent prices and precomputed impact results
+4. Hourly background job recalculates baselines and reclassifies impact levels
+5. Connected clients receive live updates via WebSocket
+
+**Running locally?**  
+Make sure Redis is running and correctly configured in your `.env` file.
+
+**Troubleshooting common issues:**
+- Scraper not updating → Check Redis connection and scraper logs
+- Impact levels not refreshing → Verify background scheduler is running
+- Delays on cold start → Redis caching helps reduce repeated heavy queries
 
 ---
 
 ## Key Features
 
 - Real-time dashboard via WebSockets
-- Algorithmic event impact classification (None / Low / Medium / High)
+- Algorithmic event impact classification (None / Low / Medium / High / Very High)
 - Indirect market pressure detection via category side-effect mapping
 - Virtualized item grid for performance at scale
 - Favorites / watchlist (localStorage)
@@ -92,7 +127,6 @@ Data modeling separates recurring events from their individual occurrences, with
 
 ## Planned Features
 
-- Price movement detection algorithm (significant rises and drops)
 - Improved event impact scoring with stock-based confidence modifiers
 - Grind spot data integration from Garmoth.com
 - Material price impact modeling based on grind spot meta shifts
@@ -101,4 +135,10 @@ Data modeling separates recurring events from their individual occurrences, with
 - Investment recommendations page ("What to buy" analysis)
 - ML price forecasting model trained on price, stock, event history, and seasonal patterns
 - Weekly and monthly in-game reset market tracking
-- Add Redis for less DB calls
+
+---
+
+## Currently Started
+
+- Automatic updating / scraper reliability significantly improved
+- Redis integration for caching and job coordination

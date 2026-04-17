@@ -17,6 +17,9 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from discord_webhook import sendDiscordMessage
 from predict_item import predictWeek
 import pandas as pd
+import redis.asyncio as aioredis
+
+redis = aioredis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
 
 bearer = HTTPBearer()
 
