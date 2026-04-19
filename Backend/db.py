@@ -430,6 +430,9 @@ class Database:
         except Exception as e:
             logger.exception("announcedDrops failed: %s", e)
             raise
+    
+    async def uniqueInvestmentItems(self):
+        pass
 
     async def closeConnection(self):
         await self.conn.close()

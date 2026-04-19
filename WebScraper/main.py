@@ -45,7 +45,7 @@ async def repeatInsert():
             print(f"Scrape failed, retrying next cycle: {e}")
 
         try:
-            print(f"Inserting item examples {items[0:3]}; Time took {diff.seconds}.{diff.microseconds}")
+            print(f"Inserting item examples {items[0]}; Time took {diff.seconds}.{diff.microseconds}")
             await db.insertItemTableAsArray(items)
         except Exception as e:
             print(f"Inserting into database failed: {e}")

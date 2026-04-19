@@ -47,7 +47,7 @@ def ScrapeForGrindSpots():
             
             if cells:
                 #     SPOT              TRASH/HR                        HOURS                               SILVER/HR
-                print(cells[0], int(cells[-3].replace(",", "")), int(cells[-2].replace(",", "")), int(cells[-1].replace(",", "")))
+                # print(cells[0], int(cells[-3].replace(",", "")), int(cells[-2].replace(",", "")), int(cells[-1].replace(",", "")))
                 trash = int(cells[-3].replace(",", ""))
                 hours = int(cells[-2].replace(",", ""))
                 silver = int(cells[-1].replace(",", ""))
