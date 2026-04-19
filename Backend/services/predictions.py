@@ -1,5 +1,5 @@
 from predict_item import predictWeek
-from state import db
+from state import db, redis
 import pandas as pd
 from services.dashboard import calculateImpact
 
@@ -43,16 +43,16 @@ async def getFormattedInvestmentData(email):
         formatted_investments['chart_data'][item].append({'date': row[1].isoformat(),'actual': row[5],'projected': None})
 
         # Get predictions for the item if not already fetched (with caching)
-        # item_predictions = await redis.get(f"predicted_price:{item}")
-        # if item_predictions:
-        #     predictions[item] = eval(item_predictions)  # Convert string back to dict
-        # else:
-        #     df_latest = await db.getRecentPriceHistory(item, days=30)
-        #     df_latest = pd.DataFrame(df_latest, columns=['recent_time', 'percentage', 'item', 'stock', 'price'])
-        #     predictions[item] = predictWeek(item, df_latest)
-            # await redis.set(f"predicted_price:{item}", str(predictions[item]), ex=3600)  # Cache for 1 hour
-            # item_predictions = await redis.get(f"predicted_price:{item}")
-            # predictions[item] = eval(item_predictions)
+        item_predictions = await redis.get(f"predicted_price:{item}")
+        if item_predictions:
+            predictions[item] = eval(item_predictions)  # Convert string back to dict
+        else:
+            df_latest = await db.getRecentPriceHistory(item, days=30)
+            df_latest = pd.DataFrame(df_latest, columns=['recent_time', 'percentage', 'item', 'stock', 'price'])
+            predictions[item] = predictWeek(item, df_latest)
+            await redis.set(f"predicted_price:{item}", str(predictions[item]), ex=3600)  # Cache for 1 hour
+            item_predictions = await redis.get(f"predicted_price:{item}")
+            predictions[item] = eval(item_predictions)
 
     today = date.today()
 

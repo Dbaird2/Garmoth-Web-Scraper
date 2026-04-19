@@ -10,7 +10,7 @@ from slowapi.util import get_remote_address
 limiter = Limiter(key_func=get_remote_address)
 
 db = Database()
-# redis = aioredis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
+redis = aioredis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
 
 item_manager = ConnectionManager()
 dash_manager = ConnectionManager()
