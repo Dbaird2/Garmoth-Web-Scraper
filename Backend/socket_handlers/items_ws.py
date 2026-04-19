@@ -2,7 +2,7 @@ from state import item_manager
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 from services.dashboard import fetchAllItems
 
-router = APIRouter(prefix="/ws", tags=["communicate"])
+router = APIRouter(tags=["communicate"])
 
 @router.websocket("/communicate")
 async def websocket_endpoint(websocket: WebSocket):

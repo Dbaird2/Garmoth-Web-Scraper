@@ -9,7 +9,7 @@ router = APIRouter(tags=["investmentWs"])
 async def investments_ws(websocket: WebSocket, token: str):
     logger.debug("/investmentWs called token=%s", token)
     try:
-        payload = checkJWT(token)
+        payload = await checkJWT(token)
         if not payload:
             await websocket.close(code=1008, reason="Invalid or expired token")
             return
