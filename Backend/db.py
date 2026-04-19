@@ -421,7 +421,15 @@ class Database:
         except:
             raise
 
-        pass
+    async def announcedDrops(self):
+        try:
+            items = await self.conn.fetch('''
+                SELECT item_name FROM announced_drops WHERE date_announced = CURRENT_DATE
+            ''')
+            return [i['item_name'] for i in items]
+        except Exception as e:
+            logger.exception("announcedDrops failed: %s", e)
+            raise
 
     async def closeConnection(self):
         await self.conn.close()
