@@ -1,7 +1,7 @@
 from services.dashboard import getIndirectItems
 from services.predictions import predictWeek
 from discord_webhook import sendDiscordMessage
-from state import db, item_manager, dash_manager, investment_manager, logger, redis, item_db, invest_db, event_db
+from state import item_manager, dash_manager, investment_manager, logger, redis, item_db, invest_db, event_db
 import pandas as pd
 import asyncio
 

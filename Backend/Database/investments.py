@@ -1,0 +1,100 @@
+import asyncpg
+import logging
+from datetime import datetime, date
+from discord_webhook import sendDiscordMessage
+
+logger = logging.getLogger(__name__)
+
+class InvestmentActions:
+    def __init__(self, db: Database):
+        self.pool = db.pool
+
+    async def uniqueInvestmentItems(self):
+        pass
+    
+    async def deleteInvestment(self, id):
+        try:
+            await self.pool.execute('''
+                DELETE FROM investment WHERE id = $1
+                                    ''',
+                                    id)
+        except Exception as e:
+            logger.exception("deleteInvestment failed — id=%s | error: %s", id, e)
+            raise
+
+    async def soldAllInvestment(self, id):
+        try:
+            await self.pool.execute('''
+                UPDATE investment SET sold_qty = qty, sold = TRUE WHERE id = $1
+                                    ''', id)
+            pass
+        except Exception as e:
+            logger.exception("soldAllInvestment failed — id=%s | error: %s", id, e)
+            raise
+
+    async def getChartInvestmentData(self, email):
+        try:
+            chart_data = await self.pool.fetch('''
+                select * 
+                    from bdo_items as b 
+                        where b.item in (
+                                    select distinct on (name) name from investment where email = $1 AND sold = FALSE
+                                        ) 
+                        order by b.item, b.recent_time desc
+                                               ''', email)
+            return chart_data
+        except Exception as e:
+            logger.exception("getChartInvestmentData failed — email=%s | error: %s", email, e)
+            raise
+
+    async def upsertInvestment(self, email, data = {}):
+        from datetime import datetime
+        try:
+            await self.pool.execute('''
+                INSERT INTO investment (bought_at, name, qty, buy_price, email, wanted_price, notes)
+                                    VALUES ($1, $2, $3, $4, $5, $6, $7) 
+                                    ON CONFLICT (bought_at, name, email, buy_price) DO UPDATE
+                                    SET qty = EXCLUDED.qty, wanted_price = EXCLUDED.wanted_price, notes = EXCLUDED.notes, buy_price = EXCLUDED.buy_price
+                                    ''',
+                                    datetime.strptime(data['date'], "%Y-%m-%d").date(), data['item'], int(data['qty']), int(data['buyPrice']), email, int(data.get('wanted_sell_price', 0)) if data.get('wanted_sell_price') else None, data.get('notes', ''))
+        except Exception as e:
+            logger.exception("upsertInvestment failed — email=%s | error: %s", email, e)
+            raise
+    
+    async def updateInvestment(self, investment_data = {}) -> None:
+        try:
+            await self.pool.execute('''
+                UPDATE investment SET buy_price = $1, qty = $2, sold_qty = $3 WHERE id = $4
+                                    ''',
+                                    investment_data['buy_price'], investment_data['qty'], investment_data['sold_qty'], investment_data['id'])
+        except Exception as e:
+            logger.exception("updateInvestment failed | error: %s", id, e)
+            raise
+
+    async def getInvestments(self, email):
+        try:
+            investments = await self.pool.fetch('''
+            SELECT 
+                i.name, 
+                i.id, 
+                i.qty, 
+                i.buy_price,
+                (j.price - i.buy_price) as pnl,
+                j.price,
+                j.recent_time,
+                i.sold_qty
+            FROM investment i
+            LEFT JOIN LATERAL (
+                SELECT price, recent_time 
+                FROM bdo_items 
+                WHERE item = i.name 
+                ORDER BY recent_time DESC 
+                LIMIT 1
+            ) j ON true
+            WHERE i.email = $1 AND i.sold = FALSE
+            ORDER BY i.name
+                    ''', email)
+            return investments
+        except Exception as e:
+            logger.exception("getInvestments failed — email=%s | error: %s", email, e)
+            raise

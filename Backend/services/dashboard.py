@@ -1,9 +1,9 @@
 from fastapi import HTTPException
-from state import db, logger
+from state import logger, item_db, invest_db, event_db
 
 async def fetchAllItems():
     try:
-        items = await db.selectAllItemRows()
+        items = await item_db.selectAllItemRows()
         if items == "Items Not Found":
             raise HTTPException(status_code=404, detail="Items not found")
         item_list = []
@@ -16,8 +16,8 @@ async def fetchAllItems():
 
 
 async def getIndirectItems():
-    indirect_items = await db.selectActiveIndirectItems()
-    events = await db.selectAllEvents()
+    indirect_items = await item_db.selectActiveIndirectItems()
+    events = await event_db.selectAllEvents()
     event_dict = {}
     item_dict = {}
     json_indirect = {}

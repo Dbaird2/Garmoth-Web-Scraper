@@ -1,5 +1,5 @@
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
-from state import investment_manager, logger, db
+from state import investment_manager, logger, invest_db
 from routers.auth import checkJWT
 from services.predictions import getFormattedInvestmentData
 
@@ -27,13 +27,13 @@ async def investments_ws(websocket: WebSocket, token: str):
             data = await websocket.receive_json()
             try:
                 if data.get('create'):
-                    await db.upsertInvestment(email, data.get('create'))
+                    await invest_db.upsertInvestment(email, data.get('create'))
                 elif data.get('update'):
-                    await db.updateInvestment(data.get('delete'))
+                    await invest_db.updateInvestment(data.get('delete'))
                 elif data.get('sold_all'):
-                    await db.soldAllInvestment(data.get('sold_all'))
+                    await invest_db.soldAllInvestment(data.get('sold_all'))
                 elif data.get('delete'):
-                    await db.deleteInvestment(data.get('delete'))
+                    await invest_db.deleteInvestment(data.get('delete'))
                 else:
                     continue
                     
