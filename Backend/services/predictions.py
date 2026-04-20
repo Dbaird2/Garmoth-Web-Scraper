@@ -1,14 +1,14 @@
 from predict_item import predictWeek
-from state import db, redis
+from state import db, redis, item_db
 import pandas as pd
 from services.dashboard import calculateImpact
 
 async def getPredictedPrice(item_name):
-    df_latest = await db.getRecentPriceHistory(item_name, days=30)
+    df_latest = await item_db.getRecentPriceHistory(item_name, days=30)
     df_latest = pd.DataFrame(df_latest, columns=['recent_time', 'percentage', 'item', 'stock', 'price'])
     predictions = predictWeek(item_name, df_latest)
     # Insert Into DB & Redis Cache here with an expiration time of 24 hours
-    await db.insertPredictedPrices(item_name, predictions)
+    await item_db.insertPredictedPrices(item_name, predictions)
     # await redis.set(f"predicted_price:{item_name}", str(predictions), ex=3600)  # Cache for 1 hour
     return predictions
 
@@ -47,7 +47,7 @@ async def getFormattedInvestmentData(email):
         if item_predictions:
             predictions[item] = eval(item_predictions)  # Convert string back to dict
         else:
-            df_latest = await db.getRecentPriceHistory(item, days=30)
+            df_latest = await item_db.getRecentPriceHistory(item, days=30)
             df_latest = pd.DataFrame(df_latest, columns=['recent_time', 'percentage', 'item', 'stock', 'price'])
             predictions[item] = predictWeek(item, df_latest)
             await redis.set(f"predicted_price:{item}", str(predictions[item]), ex=3600)  # Cache for 1 hour
@@ -74,7 +74,7 @@ async def getFormattedInvestmentData(email):
     return formatted_investments
 
 async def predictPrice(item_name: str):
-    df_latest = await db.getRecentPriceHistory(item_name, days=30)
+    df_latest = await item_db.getRecentPriceHistory(item_name, days=30)
     df_latest = pd.DataFrame(df_latest, columns=['recent_time', 'percentage', 'item', 'stock', 'price'])
     predictions = predictWeek(item_name, df_latest)
     return {"item": item_name, "predicted_pct_change": predictions}

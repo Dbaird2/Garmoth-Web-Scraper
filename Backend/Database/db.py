@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 class Database:
     def __init__(self):
-        self.conn = None
+        self.pool = None
         self.cursor = None
         self.path = None
 
@@ -23,7 +23,7 @@ class Database:
         DB_NAME = os.getenv("DB_NAME")
 
         try:
-            self.conn = await asyncpg.create_pool(
+            self.pool = await asyncpg.create_pool(
                 user=DB_USER,
                 password=DB_PASSWORD,
                 database=DB_NAME,
@@ -36,10 +36,111 @@ class Database:
             logger.exception("Database connection pool failed — host=%s | db=%s | error: %s", DB_HOST, DB_NAME, e)
             raise
 
+    async def upsertUser(self, email: str, name: str):
+        try:
+            await self.pool.execute('''
+                INSERT INTO users (email, name) VALUES ($1, $2)
+                ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name
+            ''', email, name)
+        except Exception as e:
+            logger.exception("upsertUser failed — email=%s | error: %s", email, e)
+            raise
+
+    async def closeConnection(self):
+        await self.pool.close()
+
+class ItemActions:
+    def __init__(self, db: Database):
+        self.pool = db.pool
+    
+    async def announcedDrops(self):
+        try:
+            items = await self.pool.fetch('''
+                SELECT item_name FROM announced_drops WHERE date_announced = CURRENT_DATE
+            ''')
+            return [i['item_name'] for i in items]
+        except Exception as e:
+            logger.exception("announcedDrops failed: %s", e)
+            raise
+    
+    async def getRecentPriceHistory(self, item_name, days = 30):
+        try:
+            history = await self.pool.fetch('''
+                select recent_time, percentage, item, stock, price from bdo_items where item = $1 order by recent_time limit $2;
+                            ''', item_name, days)
+            return history
+        except:
+            raise
+
+    async def selectBaselinePriceRange(self, items: str, event_start_date: str):
+        from datetime import timedelta
+        try:
+            if not items:
+                return []
+        
+            select_start = 'SELECT item, price, recent_time FROM bdo_items ' \
+            'WHERE recent_time >= $1 AND recent_time < $2 AND item = $3 ORDER BY recent_time'
+
+            last_week_date = event_start_date - timedelta(days=21)
+
+            price_range = await self.pool.fetch(select_start, last_week_date, event_start_date, items)
+            return price_range
+        except Exception as e:
+            logger.exception("selectBaselinePriceRange failed — item=%s | event_start=%s | error: %s", items, event_start_date, e)
+
+    
+
+    async def selectIndirectItems(self, items = []):
+        logger.debug("selectIndirectItems — querying indirect items for %d items", len(items))
+        try:
+            indirect_items = await self.pool.fetch('''
+                SELECT DISTINCT ON (item_b) item_b, relationship FROM item_relationship WHERE item_a = ANY($1::TEXT[]) 
+            ''', items)
+            logger.debug("selectIndirectItems — returned %d rows", len(indirect_items))
+            return indirect_items
+        except Exception as e:
+            logger.exception("selectIndirectItems failed: %s", e)
+
+    async def selectActiveIndirectItems(self):
+        logger.debug("selectActiveIndirectItems — querying active events")
+        try:
+            indirect_items = await self.pool.fetch('''
+                SELECT * FROM indirect_event_item WHERE end_date >= CURRENT_DATE
+            ''',)
+            logger.debug("selectAllEvents — returned %d rows", len(indirect_items))
+            return indirect_items
+        except Exception as e:
+            logger.exception("selectAllEvents failed: %s", e)
+
+    async def upsertIndirectEventItems(self, event_dict = {}):
+        time1 = datetime.now()
+        logger.info("upsertIndirectEventItems called — inserting %d items", len(event_dict))
+        async with self.pool.acquire() as pool:
+            try:
+                for event, rows in event_dict.items():
+
+                    await pool.execute('''
+                        INSERT INTO indirect_event_item (event_name, item_name, pct_diff, end_date)
+                        SELECT unnest($1::text[]), unnest($2::text[]), unnest($3::float[]), unnest($4::date[])
+                        ON CONFLICT (event_name, item_name, end_date) DO 
+                        UPDATE SET pct_diff = EXCLUDED.pct_diff
+                    ''', 
+                    [i['event'] for i in rows],
+                    [i['item'] for i in rows],
+                    [i['pct_diff'] for i in rows],
+                    [i['end_date'] for i in rows])
+
+            except Exception as e:
+                logger.exception("upsertIndirectEventItems transaction failed — %d items | error: %s", len(event_dict), e)
+                raise
+        time2 = datetime.now()
+        diff = time2 - time1
+        logger.info("upsertIndirectEventItems completed in %d.%06ds", diff.seconds, diff.microseconds)
+    
     async def insertItems(self, items = []):
         time1 = datetime.now()
         logger.info("insertItems called — upserting %d items", len(items))
-        async with self.conn.acquire() as pool:
+        async with self.pool.acquire() as pool:
             try:
                 await pool.execute('''
                     INSERT INTO bdo_items (item, percentage, stock, price, recent_time)
@@ -63,7 +164,7 @@ class Database:
     async def selectAllItemRows(self):
         try:
             time1 = datetime.now()
-            items = await self.conn.fetch(''' 
+            items = await self.pool.fetch(''' 
                 SELECT g.id as id, item, percentage, stock, price::numeric(15,1) AS full_price, 
                     percentage - (
                                 SELECT percentage 
@@ -91,7 +192,7 @@ class Database:
 
     async def recentDrops(self):
         try:
-            items = await self.conn.fetch('''
+            items = await self.pool.fetch('''
             SELECT item, percentage, stock, price::numeric(15,1) AS full_price, 
                     percentage - (
                                 SELECT percentage 
@@ -120,7 +221,7 @@ class Database:
 
     async def selectItem(self, item_name = ''):
         try:
-            item = await self.conn.fetch(''' 
+            item = await self.pool.fetch(''' 
                 SELECT id, item, percentage, stock, price::numeric(15,1) AS full_price, recent_time 
                 FROM bdo_items WHERE item ILIKE $1 ORDER BY recent_time ASC LIMIT 60
             ''', item_name)
@@ -131,7 +232,7 @@ class Database:
         
     async def selectItemRecentPrice(self, item_name = ''):
         try:
-            item = await self.conn.fetch(''' 
+            item = await self.pool.fetch(''' 
                 SELECT id, item, percentage, stock, price::numeric(15,1) AS full_price, recent_time 
                 FROM bdo_items WHERE item ILIKE $1 ORDER BY recent_time DESC LIMIT 1
             ''', item_name)
@@ -142,7 +243,7 @@ class Database:
     
     async def selectItemsByRange(self, range = 0):
         try:
-            items = await self.conn.fetch(''' 
+            items = await self.pool.fetch(''' 
                 SELECT id, item, percentage, stock, price::numeric(15,1) AS full_price, recent_time FROM bdo_items
                 WHERE (percentage <= $2 OR percentage >= $1) AND recent_time = CURRENT_DATE ORDER BY percentage DESC 
             ''', range, -range)
@@ -151,26 +252,38 @@ class Database:
             logger.exception("selectItemsByRange failed — range=%s | error: %s", range, e)
             raise
 
-    async def selectBaselinePriceRange(self, items: str, event_start_date: str):
-        from datetime import timedelta
-        try:
-            if not items:
-                return []
-        
-            select_start = 'SELECT item, price, recent_time FROM bdo_items ' \
-            'WHERE recent_time >= $1 AND recent_time < $2 AND item = $3 ORDER BY recent_time'
+class EventActions:
+    def __init__(self, db: Database):
+        self.pool = db.pool
 
-            last_week_date = event_start_date - timedelta(days=21)
+    async def insertEvent(self, form_data):
+        logger.info(
+            "insertEvent called "
+        )
+        async with self.pool.acquire() as pool:
+            try:
+                await pool.execute('''
+                    INSERT INTO bdo_events (name, start_date, end_date) VALUES
+                    ($1, $2, $3) ON CONFLICT (name, start_date) DO NOTHING
+                ''',
+                form_data.event_name, date.fromisoformat(form_data.start_date), date.fromisoformat(form_data.end_date))
 
-            price_range = await self.conn.fetch(select_start, last_week_date, event_start_date, items)
-            return price_range
-        except Exception as e:
-            logger.exception("selectBaselinePriceRange failed — item=%s | event_start=%s | error: %s", items, event_start_date, e)
-
+                await pool.execute('''
+                    INSERT INTO event_contents (event_name, item_name, quantity)
+                    SELECT $1, unnest($2::text[]) as item, unnest($3::int[])
+                ''',
+                form_data.event_name, [i.item for i in form_data.items], [i.qty for i in form_data.qty])
+            except Exception as e:
+                logger.exception(
+                    "insertEvent transaction failed — event=%s | error: %s",
+                    form_data.event_name, e
+                )
+                raise
+    
     async def selectAllEvents(self):
         logger.debug("selectAllEvents — querying active events")
         try:
-            events = await self.conn.fetch('''
+            events = await self.pool.fetch('''
                 SELECT e.name, e.impact, e.start_date, e.end_date, c.item_name, c.impact as item_impact, c.pct_diff
                 FROM bdo_events e RIGHT JOIN event_contents c ON e.name = c.event_name 
                 WHERE e.end_date >= CURRENT_DATE ORDER BY e.end_date  
@@ -179,88 +292,15 @@ class Database:
             return events
         except Exception as e:
             logger.exception("selectAllEvents failed: %s", e)
-
-    async def selectIndirectItems(self, items = []):
-        logger.debug("selectIndirectItems — querying indirect items for %d items", len(items))
-        try:
-            indirect_items = await self.conn.fetch('''
-                SELECT DISTINCT ON (item_b) item_b, relationship FROM item_relationship WHERE item_a = ANY($1::TEXT[]) 
-            ''', items)
-            logger.debug("selectIndirectItems — returned %d rows", len(indirect_items))
-            return indirect_items
-        except Exception as e:
-            logger.exception("selectIndirectItems failed: %s", e)
-
-    async def selectActiveIndirectItems(self):
-        logger.debug("selectActiveIndirectItems — querying active events")
-        try:
-            indirect_items = await self.conn.fetch('''
-                SELECT * FROM indirect_event_item WHERE end_date >= CURRENT_DATE
-            ''',)
-            logger.debug("selectAllEvents — returned %d rows", len(indirect_items))
-            return indirect_items
-        except Exception as e:
-            logger.exception("selectAllEvents failed: %s", e)
-
-    async def upsertIndirectEventItems(self, event_dict = {}):
-        time1 = datetime.now()
-        logger.info("upsertIndirectEventItems called — inserting %d items", len(event_dict))
-        async with self.conn.acquire() as pool:
-            try:
-                for event, rows in event_dict.items():
-
-                    await pool.execute('''
-                        INSERT INTO indirect_event_item (event_name, item_name, pct_diff, end_date)
-                        SELECT unnest($1::text[]), unnest($2::text[]), unnest($3::float[]), unnest($4::date[])
-                        ON CONFLICT (event_name, item_name, end_date) DO 
-                        UPDATE SET pct_diff = EXCLUDED.pct_diff
-                    ''', 
-                    [i['event'] for i in rows],
-                    [i['item'] for i in rows],
-                    [i['pct_diff'] for i in rows],
-                    [i['end_date'] for i in rows])
-
-            except Exception as e:
-                logger.exception("upsertIndirectEventItems transaction failed — %d items | error: %s", len(event_dict), e)
-                raise
-        time2 = datetime.now()
-        diff = time2 - time1
-        logger.info("upsertIndirectEventItems completed in %d.%06ds", diff.seconds, diff.microseconds)
-
-    async def updateEventImpact(self, impact, event_name):
-        
-        try:
-            logger.info("updateEventImpact — event=%s | impact=%s", event_name, impact)
-            status = await self.conn.execute("""
-                UPDATE bdo_events SET impact = $1 WHERE name = $2
-                AND CASE impact
-                    WHEN 'High'   THEN 3
-                    WHEN 'Medium' THEN 2
-                    WHEN 'Low'    THEN 1
-                    ELSE 0
-                END < CASE $1
-                    WHEN 'High'   THEN 3
-                    WHEN 'Medium' THEN 2
-                    WHEN 'Low'    THEN 1
-                    ELSE 0
-                END
-            """, impact, event_name)
-            if status == 'UPDATE 1':
-                await sendDiscordMessage(f"Updated event {event_name} to impact level {impact}")
-                logger.info("updateEventImpact — updated event=%s | impact=%s", event_name, impact)
-
-            return True
-        except Exception as e:
-            logger.exception("updateEventImpact failed — event=%s | impact=%s | error: %s", event_name, impact, e)
             raise
-
+    
     async def updateEventItem(self, **arg_dict):
         time1 = datetime.now()
         logger.info(
             "updateEventItem called — item=%s | event=%s | impact=%s | pct_diff=%.2f%%",
             arg_dict['item'], arg_dict['event_name'], arg_dict['impact'], arg_dict['pct_diff']
         )
-        async with self.conn.acquire() as pool:
+        async with self.pool.acquire() as pool:
             try:
                 status = await pool.execute('''
                     WITH cte AS 
@@ -291,43 +331,102 @@ class Database:
         diff = time2 - time1
         logger.info("updateEventItem completed in %d.%06ds", diff.seconds, diff.microseconds)
 
-    async def insertEvent(self, form_data):
-        logger.info(
-            "insertEvent called "
-        )
-        async with self.conn.acquire() as pool:
-            try:
-                await pool.execute('''
-                    INSERT INTO bdo_events (name, start_date, end_date) VALUES
-                    ($1, $2, $3) ON CONFLICT (name, start_date) DO NOTHING
-                ''',
-                form_data.event_name, date.fromisoformat(form_data.start_date), date.fromisoformat(form_data.end_date))
-
-                await pool.execute('''
-                    INSERT INTO event_contents (event_name, item_name, quantity)
-                    SELECT $1, unnest($2::text[]) as item, unnest($3::int[])
-                ''',
-                form_data.event_name, [i.item for i in form_data.items], [i.qty for i in form_data.qty])
-            except Exception as e:
-                logger.exception(
-                    "insertEvent transaction failed — event=%s | error: %s",
-                    form_data.event_name, e
-                )
-                raise
-
-    async def upsertUser(self, email: str, name: str):
+    async def updateEventImpact(self, impact, event_name):
+        
         try:
-            await self.conn.execute('''
-                INSERT INTO users (email, name) VALUES ($1, $2)
-                ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name
-            ''', email, name)
+            logger.info("updateEventImpact — event=%s | impact=%s", event_name, impact)
+            status = await self.pool.execute("""
+                UPDATE bdo_events SET impact = $1 WHERE name = $2
+                AND CASE impact
+                    WHEN 'High'   THEN 3
+                    WHEN 'Medium' THEN 2
+                    WHEN 'Low'    THEN 1
+                    ELSE 0
+                END < CASE $1
+                    WHEN 'High'   THEN 3
+                    WHEN 'Medium' THEN 2
+                    WHEN 'Low'    THEN 1
+                    ELSE 0
+                END
+            """, impact, event_name)
+            if status == 'UPDATE 1':
+                await sendDiscordMessage(f"Updated event {event_name} to impact level {impact}")
+                logger.info("updateEventImpact — updated event=%s | impact=%s", event_name, impact)
+
+            return True
         except Exception as e:
-            logger.exception("upsertUser failed — email=%s | error: %s", email, e)
+            logger.exception("updateEventImpact failed — event=%s | impact=%s | error: %s", event_name, impact, e)
+            raise
+
+class InvestmentActions:
+    def __init__(self, db: Database):
+        self.pool = db.pool
+
+    async def uniqueInvestmentItems(self):
+        pass
+    
+    async def deleteInvestment(self, id):
+        try:
+            await self.pool.execute('''
+                DELETE FROM investment WHERE id = $1
+                                    ''',
+                                    id)
+        except Exception as e:
+            logger.exception("deleteInvestment failed — id=%s | error: %s", id, e)
+            raise
+
+    async def soldAllInvestment(self, id):
+        try:
+            await self.pool.execute('''
+                UPDATE investment SET sold_qty = qty, sold = TRUE WHERE id = $1
+                                    ''', id)
+            pass
+        except Exception as e:
+            logger.exception("soldAllInvestment failed — id=%s | error: %s", id, e)
+            raise
+
+    async def getChartInvestmentData(self, email):
+        try:
+            chart_data = await self.pool.fetch('''
+                select * 
+                    from bdo_items as b 
+                        where b.item in (
+                                    select distinct on (name) name from investment where email = $1 AND sold = FALSE
+                                        ) 
+                        order by b.item, b.recent_time desc
+                                               ''', email)
+            return chart_data
+        except Exception as e:
+            logger.exception("getChartInvestmentData failed — email=%s | error: %s", email, e)
+            raise
+
+    async def upsertInvestment(self, email, data = {}):
+        from datetime import datetime
+        try:
+            await self.pool.execute('''
+                INSERT INTO investment (bought_at, name, qty, buy_price, email, wanted_price, notes)
+                                    VALUES ($1, $2, $3, $4, $5, $6, $7) 
+                                    ON CONFLICT (bought_at, name, email, buy_price) DO UPDATE
+                                    SET qty = EXCLUDED.qty, wanted_price = EXCLUDED.wanted_price, notes = EXCLUDED.notes, buy_price = EXCLUDED.buy_price
+                                    ''',
+                                    datetime.strptime(data['date'], "%Y-%m-%d").date(), data['item'], int(data['qty']), int(data['buyPrice']), email, int(data.get('wanted_sell_price', 0)) if data.get('wanted_sell_price') else None, data.get('notes', ''))
+        except Exception as e:
+            logger.exception("upsertInvestment failed — email=%s | error: %s", email, e)
             raise
     
+    async def updateInvestment(self, investment_data = {}) -> None:
+        try:
+            await self.pool.execute('''
+                UPDATE investment SET buy_price = $1, qty = $2, sold_qty = $3 WHERE id = $4
+                                    ''',
+                                    investment_data['buy_price'], investment_data['qty'], investment_data['sold_qty'], investment_data['id'])
+        except Exception as e:
+            logger.exception("updateInvestment failed | error: %s", id, e)
+            raise
+
     async def getInvestments(self, email):
         try:
-            investments = await self.conn.fetch('''
+            investments = await self.pool.fetch('''
             SELECT 
                 i.name, 
                 i.id, 
@@ -353,87 +452,11 @@ class Database:
             logger.exception("getInvestments failed — email=%s | error: %s", email, e)
             raise
 
-    async def getChartInvestmentData(self, email):
-        try:
-            chart_data = await self.conn.fetch('''
-                select * 
-                    from bdo_items as b 
-                        where b.item in (
-                                    select distinct on (name) name from investment where email = $1 AND sold = FALSE
-                                        ) 
-                        order by b.item, b.recent_time desc
-                                               ''', email)
-            return chart_data
-        except Exception as e:
-            logger.exception("getChartInvestmentData failed — email=%s | error: %s", email, e)
-            raise
+class Predicting:
+    def __init__(self, db: Database):
+        self.pool = db.pool
 
-    async def upsertInvestment(self, email, data = {}):
-        from datetime import datetime
-        try:
-            await self.conn.execute('''
-                INSERT INTO investment (bought_at, name, qty, buy_price, email, wanted_price, notes)
-                                    VALUES ($1, $2, $3, $4, $5, $6, $7) 
-                                    ON CONFLICT (bought_at, name, email, buy_price) DO UPDATE
-                                    SET qty = EXCLUDED.qty, wanted_price = EXCLUDED.wanted_price, notes = EXCLUDED.notes, buy_price = EXCLUDED.buy_price
-                                    ''',
-                                    datetime.strptime(data['date'], "%Y-%m-%d").date(), data['item'], int(data['qty']), int(data['buyPrice']), email, int(data.get('wanted_sell_price', 0)) if data.get('wanted_sell_price') else None, data.get('notes', ''))
-        except Exception as e:
-            logger.exception("upsertInvestment failed — email=%s | error: %s", email, e)
-            raise
-    
-    async def updateInvestment(self, investment_data = {}) -> None:
-        try:
-            await self.conn.execute('''
-                UPDATE investment SET buy_price = $1, qty = $2, sold_qty = $3 WHERE id = $4
-                                    ''',
-                                    investment_data['buy_price'], investment_data['qty'], investment_data['sold_qty'], investment_data['id'])
-        except Exception as e:
-            logger.exception("updateInvestment failed | error: %s", id, e)
-            raise
-
-    async def soldAllInvestment(self, id):
-        try:
-            await self.conn.execute('''
-                UPDATE investment SET sold_qty = qty, sold = TRUE WHERE id = $1
-                                    ''', id)
-            pass
-        except Exception as e:
-            logger.exception("soldAllInvestment failed — id=%s | error: %s", id, e)
-            raise
-
-    async def deleteInvestment(self, id):
-        try:
-            await self.conn.execute('''
-                DELETE FROM investment WHERE id = $1
-                                    ''',
-                                    id)
-        except Exception as e:
-            logger.exception("deleteInvestment failed — id=%s | error: %s", id, e)
-            raise
-
-    async def getRecentPriceHistory(self, item_name, days = 30):
-        try:
-            history = await self.conn.fetch('''
-                select recent_time, percentage, item, stock, price from bdo_items where item = $1 order by recent_time limit $2;
-                            ''', item_name, days)
-            return history
-        except:
-            raise
-
-    async def announcedDrops(self):
-        try:
-            items = await self.conn.fetch('''
-                SELECT item_name FROM announced_drops WHERE date_announced = CURRENT_DATE
-            ''')
-            return [i['item_name'] for i in items]
-        except Exception as e:
-            logger.exception("announcedDrops failed: %s", e)
-            raise
-    
-    async def uniqueInvestmentItems(self):
+    async def insertPredictedPrices(self, items = '', predicted_prices = []):
         pass
-
-    async def closeConnection(self):
-        await self.conn.close()
+        
     
