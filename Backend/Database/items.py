@@ -209,6 +209,5 @@ class ItemActions:
             logger.exception("selectItemsByRange failed — range=%s | error: %s", range, e)
             raise
 
-    async def insertPredictedPrices(self, items = '', predicted_prices = []):
-        pass
+    
         

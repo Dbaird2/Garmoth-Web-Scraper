@@ -8,8 +8,6 @@ logger = logging.getLogger(__name__)
 class Database:
     def __init__(self):
         self.pool = None
-        self.cursor = None
-        self.path = None
 
     async def connect(self):
         from dotenv import load_dotenv

@@ -98,3 +98,42 @@ class InvestmentActions:
         except Exception as e:
             logger.exception("getInvestments failed — email=%s | error: %s", email, e)
             raise
+
+    async def uniqueInvestments(self):
+        try:
+            async with self.pool.acquire() as conn:
+                unique_investments = conn.fetch('''
+                    SELECT DISTINCT ON (name) name FROM investment
+                                                ''')
+                return unique_investments
+        except Exception as e:
+            logger.exception("uniqueInvestments failed — error: %s", e)
+            raise
+
+    async def upsertPredictedPrices(self, item = '', predicted_prices = None):
+        try:
+            if predicted_prices is None:
+                predicted_prices = {}
+            if item == '':
+                raise ValueError("item cannot be empty")
+            async with self.pool.acquire() as conn:
+                await conn.execute('''
+                    INSERT INTO ml_predictions (item_name, predicted_at, day_1, day_2, day_3, day_4, day_5, day_6, day_7)
+                    VALUES ($1, CURRENT_DATE, $2, $3, $4, $5, $6, $7, $8)
+                    ON CONFLICT (item_name, predicted_at) DO UPDATE
+                    SET day_1 = EXCLUDED.day_1, day_2 = EXCLUDED.day_2,
+                        day_3 = EXCLUDED.day_3, day_4 = EXCLUDED.day_4,
+                        day_5 = EXCLUDED.day_5, day_6 = EXCLUDED.day_6,
+                        day_7 = EXCLUDED.day_7
+                ''', item,
+                    predicted_prices['day_1']['pct_change'],
+                    predicted_prices['day_2']['pct_change'],
+                    predicted_prices['day_3']['pct_change'],
+                    predicted_prices['day_4']['pct_change'],
+                    predicted_prices['day_5']['pct_change'],
+                    predicted_prices['day_6']['pct_change'],
+                    predicted_prices['day_7']['pct_change']
+                )
+        except Exception as e:
+            logger.exception("upsertPredictedPrices failed — error: %s", e)
+            raise

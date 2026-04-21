@@ -25,7 +25,7 @@ class EventActions:
                     INSERT INTO event_contents (event_name, item_name, quantity)
                     SELECT $1, unnest($2::text[]) as item, unnest($3::int[])
                 ''',
-                form_data.event_name, [i.item for i in form_data.items], [i.qty for i in form_data.qty])
+                form_data.event_name, [i.item for i in form_data.items], [i.qty for i in form_data.items])
             except Exception as e:
                 logger.exception(
                     "insertEvent transaction failed — event=%s | error: %s",
@@ -48,7 +48,6 @@ class EventActions:
             raise
     
     async def updateEventItem(self, **arg_dict):
-        time1 = datetime.now()
         logger.info(
             "updateEventItem called — item=%s | event=%s | impact=%s | pct_diff=%.2f%%",
             arg_dict['item'], arg_dict['event_name'], arg_dict['impact'], arg_dict['pct_diff']
@@ -80,9 +79,6 @@ class EventActions:
                     arg_dict['item'], arg_dict['event_name'], e
                 )
                 raise
-        time2 = datetime.now()
-        diff = time2 - time1
-        logger.info("updateEventItem completed in %d.%06ds", diff.seconds, diff.microseconds)
 
     async def updateEventImpact(self, impact, event_name):
         
@@ -91,11 +87,13 @@ class EventActions:
             status = await self.pool.execute("""
                 UPDATE bdo_events SET impact = $1 WHERE name = $2
                 AND CASE impact
+                    WHEN 'Very High' THEN 4
                     WHEN 'High'   THEN 3
                     WHEN 'Medium' THEN 2
                     WHEN 'Low'    THEN 1
                     ELSE 0
                 END < CASE $1
+                    WHEN 'Very High' THEN 4
                     WHEN 'High'   THEN 3
                     WHEN 'Medium' THEN 2
                     WHEN 'Low'    THEN 1

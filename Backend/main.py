@@ -5,10 +5,21 @@ import asyncio
 from datetime import datetime
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from state import db, logger, limiter, item_manager, dash_manager, investment_manager
+from Backend import state
 from services.background import repeatInsert
 from routers import items, auth, events
 from socket_handlers import items_ws, dashboard_ws, investments_ws
+import redis.asyncio as aioredis
+import os
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+
+logger = logging.getLogger(__name__)
 
 origins = [
     "https://bdo-event-tracker.vercel.app",
@@ -16,7 +27,9 @@ origins = [
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await db.connect()
+    await state.db.connect()
+    state.cache = aioredis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
+
     logger.info("Database connected successfully")
 
     time1 = datetime.now()
@@ -29,14 +42,14 @@ async def lifespan(app: FastAPI):
     logger.info("Background task registered: %s", task)
     task.add_done_callback(lambda t: logger.error("Background task ended — exception: %s", t.exception()) if not t.cancelled() else logger.warning("Background task was cancelled"))
     yield
-    await db.closeConnection()
-    await item_manager.closeConnections()
-    await dash_manager.closeConnections()
-    await investment_manager.closeConnections()
+    await state.db.closeConnection()
+    await state.item_manager.closeConnections()
+    await state.dash_manager.closeConnections()
+    await state.investment_manager.closeConnections()
     logger.info("Database connection closed and WebSocket connections cleaned up")
 
 app = FastAPI(lifespan=lifespan)
-app.state.limiter = limiter
+app.state.limiter = state.limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
