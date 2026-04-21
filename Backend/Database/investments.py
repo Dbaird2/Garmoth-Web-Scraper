@@ -5,9 +5,6 @@ logger = logging.getLogger(__name__)
 class InvestmentActions:
     def __init__(self, db: Database):
         self.db = db
-
-    async def uniqueInvestmentItems(self):
-        pass
     
     async def deleteInvestment(self, id):
         try:
@@ -99,7 +96,7 @@ class InvestmentActions:
     async def uniqueInvestments(self):
         try:
             async with self.db.pool.acquire() as conn:
-                unique_investments = conn.fetch('''
+                unique_investments = await conn.fetch('''
                     SELECT DISTINCT ON (name) name FROM investment
                                                 ''')
                 return unique_investments
