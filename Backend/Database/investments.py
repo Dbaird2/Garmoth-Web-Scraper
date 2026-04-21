@@ -114,7 +114,7 @@ class InvestmentActions:
                 await conn.execute('''
                     INSERT INTO ml_predictions (name, predicted_at, day_1, day_2, day_3, day_4, day_5, day_6, day_7)
                     VALUES ($1, CURRENT_DATE, $2, $3, $4, $5, $6, $7, $8)
-                    ON CONFLICT (item_name, predicted_at) DO UPDATE
+                    ON CONFLICT (name, predicted_at) DO UPDATE
                     SET day_1 = EXCLUDED.day_1, day_2 = EXCLUDED.day_2,
                         day_3 = EXCLUDED.day_3, day_4 = EXCLUDED.day_4,
                         day_5 = EXCLUDED.day_5, day_6 = EXCLUDED.day_6,
