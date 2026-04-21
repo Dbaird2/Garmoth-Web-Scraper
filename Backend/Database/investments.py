@@ -4,14 +4,14 @@ logger = logging.getLogger(__name__)
 
 class InvestmentActions:
     def __init__(self, db: Database):
-        self.pool = db.pool
+        self.db = db
 
     async def uniqueInvestmentItems(self):
         pass
     
     async def deleteInvestment(self, id):
         try:
-            await self.pool.execute('''
+            await self.db.pool.execute('''
                 DELETE FROM investment WHERE id = $1
                                     ''',
                                     id)
@@ -21,7 +21,7 @@ class InvestmentActions:
 
     async def soldAllInvestment(self, id):
         try:
-            await self.pool.execute('''
+            await self.db.pool.execute('''
                 UPDATE investment SET sold_qty = qty, sold = TRUE WHERE id = $1
                                     ''', id)
             pass
@@ -31,7 +31,7 @@ class InvestmentActions:
 
     async def getChartInvestmentData(self, email):
         try:
-            chart_data = await self.pool.fetch('''
+            chart_data = await self.db.pool.fetch('''
                 select * 
                     from bdo_items as b 
                         where b.item in (
@@ -47,7 +47,7 @@ class InvestmentActions:
     async def upsertInvestment(self, email, data = {}):
         from datetime import datetime
         try:
-            await self.pool.execute('''
+            await self.db.pool.execute('''
                 INSERT INTO investment (bought_at, name, qty, buy_price, email, wanted_price, notes)
                                     VALUES ($1, $2, $3, $4, $5, $6, $7) 
                                     ON CONFLICT (bought_at, name, email, buy_price) DO UPDATE
@@ -60,7 +60,7 @@ class InvestmentActions:
     
     async def updateInvestment(self, investment_data = {}) -> None:
         try:
-            await self.pool.execute('''
+            await self.db.pool.execute('''
                 UPDATE investment SET buy_price = $1, qty = $2, sold_qty = $3 WHERE id = $4
                                     ''',
                                     investment_data['buy_price'], investment_data['qty'], investment_data['sold_qty'], investment_data['id'])
@@ -70,7 +70,7 @@ class InvestmentActions:
 
     async def getInvestments(self, email):
         try:
-            investments = await self.pool.fetch('''
+            investments = await self.db.pool.fetch('''
             SELECT 
                 i.name, 
                 i.id, 
@@ -98,7 +98,7 @@ class InvestmentActions:
 
     async def uniqueInvestments(self):
         try:
-            async with self.pool.acquire() as conn:
+            async with self.db.pool.acquire() as conn:
                 unique_investments = conn.fetch('''
                     SELECT DISTINCT ON (name) name FROM investment
                                                 ''')
@@ -113,7 +113,7 @@ class InvestmentActions:
                 predicted_prices = {}
             if item == '':
                 raise ValueError("item cannot be empty")
-            async with self.pool.acquire() as conn:
+            async with self.db.pool.acquire() as conn:
                 await conn.execute('''
                     INSERT INTO ml_predictions (item_name, predicted_at, day_1, day_2, day_3, day_4, day_5, day_6, day_7)
                     VALUES ($1, CURRENT_DATE, $2, $3, $4, $5, $6, $7, $8)

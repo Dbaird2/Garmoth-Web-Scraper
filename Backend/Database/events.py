@@ -6,13 +6,13 @@ logger = logging.getLogger(__name__)
 
 class EventActions:
     def __init__(self, db: Database):
-        self.pool = db.pool
+        self.db = db
 
     async def insertEvent(self, form_data):
         logger.info(
             "insertEvent called "
         )
-        async with self.pool.acquire() as conn:
+        async with self.db.pool.acquire() as conn:
             try:
                 await conn.execute('''
                     INSERT INTO bdo_events (name, start_date, end_date) VALUES
@@ -35,7 +35,7 @@ class EventActions:
     async def selectAllEvents(self):
         logger.debug("selectAllEvents — querying active events")
         try:
-            events = await self.pool.fetch('''
+            events = await self.db.pool.fetch('''
                 SELECT e.name, e.impact, e.start_date, e.end_date, c.item_name, c.impact as item_impact, c.pct_diff
                 FROM bdo_events e RIGHT JOIN event_contents c ON e.name = c.event_name 
                 WHERE e.end_date >= CURRENT_DATE ORDER BY e.end_date  
@@ -51,7 +51,7 @@ class EventActions:
             "updateEventItem called — item=%s | event=%s | impact=%s | pct_diff=%.2f%%",
             arg_dict['item'], arg_dict['event_name'], arg_dict['impact'], arg_dict['pct_diff']
         )
-        async with self.pool.acquire() as conn:
+        async with self.db.pool.acquire() as conn:
             try:
                 status = await conn.execute('''
                     WITH cte AS 
@@ -83,7 +83,7 @@ class EventActions:
         
         try:
             logger.info("updateEventImpact — event=%s | impact=%s", event_name, impact)
-            status = await self.pool.execute("""
+            status = await self.db.pool.execute("""
                 UPDATE bdo_events SET impact = $1 WHERE name = $2
                 AND CASE impact
                     WHEN 'Very High' THEN 4

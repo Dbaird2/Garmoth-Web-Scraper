@@ -5,11 +5,11 @@ logger = logging.getLogger(__name__)
 
 class ItemActions:
     def __init__(self, db: Database):
-        self.pool = db.pool
+        self.db = db
     
     async def announcedDrops(self):
         try:
-            items = await self.pool.fetch('''
+            items = await self.db.pool.fetch('''
                 SELECT item_name FROM announced_drops WHERE date_announced = CURRENT_DATE
             ''')
             return [i['item_name'] for i in items]
@@ -19,7 +19,7 @@ class ItemActions:
     
     async def getRecentPriceHistory(self, item_name, days = 30):
         try:
-            history = await self.pool.fetch('''
+            history = await self.db.pool.fetch('''
                 select recent_time, percentage, item, stock, price from bdo_items where item = $1 order by recent_time limit $2;
                             ''', item_name, days)
             return history
@@ -37,7 +37,7 @@ class ItemActions:
 
             last_week_date = event_start_date - timedelta(days=21)
 
-            price_range = await self.pool.fetch(select_start, last_week_date, event_start_date, items)
+            price_range = await self.db.pool.fetch(select_start, last_week_date, event_start_date, items)
             return price_range
         except Exception as e:
             logger.exception("selectBaselinePriceRange failed — item=%s | event_start=%s | error: %s", items, event_start_date, e)
@@ -47,7 +47,7 @@ class ItemActions:
     async def selectIndirectItems(self, items = []):
         logger.debug("selectIndirectItems — querying indirect items for %d items", len(items))
         try:
-            indirect_items = await self.pool.fetch('''
+            indirect_items = await self.db.pool.fetch('''
                 SELECT DISTINCT ON (item_b) item_b, relationship FROM item_relationship WHERE item_a = ANY($1::TEXT[]) 
             ''', items)
             logger.debug("selectIndirectItems — returned %d rows", len(indirect_items))
@@ -58,7 +58,7 @@ class ItemActions:
     async def selectActiveIndirectItems(self):
         logger.debug("selectActiveIndirectItems — querying active events")
         try:
-            indirect_items = await self.pool.fetch('''
+            indirect_items = await self.db.pool.fetch('''
                 SELECT * FROM indirect_event_item WHERE end_date >= CURRENT_DATE
             ''',)
             logger.debug("selectAllEvents — returned %d rows", len(indirect_items))
@@ -69,7 +69,7 @@ class ItemActions:
     async def upsertIndirectEventItems(self, event_dict = {}):
         time1 = datetime.now()
         logger.info("upsertIndirectEventItems called — inserting %d items", len(event_dict))
-        async with self.pool.acquire() as conn:
+        async with self.db.pool.acquire() as conn:
             try:
                 for event, rows in event_dict.items():
 
@@ -94,7 +94,7 @@ class ItemActions:
     async def insertItems(self, items = []):
         time1 = datetime.now()
         logger.info("insertItems called — upserting %d items", len(items))
-        async with self.pool.acquire() as conn:
+        async with self.db.pool.acquire() as conn:
             try:
                 await conn.execute('''
                     INSERT INTO bdo_items (item, percentage, stock, price, recent_time)
@@ -118,7 +118,7 @@ class ItemActions:
     async def selectAllItemRows(self):
         try:
             time1 = datetime.now()
-            items = await self.pool.fetch(''' 
+            items = await self.db.pool.fetch(''' 
                 SELECT g.id as id, item, percentage, stock, price::numeric(15,1) AS full_price, 
                     percentage - (
                                 SELECT percentage 
@@ -146,7 +146,7 @@ class ItemActions:
 
     async def recentDrops(self):
         try:
-            items = await self.pool.fetch('''
+            items = await self.db.pool.fetch('''
             SELECT item, percentage, stock, price::numeric(15,1) AS full_price, 
                     percentage - (
                                 SELECT percentage 
@@ -175,7 +175,7 @@ class ItemActions:
 
     async def selectItem(self, item_name = ''):
         try:
-            item = await self.pool.fetch(''' 
+            item = await self.db.pool.fetch(''' 
                 SELECT id, item, percentage, stock, price::numeric(15,1) AS full_price, recent_time 
                 FROM bdo_items WHERE item ILIKE $1 ORDER BY recent_time ASC LIMIT 60
             ''', item_name)
@@ -186,7 +186,7 @@ class ItemActions:
         
     async def selectItemRecentPrice(self, item_name = ''):
         try:
-            item = await self.pool.fetch(''' 
+            item = await self.db.pool.fetch(''' 
                 SELECT id, item, percentage, stock, price::numeric(15,1) AS full_price, recent_time 
                 FROM bdo_items WHERE item ILIKE $1 ORDER BY recent_time DESC LIMIT 1
             ''', item_name)
@@ -197,7 +197,7 @@ class ItemActions:
     
     async def selectItemsByRange(self, range = 0):
         try:
-            items = await self.pool.fetch(''' 
+            items = await self.db.pool.fetch(''' 
                 SELECT id, item, percentage, stock, price::numeric(15,1) AS full_price, recent_time FROM bdo_items
                 WHERE (percentage <= $2 OR percentage >= $1) AND recent_time = CURRENT_DATE ORDER BY percentage DESC 
             ''', range, -range)
