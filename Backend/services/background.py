@@ -1,5 +1,5 @@
 from services.dashboard import getIndirectItems
-from services.predictions import predictWeek
+from predict_item import predictWeek
 from discord_webhook import sendDiscordMessage
 import state
 import pandas as pd
