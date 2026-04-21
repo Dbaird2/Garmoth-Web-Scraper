@@ -1,6 +1,6 @@
 import logging
 from discord_webhook import sendDiscordMessage
-
+import state
 logger = logging.getLogger(__name__)
 
 IMPACT_INTS = {'Very High': 4, 'High': 3, 'Medium': 2, 'Low': 1, 'None': 0}
@@ -31,11 +31,11 @@ def higherImpact(a: str, b: str) -> str:
 
 async def calculatePctDiff(db, item_name: str, start_date) -> float | None:
     """Fetches baseline and recent price for an item, returns pct_diff or None."""
-    price_range = await db.selectBaselinePriceRange(item_name, start_date)
+    price_range = await state.item_db.selectBaselinePriceRange(item_name, start_date)
     baseline_avg = getBaselineAvg(price_range)
     if baseline_avg is None:
         return None
-    item_data = await db.selectItemRecentPrice(item_name)
+    item_data = await state.item_db.selectItemRecentPrice(item_name)
     if not item_data:
         return None
     return (int(item_data[0]["full_price"]) - baseline_avg) / baseline_avg * 100
@@ -46,7 +46,7 @@ async def recalculateAllEventImpacts(db):
     Computes direct + indirect item impact, determines worst-case per event,
     persists item-level records, and writes the final impact to bdo_events.
     """
-    events = await db.selectAllEvents()
+    events = await state.item_db.selectAllEvents()
 
     # event_name → { start_date, end_date, direct_items, higherImpact }
     event_map: dict[str, dict] = {}
@@ -79,7 +79,7 @@ async def recalculateAllEventImpacts(db):
                     "Direct item — item=%s | event=%s | pct_diff=%.2f%% | level=%s",
                     item_name, ename, pct_diff, level
                 )
-                direct_count += await db.updateEventItem(impact=level, item=item_name, event_name=ename, pct_diff=pct_diff)
+                direct_count += await state.item_db.updateEventItem(impact=level, item=item_name, event_name=ename, pct_diff=pct_diff)
                 event['higherImpact'] = higherImpact(event['higherImpact'], level)
             except Exception as e:
                 logger.exception("Failed processing direct item=%s | event=%s | error: %s", item_name, ename, e)
@@ -87,7 +87,7 @@ async def recalculateAllEventImpacts(db):
 
         # --- Indirect items ---
         try:
-            indirect_items = await db.selectIndirectItems(event['direct_items'])
+            indirect_items = await state.item_db.selectIndirectItems(event['direct_items'])
             for row in indirect_items:
                 pct_diff = await calculatePctDiff(db, row['item_b'], start_date)
                 if pct_diff is None:
@@ -112,7 +112,7 @@ async def recalculateAllEventImpacts(db):
 
         # --- Write final event impact ---
         try:
-            await db.updateEventImpact(event['higherImpact'], ename)
+            await state.event_db.updateEventImpact(event['higherImpact'], ename)
             if direct_count > 0:
                 await sendDiscordMessage(f"[{ename}] {direct_count} direct, {len(indirect_impact_dict.get(ename, []))} indirect items updated | overall: {event['higherImpact']}")
         except Exception as e:
@@ -122,6 +122,6 @@ async def recalculateAllEventImpacts(db):
     # --- Persist indirect items ---
     if indirect_impact_dict:
         try:
-            await db.upsertIndirectEventItems(indirect_impact_dict)
+            await state.event_db.upsertIndirectEventItems(indirect_impact_dict)
         except Exception as e:
             logger.exception("updateIndirectTable failed: %s", e)
