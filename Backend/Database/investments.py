@@ -115,7 +115,7 @@ class InvestmentActions:
                 raise ValueError("item cannot be empty")
             async with self.db.pool.acquire() as conn:
                 await conn.execute('''
-                    INSERT INTO ml_predictions (item_name, predicted_at, day_1, day_2, day_3, day_4, day_5, day_6, day_7)
+                    INSERT INTO ml_predictions (name, predicted_at, day_1, day_2, day_3, day_4, day_5, day_6, day_7)
                     VALUES ($1, CURRENT_DATE, $2, $3, $4, $5, $6, $7, $8)
                     ON CONFLICT (item_name, predicted_at) DO UPDATE
                     SET day_1 = EXCLUDED.day_1, day_2 = EXCLUDED.day_2,
