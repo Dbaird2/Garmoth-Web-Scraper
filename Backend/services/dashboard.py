@@ -64,7 +64,7 @@ async def getIndirectItems():
             event_dict[event]["indirect_items"] = {
                 "items": sorted(indirect_rows, key=lambda x: (x['pct_diff'], x['item']))
             }
-    await state.cache.set("indirect_items", json.dumps(event_dict), ex=3600)
+    await state.cache.set("indirect_items", event_dict, ex=3600)
 
 def calculateImpact(buy, current):
     percentage = abs(((current - buy) / buy) * 100)
