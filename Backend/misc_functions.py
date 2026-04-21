@@ -46,7 +46,7 @@ async def recalculateAllEventImpacts(db):
     Computes direct + indirect item impact, determines worst-case per event,
     persists item-level records, and writes the final impact to bdo_events.
     """
-    events = await state.item_db.selectAllEvents()
+    events = await state.event_db.selectAllEvents()
 
     # event_name → { start_date, end_date, direct_items, higherImpact }
     event_map: dict[str, dict] = {}
@@ -79,7 +79,7 @@ async def recalculateAllEventImpacts(db):
                     "Direct item — item=%s | event=%s | pct_diff=%.2f%% | level=%s",
                     item_name, ename, pct_diff, level
                 )
-                direct_count += await state.item_db.updateEventItem(impact=level, item=item_name, event_name=ename, pct_diff=pct_diff)
+                direct_count += await state.event_db.updateEventItem(impact=level, item=item_name, event_name=ename, pct_diff=pct_diff)
                 event['higherImpact'] = higherImpact(event['higherImpact'], level)
             except Exception as e:
                 logger.exception("Failed processing direct item=%s | event=%s | error: %s", item_name, ename, e)
@@ -122,6 +122,6 @@ async def recalculateAllEventImpacts(db):
     # --- Persist indirect items ---
     if indirect_impact_dict:
         try:
-            await state.event_db.upsertIndirectEventItems(indirect_impact_dict)
+            await state.item_db.upsertIndirectEventItems(indirect_impact_dict)
         except Exception as e:
             logger.exception("updateIndirectTable failed: %s", e)
