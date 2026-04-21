@@ -38,7 +38,7 @@ async def repeatInsert():
             await updatePredictions()
         except Exception as e:
             logger.exception("Background predicted price update failed: %s", e)
-
+            
         await asyncio.sleep(3600)
 
 async def recentDropsCheck():

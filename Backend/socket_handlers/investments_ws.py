@@ -1,5 +1,5 @@
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
-from state import investment_manager, logger, invest_db
+from state import investment_manager, logger, invest_db, cache
 from routers.auth import checkJWT
 from services.predictions import getFormattedInvestmentData
 
@@ -20,8 +20,9 @@ async def investments_ws(websocket: WebSocket, token: str):
         return
 
     await investment_manager.connect(websocket)
-    formatted_investments = await getFormattedInvestmentData(email)
-    await investment_manager.send_personal_message(formatted_investments, websocket)
+    cached = await cache.get("indirect_items")
+    if cached:   
+        await investment_manager.send_personal_message(cached, websocket)
     try:
         while True:
             data = await websocket.receive_json()
@@ -37,8 +38,9 @@ async def investments_ws(websocket: WebSocket, token: str):
                 else:
                     continue
                     
-                formatted_investments = await getFormattedInvestmentData(email)
-                await investment_manager.send_personal_message(formatted_investments, websocket)
+                cached = await cache.get("indirect_items")
+                if cached:   
+                    await investment_manager.send_personal_message(cached, websocket)
 
             except Exception as e:
                 logger.exception("Investment WS operation failed — email=%s | error: %s", email, e)

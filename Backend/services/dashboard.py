@@ -1,5 +1,6 @@
 from fastapi import HTTPException
-from state import logger, item_db, invest_db, event_db
+from state import logger, item_db, invest_db, event_db, cache
+import json
 
 async def fetchAllItems():
     try:
@@ -60,8 +61,7 @@ async def getIndirectItems():
             event_dict[event]["indirect_items"] = {
                 "items": sorted(indirect_rows, key=lambda x: (x['pct_diff'], x['item']))
             }
-    return event_dict       
-
+    await cache.set("indirect_items", json.dumps(event_dict), ex=3600)
 
 def calculateImpact(buy, current):
     percentage = abs(((current - buy) / buy) * 100)

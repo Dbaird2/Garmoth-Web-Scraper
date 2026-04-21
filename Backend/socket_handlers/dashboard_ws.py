@@ -8,8 +8,9 @@ router = APIRouter(tags=["dashboardWs"])
 async def websocket_endpoint(websocket: WebSocket):
     try:
         await dash_manager.connect(websocket)
-        event_dict = await getIndirectItems()
-        await dash_manager.send_personal_message(event_dict, websocket)
+        cached = await cache.get("indirect_items")
+        if cached:   
+            await investment_manager.send_personal_message(cached, websocket)        await dash_manager.send_personal_message(event_dict, websocket)
         while True:                             
             data = await websocket.receive_text() 
     except WebSocketDisconnect:
