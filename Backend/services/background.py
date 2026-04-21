@@ -84,6 +84,6 @@ async def updatePredictions():
             df_latest = pd.DataFrame(df_latest, columns=['recent_time', 'percentage', 'item', 'stock', 'price'])
             item_predictions = predictWeek(item_name, df_latest)
             await state.invest_db.upsertPredictedPrices(item_name, item_predictions)
-            await state.cache.set(f"predicted_price:{item_name}", json.dumps(item_predictions), ex=3600)
+            await state.cache.set(f"predicted_price:{item_name}", item_predictions, ex=3600)
         except Exception as e:
             logger.exception("Prediction failed for item=%s | error: %s", item_name, e)
