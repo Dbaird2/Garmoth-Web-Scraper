@@ -1,10 +1,13 @@
 from fastapi import HTTPException
-from state import logger, item_db, invest_db, event_db, cache
+import state
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 async def fetchAllItems():
     try:
-        items = await item_db.selectAllItemRows()
+        items = await state.item_db.selectAllItemRows()
         if items == "Items Not Found":
             raise HTTPException(status_code=404, detail="Items not found")
         item_list = []
@@ -17,8 +20,8 @@ async def fetchAllItems():
 
 
 async def getIndirectItems():
-    indirect_items = await item_db.selectActiveIndirectItems()
-    events = await event_db.selectAllEvents()
+    indirect_items = await state.item_db.selectActiveIndirectItems()
+    events = await state.event_db.selectAllEvents()
     event_dict = {}
     item_dict = {}
     json_indirect = {}
@@ -61,7 +64,7 @@ async def getIndirectItems():
             event_dict[event]["indirect_items"] = {
                 "items": sorted(indirect_rows, key=lambda x: (x['pct_diff'], x['item']))
             }
-    await cache.set("indirect_items", json.dumps(event_dict), ex=3600)
+    await state.cache.set("indirect_items", json.dumps(event_dict), ex=3600)
 
 def calculateImpact(buy, current):
     percentage = abs(((current - buy) / buy) * 100)

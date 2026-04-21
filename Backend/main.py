@@ -5,7 +5,7 @@ import asyncio
 from datetime import datetime
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from Backend import state
+import state
 from services.background import repeatInsert
 from routers import items, auth, events
 from socket_handlers import items_ws, dashboard_ws, investments_ws

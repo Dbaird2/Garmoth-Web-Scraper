@@ -1,7 +1,7 @@
 from services.dashboard import getIndirectItems
 from services.predictions import predictWeek
 from discord_webhook import sendDiscordMessage
-from Backend import state
+import state
 import pandas as pd
 import asyncio
 import json

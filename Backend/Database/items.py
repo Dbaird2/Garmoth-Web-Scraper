@@ -1,10 +1,7 @@
-import asyncpg
 import logging
-from datetime import datetime, date
-from discord_webhook import sendDiscordMessage
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
-
 
 class ItemActions:
     def __init__(self, db: Database):

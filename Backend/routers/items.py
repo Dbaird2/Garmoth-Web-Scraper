@@ -1,19 +1,21 @@
 from fastapi import APIRouter, Request, HTTPException
 from services.dashboard import fetchAllItems, getIndirectItems
-from state import db, logger, limiter
+import state
+import logging 
 
 router = APIRouter(prefix="/items", tags=["items", "all"])
+logger = logging.getLogger(__name__)
 
 @router.get("/all")
-@limiter.limit("5/minute")
+@state.limiter.limit("5/minute")
 async def get_all_items(request: Request):
     return await fetchAllItems()
 
 @router.get("/items/{item_name}")
-@limiter.limit("5/minute")
+@state.limiter.limit("5/minute")
 async def getItem(request: Request, item_name: str):
     try:
-        item = await db.selectItem(item_name)
+        item = await state.item_db.selectItem(item_name)
         # predicted_price = await predictPrice(item_name)
         if not item:
             return []

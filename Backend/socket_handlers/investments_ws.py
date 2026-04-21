@@ -1,9 +1,11 @@
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
-from state import investment_manager, logger, invest_db, cache
+import state
 from routers.auth import checkJWT
 from services.predictions import getFormattedInvestmentData
+import logging 
 
 router = APIRouter(tags=["investmentWs"])
+logger = logging.getLogger(__name__)
 
 @router.websocket("/investmentWs")
 async def investments_ws(websocket: WebSocket, token: str):
@@ -19,32 +21,30 @@ async def investments_ws(websocket: WebSocket, token: str):
         await websocket.close(code=1008, reason="Invalid token")
         return
 
-    await investment_manager.connect(websocket)
-    cached = await cache.get("indirect_items")
-    if cached:   
-        await investment_manager.send_personal_message(cached, websocket)
+    await state.investment_manager.connect(websocket)
+    formatted_investments = await getFormattedInvestmentData(email)
+    await state.investment_manager.send_personal_message(formatted_investments, websocket)
     try:
         while True:
             data = await websocket.receive_json()
             try:
                 if data.get('create'):
-                    await invest_db.upsertInvestment(email, data.get('create'))
+                    await state.invest_db.upsertInvestment(email, data.get('create'))
                 elif data.get('update'):
-                    await invest_db.updateInvestment(data.get('delete'))
+                    await state.invest_db.updateInvestment(data.get('delete'))
                 elif data.get('sold_all'):
-                    await invest_db.soldAllInvestment(data.get('sold_all'))
+                    await state.invest_db.soldAllInvestment(data.get('sold_all'))
                 elif data.get('delete'):
-                    await invest_db.deleteInvestment(data.get('delete'))
+                    await state.invest_db.deleteInvestment(data.get('delete'))
                 else:
                     continue
                     
-                cached = await cache.get("indirect_items")
-                if cached:   
-                    await investment_manager.send_personal_message(cached, websocket)
+                formatted_investments = await getFormattedInvestmentData(email)
+                await state.investment_manager.send_personal_message(formatted_investments, websocket)
 
             except Exception as e:
                 logger.exception("Investment WS operation failed — email=%s | error: %s", email, e)
                 await websocket.send_json({"error": "Operation failed, please try again"})
 
     except WebSocketDisconnect:
-        investment_manager.disconnect(websocket)
+        state.investment_manager.disconnect(websocket)

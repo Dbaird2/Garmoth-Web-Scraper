@@ -3,7 +3,10 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter, HTTPException, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.responses import RedirectResponse
-from state import db, logger, limiter
+import state
+import logging 
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["auth"])
 
@@ -45,7 +48,7 @@ async def googleCallback(code: str):
         user = user_res.json()  # { email, name, picture }
 
     # Upsert user in your DB here
-    await db.upsertUser(user['email'], user['name'])
+    await state.db.upsertUser(user['email'], user['name'])
 
     # Issue your own JWT
     payload = {

@@ -1,8 +1,11 @@
 from predict_item import predictWeek
-from Backend import state
+import state
 import pandas as pd
 from services.dashboard import calculateImpact
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 async def getPredictedPrice(item_name):
     df_latest = await state.item_db.getRecentPriceHistory(item_name, days=30)

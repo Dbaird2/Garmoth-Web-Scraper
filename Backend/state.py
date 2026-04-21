@@ -1,8 +1,8 @@
 import os
-from Backend.Database.db import Database
-from Backend.Database.events import EventActions
-from Backend.Database.investments import InvestmentActions
-from Backend.Database.items import ItemActions
+from Database.db import Database
+from Database.events import EventActions
+from Database.investments import InvestmentActions
+from Database.items import ItemActions
 from web_socket import ConnectionManager
 import asyncio
 import logging

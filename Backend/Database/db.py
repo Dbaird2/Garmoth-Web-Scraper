@@ -1,7 +1,5 @@
 import asyncpg
 import logging
-from datetime import datetime, date
-from discord_webhook import sendDiscordMessage
 
 logger = logging.getLogger(__name__)
 
