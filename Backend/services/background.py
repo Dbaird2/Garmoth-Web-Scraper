@@ -68,12 +68,13 @@ async def recalEventImpact():
 async def fetchAndBroadcastItems():
     items = await state.item_db.selectAllItemRows()
     item_list = []
-    for item in items:
-        item_list.append({'id': item[0], 'name': item[1], 'percentage': item[2], 'stock': item[3], 'price': float(item[4]), 'percent_diff': item[5] if item[5] is not None else 0, 'price_diff': item[6] if item[6] is not None else 0, 'category': item[7] if item[7] is not None else ''})
-    
-    logger.info("Broadcasting %d items to connected clients", len(item_list))
-    await state.cache.set("items:all", json.dumps(item_list), ex=7200)
-    await state.item_manager.broadcast(item_list)
+    if items:
+        for item in items:
+            item_list.append({'id': item[0], 'name': item[1], 'percentage': item[2], 'stock': item[3], 'price': float(item[4]), 'percent_diff': item[5] if item[5] is not None else 0, 'price_diff': item[6] if item[6] is not None else 0, 'category': item[7] if item[7] is not None else ''})
+        
+        logger.info("Broadcasting %d items to connected clients", len(item_list))
+        await state.cache.set("items:all", json.dumps(item_list), ex=7200)
+        await state.item_manager.broadcast(item_list)
 
 async def updatePredictions():
     items = await state.invest_db.uniqueInvestments()

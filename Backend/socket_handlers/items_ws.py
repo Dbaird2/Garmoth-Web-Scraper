@@ -2,6 +2,7 @@ import state
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 from services.dashboard import fetchAllItems
 import logging
+import json
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["communicate"])
@@ -10,7 +11,10 @@ router = APIRouter(tags=["communicate"])
 async def websocket_endpoint(websocket: WebSocket):
     try:
         await state.item_manager.connect(websocket)
-        items = await fetchAllItems()
+        # items = await fetchAllItems()
+        items = await state.cache.get("items:all")
+        items = json.loads(items)
+
         await state.item_manager.send_personal_message(items, websocket)
         while True:
             data = await websocket.receive_text()
