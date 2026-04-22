@@ -3,7 +3,7 @@ from services.dashboard import fetchAllItems, getIndirectItems
 import state
 import logging 
 
-router = APIRouter(prefix="/items", tags=["items", "all"])
+router = APIRouter(prefix="/items", tags=["items"])
 logger = logging.getLogger(__name__)
 
 @router.get("/all")
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 async def get_all_items(request: Request):
     return await fetchAllItems()
 
-@router.get("/items/{item_name}")
+@router.get("/{item_name}")
 @state.limiter.limit("5/minute")
 async def getItem(request: Request, item_name: str):
     try:
