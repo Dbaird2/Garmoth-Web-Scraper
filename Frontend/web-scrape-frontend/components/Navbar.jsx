@@ -12,7 +12,7 @@ export default function Navbar() {
   return (
     <>
       <div
-        className="grid grid-cols-2 border-b border-white/[0.07] bg-[#0a0e14]/80 backdrop-blur-lg"
+        className="grid grid-cols-1 md:grid-cols-2 overflow-auto w-screen border-b border-white/[0.07] bg-[#0a0e14]/80 backdrop-blur-lg"
         style={{ boxShadow: "inset 0 -1px 0 rgba(255,255,255,0.04)" }}
       >
         <div className="">
