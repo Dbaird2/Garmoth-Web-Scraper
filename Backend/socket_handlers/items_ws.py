@@ -13,7 +13,8 @@ async def websocket_endpoint(websocket: WebSocket):
         await state.item_manager.connect(websocket)
         # items = await fetchAllItems()
         items = await state.cache.get("items:all")
-        items = json.loads(items)
+        if items:
+            items = json.loads(items)
 
         await state.item_manager.send_personal_message(items, websocket)
         while True:
