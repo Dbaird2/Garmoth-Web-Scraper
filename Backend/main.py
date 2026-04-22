@@ -12,6 +12,9 @@ from socket_handlers import items_ws, dashboard_ws, investments_ws
 import redis.asyncio as aioredis
 import os
 import logging
+from Database.events import EventActions
+from Database.investments import InvestmentActions
+from Database.items import ItemActions
 
 logging.basicConfig(
     level=logging.INFO,
@@ -28,6 +31,9 @@ origins = [
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await state.db.connect()
+    state.event_db = EventActions(state.db)
+    state.invest_db = InvestmentActions(state.db)
+    state.item_db = ItemActions(state.db)
     state.cache = aioredis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
 
     logger.info("Database connected successfully")
