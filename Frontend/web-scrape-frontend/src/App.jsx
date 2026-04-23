@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import ItemPage from "../pages/ItemPage";
-import Dashboard from "../pages/DashboardPage";
+import Event from "../pages/EventPage";
 import EventForm from "../pages/EventForm";
 import About from "../pages/About";
 import AuthCallback from "../pages/Auth";
@@ -24,15 +24,15 @@ export default function App() {
         backgroundSize: "40px 40px",
       }}
     >
-      {jwt ? <Navbar /> : <></>}
+      {jwt ? <Navbar /> : <><Navbar /></>}
       <Routes>
         {/* <Route path="/" element={<Landing />} /> */}
         <Route
           path="/"
           element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
+            // <ProtectedRoute>
+              <Event />
+            // </ProtectedRoute>
           }
         />
         <Route

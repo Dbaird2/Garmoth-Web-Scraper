@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import useWebsocket from "../hooks/useDashboardWs";
-import DashboardHero from "../components/dashboard/DashboardHero";
-import EventCard from "../components/dashboard/EventCard"
-import SkeletonEvent from "../components/dashboard/SkeletonEvent";
+import useWebsocket from "../hooks/useEventsWs";
+import EventHero from "../components/events/EventsHero";
+import EventCard from "../components/events/EventCard"
+import SkeletonEvent from "../components/events/SkeletonEvent";
 import { calculateImpactLevel } from "../utility/calculateImpact";
 import { IMPACT_STYLES } from "../utility/impactStyles"
 
@@ -19,12 +19,12 @@ export default function EventsDashboard() {
         backgroundSize: "40px 40px",
       }}
     >
-      <title>Event Tracker: Dashboard</title>
+      <title>Event Tracker: Events</title>
       {loading ? (
         <SkeletonEvent />
       ) : (
         <div className="">
-          <DashboardHero event_info={event_info} />
+          <EventHero event_info={event_info} />
 
           <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-teal-400 opacity-70 mb-6"></p>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 ml-4">

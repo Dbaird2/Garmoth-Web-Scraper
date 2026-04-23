@@ -1,3 +1,4 @@
+from Backend.socket_handlers import events_ws
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -8,7 +9,7 @@ from slowapi.errors import RateLimitExceeded
 import state
 from services.background import repeatInsert
 from routers import items, auth, events
-from socket_handlers import items_ws, dashboard_ws, investments_ws
+from socket_handlers import items_ws, investments_ws
 import redis.asyncio as aioredis
 import os
 import logging
@@ -73,5 +74,5 @@ app.include_router(events.router)
 
 # Include WebSocket routers
 app.include_router(items_ws.router)
-app.include_router(dashboard_ws.router)
+app.include_router(events_ws.router)
 app.include_router(investments_ws.router)

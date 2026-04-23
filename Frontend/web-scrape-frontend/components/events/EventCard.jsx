@@ -1,5 +1,5 @@
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
-import DashbaordItemModal from "./DashboardModal";
+import EventsModal from "./EventsModal";
 import { FadeIn } from "../../hooks/FadeIn";
 
 
@@ -66,7 +66,7 @@ export default function EventCard({
                         className="flex flex-row justify-between text-[13px] text-[#8aa8b8] px-2.5 py-1.5 bg-[#0a1018] border-l-2 border-[#1a2a3a] hover:border-teal-400 hover:text-[#c8d8e8] transition-colors"
                       >
                         <div>
-                          <DashbaordItemModal item={item} />
+                          <EventItemModal item={item} />
                         </div>
                         <div className="flex gap-4 text-gray-400 text-[10px]">
                           <span>Impact</span>

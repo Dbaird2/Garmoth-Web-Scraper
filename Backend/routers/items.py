@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, HTTPException
-from services.dashboard import fetchAllItems, getIndirectItems
+from Backend.services.events import fetchAllItems, getIndirectItems
 import state
 import logging 
 

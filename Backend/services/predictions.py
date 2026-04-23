@@ -1,7 +1,7 @@
 from predict_item import predictWeek
 import state
 import pandas as pd
-from services.dashboard import calculateImpact
+from Backend.services.events import calculateImpact
 import json
 import logging
 

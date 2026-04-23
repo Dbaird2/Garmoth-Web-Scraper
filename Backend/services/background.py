@@ -1,4 +1,4 @@
-from services.dashboard import getIndirectItems
+from Backend.services.events import getIndirectItems
 from predict_item import predictWeek
 from discord_webhook import sendDiscordMessage
 import state

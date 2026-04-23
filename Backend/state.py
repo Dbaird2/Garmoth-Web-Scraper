@@ -14,7 +14,7 @@ event_db = None
 invest_db = None
 item_db = None
 
-cache = None  # set during lifespan
+cache = None  
 
 item_manager = ConnectionManager()
 dash_manager = ConnectionManager()

@@ -2,7 +2,7 @@ import Chart from "../Charts/Chart";
 import { useState } from "react";
 import { getItem } from "../../hooks/API_CALLS";
 
-export default function DashbaordItemModal({ item }) {
+export default function EventsModal({ item }) {
   const modal_id = `dialog-${item?.name ?? item.item}`;
   const [data, setData] = useState([]);
   const [modal, setOpen] = useState(false);

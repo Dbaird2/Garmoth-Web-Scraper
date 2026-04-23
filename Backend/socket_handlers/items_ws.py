@@ -1,6 +1,6 @@
 import state
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
-from services.dashboard import fetchAllItems
+from Backend.services.events import fetchAllItems
 import logging
 import json
 
