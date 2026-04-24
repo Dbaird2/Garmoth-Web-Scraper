@@ -14,7 +14,6 @@ export function useInvestmentActions(
     qty: "",
     date: "",
     wanted_sell_price: "",
-    notes: "",
   });
 
   function handleDelete(id) {
@@ -58,11 +57,11 @@ export function useInvestmentActions(
       qty: qty,
       sold_qty: sold_qty,
     };
-    sendMessage("update", update_data)
+    sendMessage("update", update_data);
   }
 
   function handleSoldAll(id) {
-    sendMessage("sold_all", id)
+    sendMessage("sold_all", id);
   }
 
   return {

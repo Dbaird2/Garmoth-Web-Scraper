@@ -62,17 +62,6 @@ export default function AddInvestmentForm({ form, setForm, handleSubmit }) {
               className="bg-[#0a1018] border border-[#1a2a3a] rounded text-[#c8d8e8] text-[12px] px-3 py-2 font-mono outline-none"
             ></input>
           </div>
-          <div className="col-span-2 flex flex-col gap-1">
-            <span className="text-[9px] uppercase tracking-[.15em] text-[#4a6a7a]">
-              Notes
-            </span>
-            <textarea
-              value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              placeholder="e.g. bought before costume sale, expecting enhancement spike..."
-              className="bg-[#0a1018] border border-[#1a2a3a] rounded text-[#c8d8e8] text-[12px] px-3 py-2 font-mono outline-none resize-none h-16"
-            />
-          </div>
         </div>
         <button
           onClick={handleSubmit}
