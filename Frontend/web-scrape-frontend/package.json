@@ -16,6 +16,7 @@
     "postcss": "^8.5.8",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-number-format": "^5.4.5",
     "react-router-dom": "^7.13.2",
     "react-tabs": "^6.1.1",
     "recharts": "^3.8.0",
