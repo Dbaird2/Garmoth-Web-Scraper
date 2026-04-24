@@ -26,13 +26,20 @@ async def getFormattedInvestmentData(email):
 
     user_investments = await state.invest_db.getInvestments(email)
     for investment in user_investments:
+        buy_price = investment[3]
+        current_price = investment[5]
+
+        if buy_price is None or current_price is None or buy_price == 0:
+            pnl = 0
+        else:
+            pnl = ((current_price - buy_price) / buy_price) * 100
         formatted_investments['positions'].append({
             'id': investment[1],
             'item': investment[0],
             'qty': investment[2] - (investment[7] or 0),
             'buyPrice': investment[3],
             'impact': calculateImpact(investment[3], investment[5]),
-            'pnl': ((investment[5] - investment[3]) / investment[3]) * 100,
+            'pnl': pnl,
             'currentPrice': investment[5],
             'recent_time': investment[6].isoformat() if investment[6] else None,
             'sold_qty': investment[7]

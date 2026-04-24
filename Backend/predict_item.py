@@ -31,6 +31,8 @@ def predictItem(item_name, df_latest, day):
     item_df = item_df.dropna()
     
     # take only the most recent row for prediction
+    if item_df.empty:
+        return False
     latest_row = item_df.iloc[[-1]]
     
     feature_cols = ['stock', 'price_lag_7', 'price_lag_14', 'price_change_7d', 
@@ -45,6 +47,8 @@ def predictWeek(item_name, df_latest):
     
     for day in range(1, 8):
         pct_change = predictItem(item_name, df_latest, day)
+        if not pct_change:
+            continue
         current_price = df_latest[df_latest['item'] == item_name]['price'].iloc[-1]
         predicted_price = int(current_price * (1 + pct_change / 100))
         predictions[f'day_{day}'] = {
