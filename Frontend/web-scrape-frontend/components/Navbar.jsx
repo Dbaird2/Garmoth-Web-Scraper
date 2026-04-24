@@ -54,8 +54,8 @@ export default function Navbar() {
                 </a>
               </div>
             ) : ( */}
-              <div className="flex items-center gap-2 px-3.5 py-2 bg-slate-800/40 border border-slate-700/50 rounded-md">
-                <div className="w-5 h-5 rounded-full bg-teal-500 flex items-center justify-center">
+            <div className="flex items-center gap-2 px-3.5 py-2 bg-slate-800/40 border border-slate-700/50 rounded-md">
+              {/* <div className="w-5 h-5 rounded-full bg-teal-500 flex items-center justify-center">
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                     <path
                       d="M2 5l2 2 4-4"
@@ -65,11 +65,11 @@ export default function Navbar() {
                       strokeLinejoin="round"
                     />
                   </svg>
-                </div>
-                <span className="text-sm text-slate-400">
-                  Signed in with Google
-                </span>
-              </div>
+                </div> */}
+              <button className="hover:cursor-pointer text-teal-400/50">
+                Account
+              </button>
+            </div>
             {/* )} */}
           </div>
         </div>
@@ -86,6 +86,17 @@ export default function Navbar() {
                     to="/"
                   >
                     Dashboard
+                  </Link>
+                </div>
+                <div
+                  className="p-4 transition-all duration-150 hover:bg-teal-400/[0.06] border-b-2 border-transparent hover:border-teal-400/40 
+              active:scale-95 active:bg-teal-400/20 active:rounded-md active:animate-pulse"
+                >
+                  <Link
+                    className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150 "
+                    to="/events"
+                  >
+                    Events
                   </Link>
                 </div>
 
@@ -108,7 +119,7 @@ export default function Navbar() {
                     className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150"
                     to="/investments"
                   >
-                    Invesments
+                    Investments
                   </Link>
                 </div>
 

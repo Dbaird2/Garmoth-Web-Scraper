@@ -5,6 +5,7 @@ import EventForm from "../pages/EventForm";
 import About from "../pages/About";
 import AuthCallback from "../pages/Auth";
 import Investments from "../pages/Investments";
+import Dashboard from "../pages/Dashboard"
 import Landing from "../pages/LandingPage";
 import Navbar from "../components/Navbar";
 
@@ -24,14 +25,28 @@ export default function App() {
         backgroundSize: "40px 40px",
       }}
     >
-      {jwt ? <Navbar /> : <><Navbar /></>}
+      {jwt ? (
+        <Navbar />
+      ) : (
+        <>
+          <Navbar />
+        </>
+      )}
       <Routes>
         {/* <Route path="/" element={<Landing />} /> */}
         <Route
           path="/"
           element={
             // <ProtectedRoute>
-              <Event />
+            <Dashboard />
+            // </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/events"
+          element={
+            // <ProtectedRoute>
+            <Event />
             // </ProtectedRoute>
           }
         />

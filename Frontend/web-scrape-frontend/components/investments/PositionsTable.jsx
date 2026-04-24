@@ -59,28 +59,30 @@ export default function PositionsTable({
                 }}
               >
                 <td className="py-2 px-1 text-[#e8f4f8] font-medium border-t border-[#1a2a3a]">
-                  {p.item}
+                  {p?.item}
                 </td>
-                <td className="py-2 px-1 border-t border-[#1a2a3a]">{p.qty}</td>
                 <td className="py-2 px-1 border-t border-[#1a2a3a]">
-                  {formatSilver(p.buyPrice)}
+                  {p?.qty}
+                </td>
+                <td className="py-2 px-1 border-t border-[#1a2a3a]">
+                  {formatSilver(p?.buyPrice)}
                 </td>
                 <td className="py-2 px-1 border-t border-[#1a2a3a]">
                   <span
                     className={`text-[9px] uppercase tracking-[.1em] px-1.5 py-0.5 border rounded-sm ${IMPACT_STYLES[p.impact]}`}
                   >
-                    {p.impact}
+                    {p?.impact}
                   </span>
                 </td>
                 <td
-                  className={`py-2 px-1 border-t border-[#1a2a3a] ${p.pnl >= 0 ? "text-teal-400" : "text-red-400"}`}
+                  className={`py-2 px-1 border-t border-[#1a2a3a] ${p?.pnl >= 0 ? "text-teal-400" : "text-red-400"}`}
                 >
-                  {p.pnl >= 0 ? "+" : ""}
-                  {p.pnl?.toFixed(1) ?? 0}%
+                  {p?.pnl >= 0 ? "+" : ""}
+                  {p?.pnl?.toFixed(1) ?? 0}%
                 </td>
                 <td className="py-2 px-1  border-t border-[#1a2a3a]">
                   <Kebab
-                    item_id={p.id}
+                    item_id={p?.id}
                     menu_ref={menu_ref}
                     open={open}
                     setOpen={setOpen}

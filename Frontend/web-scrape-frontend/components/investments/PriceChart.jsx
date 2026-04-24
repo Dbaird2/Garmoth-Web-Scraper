@@ -21,7 +21,7 @@ export default function PriceChart({
       <div className="bg-[#0f1a26] border border-[#1a2a3a] rounded-xl p-5">
         <div className="flex justify-between items-center mb-4">
           <span className="text-[11px] uppercase tracking-[.2em] text-teal-400 truncate">
-            {selected.item} · Price
+            {selected?.item} · Price
           </span>
           <div className="flex gap-1.5 shrink-0 ml-2">
             {["7d", "14d", "30d", "60d"].map((r) => (

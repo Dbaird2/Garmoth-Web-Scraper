@@ -36,7 +36,7 @@ export default function EditItemModal({
         <div className="px-6 py-5 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <label className="text-xs text-gray-500 uppercase tracking-widest">
-              {item.item}
+              {item?.item}
             </label>
           </div>
 
@@ -45,7 +45,7 @@ export default function EditItemModal({
               Buy Price
             </label>
             <input
-              defaultValue={item.buyPrice}
+              defaultValue={item?.buyPrice}
               type="number"
               className="bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-teal-400/50 transition-colors"
             />
@@ -56,7 +56,7 @@ export default function EditItemModal({
               Quantity
             </label>
             <input
-              defaultValue={item.qty}
+              defaultValue={item?.qty}
               type="number"
               className="bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-teal-400/50 transition-colors"
             />
@@ -67,7 +67,7 @@ export default function EditItemModal({
               Sold
             </label>
             <input
-              defaultValue={item.sold_qty}
+              defaultValue={item?.sold_qty}
               type="number"
               className="bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-teal-400/50 transition-colors"
             />
@@ -85,7 +85,7 @@ export default function EditItemModal({
           <button
             className="px-5 py-2 bg-teal-400/10 hover:bg-teal-400/20 text-teal-400 border border-teal-400/20 rounded-lg text-sm font-medium transition-colors"
             onClick={() =>
-              handleUpdate(item.id, item.buyPrice, item.qty, item.sold_qty)
+              handleUpdate(item?.id, item?.buyPrice, item?.qty, item?.sold_qty)
             }
           >
             Save Changes
