@@ -1,4 +1,4 @@
-from Backend.socket_handlers import events_ws
+from socket_handlers import events_ws
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
