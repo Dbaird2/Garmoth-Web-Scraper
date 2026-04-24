@@ -67,6 +67,8 @@ async def getIndirectItems():
     await state.cache.set("indirect_items", json.dumps(event_dict), ex=3600)
 
 def calculateImpact(buy, current):
+    if current is None or buy is None:
+        return None
     percentage = abs(((current - buy) / buy) * 100)
     if percentage >= 200:
         return "Very High"
