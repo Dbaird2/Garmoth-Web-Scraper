@@ -5,7 +5,7 @@ import EventForm from "../pages/EventForm";
 import About from "../pages/About";
 import AuthCallback from "../pages/Auth";
 import Investments from "../pages/Investments";
-import Dashboard from "../pages/Dashboard"
+import Dashboard from "../pages/Dashboard";
 import Landing from "../pages/LandingPage";
 import Navbar from "../components/Navbar";
 
@@ -33,21 +33,21 @@ export default function App() {
         </>
       )}
       <Routes>
-        {/* <Route path="/" element={<Landing />} /> */}
+        <Route path="/" element={<Landing />} />
         <Route
           path="/"
           element={
-            // <ProtectedRoute>
-            <Dashboard />
-            // </ProtectedRoute>
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
           }
         />
         <Route
           path="/events"
           element={
-            // <ProtectedRoute>
-            <Event />
-            // </ProtectedRoute>
+            <ProtectedRoute>
+              <Event />
+            </ProtectedRoute>
           }
         />
         <Route
