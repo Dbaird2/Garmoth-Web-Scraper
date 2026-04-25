@@ -1,4 +1,4 @@
-import { NumberFormat } from "react-number-format";
+import { NumericFormat } from "react-number-format";
 
 export default function AddInvestmentForm({ form, setForm, handleSubmit }) {
   return (
@@ -45,7 +45,7 @@ export default function AddInvestmentForm({ form, setForm, handleSubmit }) {
                 {label}
               </span>
               {form[key] === "number" ? (
-                <NumberFormat
+                <NumericFormat
                   type={type}
                   value={form[key]}
                   onChange={(e) => setForm({ ...form, [key]: e.target.value })}
@@ -68,7 +68,7 @@ export default function AddInvestmentForm({ form, setForm, handleSubmit }) {
             <span className="text-[9px] uppercase tracking-[.15em] text-[#4a6a7a]">
               Wanted Sell Price
             </span>
-            <NumberFormat
+            <NumericFormat
               value={form.event}
               type="number"
               onChange={(e) => setForm({ ...form, event: e.target.value })}
