@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useDashboard } from "../hooks/useDashboardWs";
+import { FadeIn } from "../hooks/FadeIn";
 
 const BUY_THRESHOLD = 5;
 const SELL_THRESHOLD = -5;
@@ -201,56 +202,58 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[#0a1018] px-6 py-8 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <div className="text-[11px] font-mono uppercase tracking-widest text-teal-400 mb-1">
-            Garmoth Market
+      <FadeIn delay={100}>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <div className="text-[11px] font-mono uppercase tracking-widest text-teal-400 mb-1">
+              Garmoth Market
+            </div>
+            <h1 className="text-2xl font-bold text-white">Dashboard</h1>
           </div>
-          <h1 className="text-2xl font-bold text-white">Dashboard</h1>
+          <div className="flex items-center gap-2">
+            <div
+              className={`w-1.5 h-1.5 rounded-full ${connected ? "bg-green-400" : "bg-white/20"}`}
+            />
+            <span className="text-[11px] font-mono text-white/30">
+              {connected ? "Live" : "Stub data"}
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div
-            className={`w-1.5 h-1.5 rounded-full ${connected ? "bg-green-400" : "bg-white/20"}`}
+
+        {error && (
+          <div className="mb-4 px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-mono">
+            {error}
+          </div>
+        )}
+
+        <div className="grid grid-cols-3 gap-3 mb-5">
+          <MetricCard label="Items Tracked" value={metrics.itemsTracked} />
+          <MetricCard
+            label="Active Events"
+            value={metrics.activeEvents}
+            valueClass="text-teal-400"
           />
-          <span className="text-[11px] font-mono text-white/30">
-            {connected ? "Live" : "Stub data"}
-          </span>
-        </div>
-      </div>
-
-      {error && (
-        <div className="mb-4 px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-mono">
-          {error}
-        </div>
-      )}
-
-      <div className="grid grid-cols-3 gap-3 mb-5">
-        <MetricCard label="Items Tracked" value={metrics.itemsTracked} />
-        <MetricCard
-          label="Active Events"
-          value={metrics.activeEvents}
-          valueClass="text-teal-400"
-        />
-        <MetricCard
-          label="Avg 7d Change"
-          value={formatPct(metrics.avgSevenDayChange)}
-          valueClass={
-            metrics.avgSevenDayChange >= 0 ? "text-green-400" : "text-red-400"
-          }
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <ProjectionsPanel projections={projections} />
-
-        <div className="flex flex-col gap-4">
-          <EventCard event={highestImpactEvent} />
-          <MoversPanel
-            biggestMovers={biggestMovers}
-            smallestMovers={smallestMovers}
+          <MetricCard
+            label="Avg 7d Change"
+            value={formatPct(metrics.avgSevenDayChange)}
+            valueClass={
+              metrics.avgSevenDayChange >= 0 ? "text-green-400" : "text-red-400"
+            }
           />
         </div>
-      </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <ProjectionsPanel projections={projections} />
+
+          <div className="flex flex-col gap-4">
+            <EventCard event={highestImpactEvent} />
+            <MoversPanel
+              biggestMovers={biggestMovers}
+              smallestMovers={smallestMovers}
+            />
+          </div>
+        </div>
+      </FadeIn>
     </div>
   );
 }

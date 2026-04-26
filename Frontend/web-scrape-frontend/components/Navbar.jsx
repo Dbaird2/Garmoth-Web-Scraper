@@ -5,6 +5,7 @@ export default function Navbar() {
   const [jwt, setJwt] = useState(localStorage.getItem("jwt"));
   useEffect(() => {
     const handleStorage = () => setJwt(localStorage.getItem("jwt"));
+    
     window.addEventListener("storage", handleStorage);
     return () => window.removeEventListener("storage", handleStorage);
   }, []);
@@ -83,7 +84,7 @@ export default function Navbar() {
                 >
                   <Link
                     className="text-[12px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-400 transition-colors duration-150 "
-                    to="/"
+                    to="/dashboard"
                   >
                     Dashboard
                   </Link>

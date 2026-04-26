@@ -36,7 +36,6 @@ export default function Investments() {
     setSelected(data.positions[0]);
   }, []);
   const token = localStorage.getItem("jwt");
-
   const { loading, sendMessage } = useWebsocket(setData, token);
 
   const [range, setRange] = useState("60d");

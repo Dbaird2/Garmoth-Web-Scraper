@@ -1,9 +1,9 @@
-import { fetchItems } from "../hooks/API_CALLS";
+import { fetchItems } from "../../hooks/API_CALLS";
 import { useEffect, useState } from "react";
 
 export default function AddInvestmentForm({ form, setForm, handleSubmit }) {
   const [suggestions, setSuggestions] = useState([]);
-
+  console.log(suggestions);
   useEffect(() => {
     if (!form.item) return;
     const timer = setTimeout(() => fetchItems(form.item, setSuggestions), 300);
