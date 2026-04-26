@@ -4,14 +4,14 @@ export default function EditItemModal({
   setEditModal,
   modal_id,
   positions,
-  handleUpdate
+  handleUpdate,
 }) {
   console.log("EditItemModal", modal_id, modal_open);
   const item = positions.find((p) => p.id === modal_id);
   if (!modal_open || !item) return null;
 
   return (
-    <div className="z-999 absolute inset-0 backdrop-blur-md bg-black/40 flex items-center justify-center">
+    <div className="z-999 absolute inset-0 h-[120vh] backdrop-blur-md bg-black/40 flex items-center justify-center">
       <div
         ref={modal_ref}
         className="w-full max-w-md bg-[#0f1622] border border-white/[0.07] rounded-2xl shadow-2xl flex flex-col overflow-hidden"
@@ -35,7 +35,7 @@ export default function EditItemModal({
         {/* Fields */}
         <div className="px-6 py-5 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs text-gray-500 uppercase tracking-widest">
+            <label className="text-xs text-teal-500 uppercase tracking-widest">
               {item?.item}
             </label>
           </div>

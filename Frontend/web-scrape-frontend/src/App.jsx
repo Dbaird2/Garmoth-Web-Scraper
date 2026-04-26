@@ -29,7 +29,7 @@ export default function App() {
         <Navbar />
       ) : (
         <>
-          <Navbar />
+          {/* <Navbar /> */}
         </>
       )}
       <Routes>
@@ -54,7 +54,7 @@ export default function App() {
           path="/investments"
           element={
             <ProtectedRoute>
-              <Investments />{" "}
+              <Investments />
             </ProtectedRoute>
           }
         />

@@ -47,14 +47,14 @@ export default function Kebab({
           <div className="absolute right-0 mt-1 w-fit bg-[#1a2535] border border-white/10 rounded-lg shadow-lg z-50">
             {options.map((opt) => (
               <button
-                key={opt.label}
+                key={opt?.label}
                 onClick={() => {
                   opt.onClick();
                   setOpen(false);
                 }}
                 className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/10 hover:text-white first:rounded-t-lg last:rounded-b-lg"
               >
-                {opt.label}
+                {opt?.label}
               </button>
             ))}
           </div>

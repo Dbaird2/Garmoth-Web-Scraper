@@ -135,6 +135,7 @@ Make sure Redis is running and correctly configured in your `.env` file.
 - Investment recommendations page ("What to buy" analysis)
 - ML price forecasting model trained on price, stock, event history, and seasonal patterns
 - Weekly and monthly in-game reset market tracking
+- Update Dashboard with real information
 
 ---
 
@@ -143,11 +144,14 @@ Make sure Redis is running and correctly configured in your `.env` file.
 - Automatic updating / scraper reliability significantly improved
 [X] Redis integration for caching and job coordination
 
+---
+
 ## Bugs Known
 
-- JWT Token not expiring in localStorage. Maybe fixed
+[X] JWT Token not expiring in localStorage. Maybe fixed
 - Bad investment names crash the ML prediction. Fix is to check for empty AND check the database if the item exists.
-- Kebab Delete does not work
-- Item edit in investments is not the entire page
+[X] Kebab Delete does not work
+[X] Item edit in investments is not the entire page
 - Wanted price does not get inserted into the database table
 
+---
