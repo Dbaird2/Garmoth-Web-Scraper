@@ -27,6 +27,7 @@ export default function AddInvestmentForm({ form, setForm, handleSubmit }) {
               placeholder="Search item..."
               list="item-suggestions"
               className="bg-[#0a1018] border border-[#1a2a3a] rounded text-[#c8d8e8] text-[12px] px-3 py-2 font-mono outline-none"
+              required
             />
             <datalist id="item-suggestions">
               {suggestions.map((name) => (

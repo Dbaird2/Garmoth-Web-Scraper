@@ -29,6 +29,7 @@ export function useInvestmentActions(
 
   function handleSubmit() {
     if (!form.item || !form.buyPrice || !form.qty) return;
+    console.log(form);
     const new_pos = {
       id: Date.now(),
       item: form.item,
@@ -36,7 +37,9 @@ export function useInvestmentActions(
       buyPrice: parseInt(form.buyPrice),
       date: form.date,
       pnl: 0,
-      wanted_sell_price: parseInt(form?.wanted_sell_price),
+      wanted_sell_price: form.wanted_sell_price
+        ? parseInt(form.wanted_sell_price)
+        : null,
     };
     setPositions((prev) => [...prev, new_pos]);
     sendMessage("create", new_pos);
