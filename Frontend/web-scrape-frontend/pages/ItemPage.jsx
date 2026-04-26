@@ -1,6 +1,7 @@
 import ItemGrid from "../components/items/ItemGrid";
 import SkeletonGrid from "../components/items/SkeletonGrid";
 import SearchBar from "../components/items/SearchBar";
+import Itemstatebar from "../components/items/ItemStatBar"
 import SortBar from "../components/items/SortBar";
 import useFilter from "../hooks/useFilter";
 import useWebsocket from "../hooks/useWebsocket";
@@ -34,11 +35,15 @@ export default function ItemPage() {
             {loading ? (
               <SkeletonGrid />
             ) : (
-              <ItemGrid
-                items={temp_list}
-                isFavorite={isFavorite}
-                toggleFavorite={toggleFavorite}
-              />
+              <>
+                <Itemstatebar items={temp_list} />
+
+                <ItemGrid
+                  items={temp_list}
+                  isFavorite={isFavorite}
+                  toggleFavorite={toggleFavorite}
+                />
+              </>
             )}
           </div>
         </div>

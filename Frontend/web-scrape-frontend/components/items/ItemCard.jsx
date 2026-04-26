@@ -15,7 +15,7 @@ export function ItemCard({ item, favorite, toggleFavorite }) {
 
   return (
     <div
-      key={item.name}
+      key={item?.name}
       className={`relative bg-[#0a1018] border border-[#1a2a3a] border-l-2 ${
         isPositive ? "border-l-teal-500" : "border-l-red-500"
       } rounded-sm transition-all duration-300 hover:border-[#2a3a4a] hover:bg-[#0d1520] p-4 flex flex-col gap-3 group`}
@@ -23,10 +23,10 @@ export function ItemCard({ item, favorite, toggleFavorite }) {
       {/* Header */}
       <div className="flex flex-row justify-between items-start gap-2">
         <h3 className="font-mono text-[11px] uppercase tracking-widest text-yellow-400/70 truncate">
-          {item.name} - {item.category}
+          {item?.name} - {item?.category}
         </h3>
         <button
-          onClick={() => handleFavorite(item.name)}
+          onClick={() => handleFavorite(item?.name)}
           className="relative flex-shrink-0 w-7 h-7 flex items-center justify-center cursor-pointer group/heart"
           aria-label="Toggle favorite"
         >

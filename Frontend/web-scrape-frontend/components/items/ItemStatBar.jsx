@@ -1,17 +1,17 @@
 export default function ItemStatBar({ items = [] }) {
-  if (!items.length) return null;
+  if (!items?.length) return null;
 
   const total_tracked = items.length;
 
   const top_mover = items.reduce(
     (best, item) =>
-      item.percentage < best.percentage ? item : best,
+      item?.percentage < best?.percentage ? item : best,
     items[0],
   );
 
   const most_volatile = items.reduce(
     (best, item) =>
-      item.price_diff >= best.price_diff ? item : best,
+      item?.price_diff >= best?.price_diff ? item : best,
     items[0],
   );
 
@@ -63,24 +63,21 @@ export default function ItemStatBar({ items = [] }) {
 
   return (
     <div className="px-6 pt-4 pb-2">
-      <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-teal-400 opacity-70 mb-3">
-        // market overview
-      </p>
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
         {cards.map((card) => (
           <div
             key={card.label}
-            className={`${card.bg} border border-[#1a2a3a] border-t-2 ${card.accent} rounded-sm p-4`}
+            className={`${card.bg} border border-[#1a2a3a] border-t-2 border-0.5 border-teal-400/50 ${card.accent} rounded-lg p-3`}
           >
-            <p className="font-mono text-[10px] tracking-widest uppercase text-teal-600 mb-2">
+            <p className="font-mono text-[15px] tracking-wide uppercase text-teal-600 mb-2">
               {card.label}
             </p>
             <p
-              className={`font-mono text-2xl font-medium leading-none ${card.valueColor ?? "text-[#e2f5ef]"}`}
+              className={`font-mono text-[15px] font-medium leading-none ${card.valueColor ?? "text-[#e2f5ef]"}`}
             >
               {card.value}
             </p>
-            <p className="font-mono text-[11px] text-[#2d6b54] mt-1.5 truncate">
+            <p className="font-mono text-[15px] text-[#2d6b54] mt-1.5 truncate">
               {card.sub}
             </p>
           </div>
