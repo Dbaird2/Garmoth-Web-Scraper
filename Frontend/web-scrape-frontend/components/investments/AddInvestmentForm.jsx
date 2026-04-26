@@ -6,7 +6,7 @@ export default function AddInvestmentForm({ form, setForm, handleSubmit }) {
   console.log(suggestions);
   useEffect(() => {
     if (!form.item) return;
-    const timer = setTimeout(() => fetchItems(form.item, setSuggestions), 300);
+    const timer = setTimeout(() => fetchItems(form.item, setSuggestions), 150);
     return () => clearTimeout(timer);
   }, [form.item]);
   return (

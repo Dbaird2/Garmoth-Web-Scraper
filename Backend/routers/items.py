@@ -27,7 +27,7 @@ async def getItem(request: Request, item_name: str):
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.get("/like/{item_name}")
-@state.limiter.limit("100/minute")
+# @state.limiter.limit("100/minute")
 async def alikeItems(request: Request, item_name: str):
     try:
         if not item_name:
