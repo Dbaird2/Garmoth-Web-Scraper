@@ -15,7 +15,7 @@ export default function SearchBar({ ...props_from_filter }) {
   }, []);
 
   return (
-    <div className="inset-0">
+    <div className="inset-0 w-screen overflow-auto">
       <div
         className="relative z-20 self-center h-14 px-5 flex items-center gap-1 border-b border-white/[0.07] bg-[#0a0e14]/80 backdrop-blur-lg"
         style={{
