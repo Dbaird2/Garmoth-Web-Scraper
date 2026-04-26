@@ -141,4 +141,13 @@ Make sure Redis is running and correctly configured in your `.env` file.
 ## Currently Started
 
 - Automatic updating / scraper reliability significantly improved
-- Redis integration for caching and job coordination
+[X] Redis integration for caching and job coordination
+
+## Bugs Known
+
+- JWT Token not expiring in localStorage. Maybe fixed
+- Bad investment names crash the ML prediction. Fix is to check for empty AND check the database if the item exists.
+- Kebab Delete does not work
+- Item edit in investments is not the entire page
+- Wanted price does not get inserted into the database table
+

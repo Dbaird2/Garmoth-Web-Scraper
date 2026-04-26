@@ -1,5 +1,3 @@
-import { NumericFormat } from "react-number-format";
-
 export default function AddInvestmentForm({ form, setForm, handleSubmit }) {
   return (
     <>
@@ -44,31 +42,30 @@ export default function AddInvestmentForm({ form, setForm, handleSubmit }) {
               <span className="text-[9px] uppercase tracking-[.15em] text-[#4a6a7a]">
                 {label}
               </span>
-              {form[key] === "number" ? (
-                <NumericFormat
-                  type={type}
-                  value={form[key]}
-                  onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                  placeholder={placeholder}
-                  className="bg-[#0a1018] border border-[#1a2a3a] rounded text-[#c8d8e8] text-[12px] px-3 py-2 font-mono outline-none"
-                  thousandSeparator
-                />
-              ) : (
-                <input
-                  type={type}
-                  value={form[key]}
-                  onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                  placeholder={placeholder}
-                  className="bg-[#0a1018] border border-[#1a2a3a] rounded text-[#c8d8e8] text-[12px] px-3 py-2 font-mono outline-none"
-                />
-              )}
+              {form[key] === "number" ?
+              <input
+                type={type}
+                value={form[key]}
+                onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                placeholder={placeholder}
+                className="bg-[#0a1018] border border-[#1a2a3a] rounded text-[#c8d8e8] text-[12px] px-3 py-2 font-mono outline-none"
+              />
+              :
+              <input
+                type={type}
+                value={form[key]}
+                onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                placeholder={placeholder}
+                className="bg-[#0a1018] border border-[#1a2a3a] rounded text-[#c8d8e8] text-[12px] px-3 py-2 font-mono outline-none"
+              />
+              }
             </div>
           ))}
           <div className="flex flex-col gap-1">
             <span className="text-[9px] uppercase tracking-[.15em] text-[#4a6a7a]">
               Wanted Sell Price
             </span>
-            <NumericFormat
+            <input
               value={form.event}
               type="number"
               onChange={(e) => setForm({ ...form, event: e.target.value })}

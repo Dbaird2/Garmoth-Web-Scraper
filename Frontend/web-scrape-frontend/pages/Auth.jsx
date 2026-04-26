@@ -6,10 +6,13 @@ export default function AuthCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    MINUTES = 60;
+    HOURS = 24;
+    DAYS = 7;
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
     if (token) {
-      localStorage.setItem("jwt", token);
+      localStorage.setItem("jwt", token, MINUTES * HOURS * DAYS);
       window.dispatchEvent(new Event("storage"));
       navigate("/investments");
     }

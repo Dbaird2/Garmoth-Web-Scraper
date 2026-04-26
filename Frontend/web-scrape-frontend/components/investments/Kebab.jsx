@@ -9,7 +9,7 @@ export default function Kebab({
   setModalId,
   modal_open,
   handleSoldAll,
-  handleDelete
+  handleDelete,
 }) {
   const options = [
     {
@@ -22,15 +22,14 @@ export default function Kebab({
     {
       label: "Remove",
       onClick: (e) => {
-        e.stopPropagation();
         handleDelete(id);
       },
     },
   ];
   const handleEditModal = (item_id) => {
-    setEditModal(!modal_open)
+    setEditModal(!modal_open);
     setModalId(item_id);
-  }
+  };
   const handleKebab = (item_id) => {
     setOpen(!open);
     setId(item_id);
