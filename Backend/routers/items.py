@@ -25,5 +25,18 @@ async def getItem(request: Request, item_name: str):
     except Exception as e:
         logger.exception("getItem failed for item_name=%s: %s", item_name, e)
         raise HTTPException(status_code=500, detail=str(e))
-
+    
+@router.get("/like/{item_name}")
+@state.limiter.limit("100/minute")
+async def alikeItems(request: Request, item_name: str):
+    try:
+        if not item_name:
+            return []
+        alike_items = await state.item_db.alikeItems(item_name)
+        if not alike_items:
+            return []
+        return alike_items
+    except Exception as e:
+        logger.exception("alikeItems failed for item_name=%s: %s", item_name, e)
+        raise HTTPException(status_code=500, detail=str(e))
     

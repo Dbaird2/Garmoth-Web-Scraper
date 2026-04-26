@@ -45,12 +45,16 @@ class InvestmentActions:
         from datetime import datetime
         try:
             await self.db.pool.execute('''
-                INSERT INTO investment (bought_at, name, qty, buy_price, email, wanted_price, notes)
-                                    VALUES ($1, $2, $3, $4, $5, $6, $7) 
+                WITH valid_item AS (
+                    SELECT 1 FROM item WHERE name = $2
+                                       )
+                INSERT INTO investment (bought_at, name, qty, buy_price, email, wanted_price)
+                                    SELECT $1, $2, $3, $4, $5, $6
+                                    WHERE EXISTS (SELECT 1 FROM valid_item) 
                                     ON CONFLICT (bought_at, name, email, buy_price) DO UPDATE
-                                    SET qty = EXCLUDED.qty, wanted_price = EXCLUDED.wanted_price, notes = EXCLUDED.notes, buy_price = EXCLUDED.buy_price
+                                    SET qty = EXCLUDED.qty, wanted_price = EXCLUDED.wanted_price, buy_price = EXCLUDED.buy_price
                                     ''',
-                                    datetime.strptime(data['date'], "%Y-%m-%d").date(), data['item'], int(data['qty']), int(data['buyPrice']), email, int(data.get('wanted_sell_price', 0)) if data.get('wanted_sell_price') else None, data.get('notes', ''))
+                                    datetime.strptime(data['date'], "%Y-%m-%d").date(), data['item'], int(data['qty']), int(data['buyPrice']), email, int(data.get('wanted_sell_price', 0)) if data.get('wanted_sell_price') else None)
         except Exception as e:
             logger.exception("upsertInvestment failed — email=%s | error: %s", email, e)
             raise

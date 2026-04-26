@@ -1,4 +1,14 @@
+import { fetchItems } from "../hooks/API_CALLS";
+import { useEffect, useState } from "react";
+
 export default function AddInvestmentForm({ form, setForm, handleSubmit }) {
+  const [suggestions, setSuggestions] = useState([]);
+
+  useEffect(() => {
+    if (!form.item) return;
+    const timer = setTimeout(() => fetchItems(form.item, setSuggestions), 300);
+    return () => clearTimeout(timer);
+  }, [form.item]);
   return (
     <>
       {/* Add position form */}
@@ -15,8 +25,14 @@ export default function AddInvestmentForm({ form, setForm, handleSubmit }) {
               value={form.item}
               onChange={(e) => setForm({ ...form, item: e.target.value })}
               placeholder="Search item..."
+              list="item-suggestions"
               className="bg-[#0a1018] border border-[#1a2a3a] rounded text-[#c8d8e8] text-[12px] px-3 py-2 font-mono outline-none"
             />
+            <datalist id="item-suggestions">
+              {suggestions.map((name) => (
+                <option key={name} value={name} />
+              ))}
+            </datalist>
           </div>
           {[
             {
@@ -42,23 +58,23 @@ export default function AddInvestmentForm({ form, setForm, handleSubmit }) {
               <span className="text-[9px] uppercase tracking-[.15em] text-[#4a6a7a]">
                 {label}
               </span>
-              {form[key] === "number" ?
-              <input
-                type={type}
-                value={form[key]}
-                onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                placeholder={placeholder}
-                className="bg-[#0a1018] border border-[#1a2a3a] rounded text-[#c8d8e8] text-[12px] px-3 py-2 font-mono outline-none"
-              />
-              :
-              <input
-                type={type}
-                value={form[key]}
-                onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                placeholder={placeholder}
-                className="bg-[#0a1018] border border-[#1a2a3a] rounded text-[#c8d8e8] text-[12px] px-3 py-2 font-mono outline-none"
-              />
-              }
+              {form[key] === "number" ? (
+                <input
+                  type={type}
+                  value={form[key]}
+                  onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                  placeholder={placeholder}
+                  className="bg-[#0a1018] border border-[#1a2a3a] rounded text-[#c8d8e8] text-[12px] px-3 py-2 font-mono outline-none"
+                />
+              ) : (
+                <input
+                  type={type}
+                  value={form[key]}
+                  onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                  placeholder={placeholder}
+                  className="bg-[#0a1018] border border-[#1a2a3a] rounded text-[#c8d8e8] text-[12px] px-3 py-2 font-mono outline-none"
+                />
+              )}
             </div>
           ))}
           <div className="flex flex-col gap-1">

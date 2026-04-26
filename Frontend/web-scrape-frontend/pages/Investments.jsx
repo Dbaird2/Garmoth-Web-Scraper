@@ -30,7 +30,6 @@ export default function Investments() {
   const modal_ref = useRef(null);
 
   const setData = useCallback((data) => {
-    console.log("data", data);
     if (!data?.positions || !data?.chart_data) return;
     setPositions(data.positions);
     setChartData(data.chart_data);
@@ -58,6 +57,7 @@ export default function Investments() {
   const { total_invested, total_val, total_pnl, total_pnl_pct, sliced_data } =
     useInvestments(positions, selected, chart_data, range);
   console.log(positions, sliced_data, chart_data);
+
   useEffect(() => {
     function handleClickOutside(e) {
       console.log(modal_ref.current);

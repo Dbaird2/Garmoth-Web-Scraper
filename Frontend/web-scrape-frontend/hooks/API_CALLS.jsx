@@ -13,8 +13,9 @@ export async function getItem(item) {
   let url = "https://web-scraper-68z5.onrender.com/items/" + item;
 
   const res = await fetch(url);
-
+  if (!res.ok) throw new Error(`Server error: ${res.status}`);
   const json_item = await res.json();
+
   return json_item;
 }
 
@@ -26,4 +27,13 @@ export async function sendEvent(form_data) {
   });
   if (!res.ok) throw new Error(`Server error: ${res.status}`);
   return res.json();
+}
+
+export async function fetchItems(item, setSuggestions) {
+  const res = await fetch(
+    "https://web-scraper-68z5.onrender.com/items/like/" + item,
+  );
+  if (!res.ok) throw new Error(`Server error: ${res.status}`);
+  setSuggestions(await res.json());
+  // return res.json();
 }

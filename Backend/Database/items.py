@@ -206,5 +206,16 @@ class ItemActions:
             logger.exception("selectItemsByRange failed — range=%s | error: %s", range, e)
             raise
 
+    async def alikeItems(self, item):
+        try:
+            async with self.db.pool.acquire() as conn:
+                rows = await conn.fetch('''
+                    SELECT name FROM item WHERE name ilike '%' || $1 || '%' LIMIT 10
+                                         ''', item)
+                return [r['name'] for r in rows]
+        except Exception as e:
+            logger.exception("fetchItem failed — item=%s | error: %s", item, e)
+            raise
+    
     
         

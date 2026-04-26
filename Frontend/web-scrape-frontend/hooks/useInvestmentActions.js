@@ -46,7 +46,6 @@ export function useInvestmentActions(
       qty: "",
       date: "",
       wanted_sell_price: "",
-      notes: "",
     });
   }
 
