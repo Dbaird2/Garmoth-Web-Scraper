@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import useWebsocket from "../hooks/useEventsWs";
 import EventHero from "../components/events/EventsHero";
-import EventCard from "../components/events/EventCard"
+import EventCard from "../components/events/EventCard";
 import SkeletonEvent from "../components/events/SkeletonEvent";
 import { calculateImpactLevel } from "../utility/calculateImpact";
-import { IMPACT_STYLES } from "../utility/impactStyles"
-
+import { IMPACT_STYLES } from "../utility/impactStyles";
 
 export default function EventsDashboard() {
   const [event_info, setEventInfo] = useState({});
