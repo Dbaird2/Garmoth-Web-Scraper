@@ -73,7 +73,7 @@ export default function Navbar() {
                     <Icon
                       className={`w-4 h-4 ${isActive ? "text-teal-400" : ""}`}
                     />
-                    <span>{link?.label}</span>
+                    {/* <span>{link?.label}</span> */}
                     {isActive && (
                       <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-transparent via-teal-400 to-transparent rounded-full" />
                     )}
@@ -98,7 +98,7 @@ export default function Navbar() {
                   <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 border border-white/10 flex items-center justify-center">
                     <User className="w-4 h-4 text-gray-300" />
                   </div>
-                  <span className="hidden sm:inline">Account</span>
+                  {/* <span className="hidden sm:inline">Account</span> */}
                 </button>
               </div>
             ) : (

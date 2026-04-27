@@ -73,6 +73,7 @@ export default function Investments() {
       className="min-h-screen text-[#c8d8e8]"
       style={{ background: "#0d1520", fontFamily: "'DM Mono', monospace" }}
     >
+      <title>Event Tracker: Investments</title>
       {!loading ? (
         <>
           <EditItemModal
