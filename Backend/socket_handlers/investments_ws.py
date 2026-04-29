@@ -13,7 +13,6 @@ async def investments_ws(websocket: WebSocket, token: str):
     try:
         payload = await checkJWT(token)
         if not payload:
-            await state.investment_manager.send_personal_message(None, websocket)
             await websocket.close(code=1008, reason="Invalid or expired token")
             return
         email = payload["sub"]

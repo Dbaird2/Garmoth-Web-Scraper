@@ -23,8 +23,13 @@ export function useWebsocket(onMessage) {
     };
 
     ws.onerror = (error) => console.error("WebSocket error:", error);
-    ws.onclose = () => console.log("WebSocket Disconnected");
-
+    ws.onclose = (event) => {
+      if (event.code === 1008) {
+        localStorage.removeItem("jwt");
+        window.location.href = "/auth/google/login"; // or wherever your login triggers
+      }
+      console.log("WebSocket Disconnected");
+    };
     return () => {
       ws.close();
     };

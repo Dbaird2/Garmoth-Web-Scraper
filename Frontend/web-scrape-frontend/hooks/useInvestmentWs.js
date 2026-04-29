@@ -3,10 +3,10 @@ import { useState, useEffect, useRef, useCallback } from "react";
 export function useWebsocket(onMessage, token) {
   const [loading, setLoading] = useState(true);
   const wsRef = useRef(null);
-  console.log('token in useWebsocket', token);
+  console.log("token in useWebsocket", token);
   useEffect(() => {
     if (!token) return;
-    console.log('past token return')
+    console.log("past token return");
     const ws = new WebSocket(
       `wss://web-scraper-68z5.onrender.com/investmentWs?token=` + token,
     );
@@ -18,11 +18,6 @@ export function useWebsocket(onMessage, token) {
     // Handler is attached synchronously, before any messages can arrive
     ws.onmessage = async (event) => {
       console.log("received message", event);
-      if (event.data === None) {
-        localStorage.removeItem("jwt");
-        window.location.href = "/";
-        return;
-      }
       const items = JSON.parse(event.data);
       onMessage(items);
       setLoading(false);
@@ -30,12 +25,17 @@ export function useWebsocket(onMessage, token) {
     };
 
     ws.onerror = (error) => console.error("WebSocket error:", error);
-    ws.onclose = () => console.log("WebSocket Disconnected");
+    ws.onclose = (event) => {
+      if (event.code === 1008) {
+        localStorage.removeItem("jwt");
+        window.location.href = "/auth/google/login"; // or wherever your login triggers
+      }
+      console.log("WebSocket Disconnected");
+    };
 
     return () => {
       ws.close();
     };
-    
   }, [token]);
   const sendMessage = useCallback((type, message) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
