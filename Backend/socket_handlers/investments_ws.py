@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 @router.websocket("/investmentWs")
 async def investments_ws(websocket: WebSocket, token: str):
     logger.debug("/investmentWs called token=%s", token)
+    await websocket.accept()
     try:
         payload = await checkJWT(token)
         if not payload:
