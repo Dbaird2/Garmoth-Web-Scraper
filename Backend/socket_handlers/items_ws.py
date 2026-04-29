@@ -10,6 +10,7 @@ router = APIRouter(tags=["communicate"])
 @router.websocket("/communicate")
 async def websocket_endpoint(websocket: WebSocket):
     try:
+        await websocket.accept()
         await state.item_manager.connect(websocket)
         # items = await fetchAllItems()
         items = await state.cache.get("items:all")

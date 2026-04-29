@@ -9,6 +9,7 @@ router = APIRouter(tags=["eventsWs"])
 @router.websocket("/eventsWs")
 async def websocket_endpoint(websocket: WebSocket):
     try:
+        await websocket.accept()
         await state.dash_manager.connect(websocket)
         cached = await state.cache.get("indirect_items")
         if cached:   
