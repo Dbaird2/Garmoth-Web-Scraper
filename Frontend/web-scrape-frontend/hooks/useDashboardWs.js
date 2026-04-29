@@ -104,11 +104,6 @@ export function useDashboard() {
     ws.onmessage = (event) => {
       try {
         const parsed = JSON.parse(event.data);
-        if (event.data === None) {
-          localStorage.removeItem("jwt");
-          window.location.href = "/";
-          return;
-        }
         setData(parsed);
       } catch (e) {
         console.error("Failed to parse dashboard WS message:", e);
