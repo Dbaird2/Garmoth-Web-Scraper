@@ -18,6 +18,11 @@ export function useWebsocket(onMessage, token) {
     // Handler is attached synchronously, before any messages can arrive
     ws.onmessage = async (event) => {
       console.log("received message", event);
+      if (event.data === None) {
+        localStorage.removeItem("jwt");
+        window.location.href = "/";
+        return;
+      }
       const items = JSON.parse(event.data);
       onMessage(items);
       setLoading(false);

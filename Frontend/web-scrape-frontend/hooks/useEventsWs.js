@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 export function useWebsocket(onMessage) {
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const ws = new WebSocket(`wss://web-scraper-68z5.onrender.com/eventsWs`);
     ws.onopen = () => {
@@ -11,10 +11,15 @@ export function useWebsocket(onMessage) {
     // Handler is attached synchronously, before any messages can arrive
     ws.onmessage = async (event) => {
       console.log("received message", event);
+      if (event.data === None) {
+        localStorage.removeItem("jwt");
+        window.location.href = "/";
+        return;
+      }
       const items = JSON.parse(event.data);
       onMessage(items);
-      setLoading(false)
-    //   setTempList(items);
+      setLoading(false);
+      //   setTempList(items);
     };
 
     ws.onerror = (error) => console.error("WebSocket error:", error);
@@ -23,7 +28,7 @@ export function useWebsocket(onMessage) {
     return () => {
       ws.close();
     };
-  }, []);  
+  }, []);
   return { loading };
 }
 
