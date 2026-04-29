@@ -29,7 +29,7 @@ export function useWebsocket(onMessage, token) {
       if (event.code === 1008) {
         localStorage.removeItem("jwt");
         console.log("Removed JWT due to 1008 code");
-        window.location.href = "/auth/google/login";
+        window.location.href = "/";
       }
       console.log("WebSocket Disconnected", event.code, event.reason);
     };

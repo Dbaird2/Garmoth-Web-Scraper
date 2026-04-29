@@ -21,7 +21,7 @@ export function useWebsocket(onMessage) {
     ws.onclose = (event) => {
       if (event.code === 1008) {
         localStorage.removeItem("jwt");
-        window.location.href = "/auth/google/login"; // or wherever your login triggers
+        window.location.href = "/"; // or wherever your login triggers
       }
       console.log("WebSocket Disconnected");
     };
