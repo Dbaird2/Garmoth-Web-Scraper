@@ -73,7 +73,7 @@ export default function Navbar() {
                     <Icon
                       className={`w-4 h-4 ${isActive ? "text-teal-400" : ""}`}
                     />
-                    {/* <span>{link?.label}</span> */}
+                    <span>{link?.label}</span>
                     {isActive && (
                       <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-gradient-to-r from-transparent via-teal-400 to-transparent rounded-full" />
                     )}
