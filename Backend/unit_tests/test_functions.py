@@ -1,9 +1,9 @@
 # test_functions.py
-from misc_functions import getBaselineAvg, calculateImpactLevel, higherImpact, calculatePctDiff
+from misc_functions_test import getBaselineAvg, calculateImpactLevel, higherImpact, calculatePctDiff
 import pytest
 from datetime import date
 
-def test_calculateImpactLevel_high_directional():
+def test_calculateImpactLevel_very_high_directional():
     assert calculateImpactLevel(-200, directional=True) == "Very High"
 
 def test_calculateImpactLevel_high_directional():
