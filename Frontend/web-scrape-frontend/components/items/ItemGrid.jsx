@@ -13,7 +13,7 @@ export function ItemGrid({ items, isFavorite, toggleFavorite }) {
   const scroll_ref = useRef(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  const row_count = Math.ceil(items.length / COLUMNS);
+  const row_count = Math.ceil(items?.length ?? 0 / COLUMNS);
 
   const virtualizer = useVirtualizer({
     count: row_count,

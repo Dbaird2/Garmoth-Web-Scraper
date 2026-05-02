@@ -25,13 +25,7 @@ export default function App() {
         backgroundSize: "40px 40px",
       }}
     >
-      {jwt ? (
-        <Navbar />
-      ) : (
-        <>
-          {/* <Navbar /> */}
-        </>
-      )}
+      {jwt ? <Navbar /> : <>{/* <Navbar /> */}</>}
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route

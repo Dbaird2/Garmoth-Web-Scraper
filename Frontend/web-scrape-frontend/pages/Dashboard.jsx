@@ -32,13 +32,13 @@ const stats = [
     positive: true,
     icon: Gem,
   },
-  {
-    label: "Items in Stock",
-    value: "127",
-    change: "+12",
-    positive: true,
-    icon: Package,
-  },
+  // {
+  //   label: "Items in Stock",
+  //   value: "127",
+  //   change: "+12",
+  //   positive: true,
+  //   icon: Package,
+  // },
   {
     label: "Unrealized Gains",
     value: "+8.4B",
@@ -189,43 +189,31 @@ const portfolioHistory = [
   { day: "Sun", value: 48700 },
 ];
 
-const impactEvent = {
-  headline: "Fallen God Armor Materials Buffed in Upcoming Patch",
-  summary:
-    "Pearl Abyss confirmed increased Flame of Despair drop rates from world bosses starting next maintenance. Enhancement material demand expected to spike as players rush to upgrade before the changes.",
-  impact: "High Impact",
-  affected: [
-    "Caphras Stone +15%",
-    "Memory Fragment +12%",
-    "Flame of Despair -8%",
-  ],
-  time: "3 hours ago",
-};
+// const impactEvent = {
+//   headline: "Fallen God Armor Materials Buffed in Upcoming Patch",
+//   summary:
+//     "Pearl Abyss confirmed increased Flame of Despair drop rates from world bosses starting next maintenance. Enhancement material demand expected to spike as players rush to upgrade before the changes.",
+//   impact: "High Impact",
+//   affected: [
+//     "Caphras Stone +15%",
+//     "Memory Fragment +12%",
+//     "Flame of Despair -8%",
+//   ],
+//   time: "3 hours ago",
+// };
 
 const upcomingEvents = [
   {
-    name: "Weekly Boss Reset",
+    name: "Shrine Boss Reset",
     time: "2d 14h 32m",
     type: "reset",
-    description: "World boss loot tables refresh",
+    description: "Essence of Dawn Drop Expected",
   },
   {
-    name: "Imperial Cooking Reset",
+    name: "Boss Blitz Reset",
     time: "18h 45m",
     type: "reset",
     description: "Daily imperial delivery resets",
-  },
-  {
-    name: "Patch Maintenance",
-    time: "5d 8h",
-    type: "maintenance",
-    description: "v2847 balance changes",
-  },
-  {
-    name: "Blackstar Event Ends",
-    time: "12d 6h",
-    type: "event",
-    description: "Enhanced Blackstar rates expire",
   },
 ];
 
@@ -262,6 +250,7 @@ const watchlist = [
 
 // ===== PAGE =====
 export default function DashboardPage() {
+  
   return (
     <main
       className="min-h-screen p-6 md:p-10 bg-[#090e10]"
@@ -278,19 +267,11 @@ export default function DashboardPage() {
             <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center">
               <Swords className="h-5 w-5 text-primary" />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                Market Investments
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Black Desert Online — Portfolio Tracker
-              </p>
-            </div>
           </div>
         </header>
 
         {/* Stats Row */}
-        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {stats.map((stat) => {
             const IconComponent = stat?.icon;
             return (
@@ -326,7 +307,7 @@ export default function DashboardPage() {
         </section>
 
         {/* Impact Event Banner */}
-        <section className="rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6">
+        {/* <section className="rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6">
           <div className="flex flex-col lg:flex-row lg:items-start gap-6">
             <div className="flex-shrink-0">
               <div className="h-12 w-12 rounded-xl bg-primary/20 flex items-center justify-center">
@@ -361,7 +342,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* Portfolio Chart & Upcoming Events */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -448,11 +429,11 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h3 className="font-semibold text-foreground">
-                  Upcoming Events
+                  Weekly Resets
                 </h3>
-                <p className="text-xs text-muted-foreground">
+                {/* <p className="text-xs text-muted-foreground">
                   Resets and maintenance
-                </p>
+                </p> */}
               </div>
             </div>
             <div className="space-y-4">
@@ -720,11 +701,7 @@ export default function DashboardPage() {
 
         {/* Footer */}
         <footer className="pt-4 flex items-center justify-between text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span>AI-powered price predictions</span>
-          </div>
-          <span>Data refreshes every 60 minutes</span>
+        
         </footer>
       </div>
     </main>

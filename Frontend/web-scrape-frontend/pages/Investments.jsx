@@ -24,6 +24,7 @@ export default function Investments() {
   const [positions, setPositions] = useState([]);
   const [selected, setSelected] = useState({});
   const [chart_data, setChartData] = useState({});
+  const [addItem, setAddItem] = useState(false);
 
   const [modal_open, setEditModal] = useState(false);
   const [modal_id, setModalId] = useState(false);
@@ -98,16 +99,27 @@ export default function Investments() {
               formatSilver={formatSilver}
               total_pnl_pct={total_pnl_pct}
             />
-
-            {/* Add position form */}
-            <AddInvestmentForm
-              form={form}
-              setForm={setForm}
-              handleSubmit={handleSubmit}
-            />
+            {addItem ? (
+              <AddInvestmentForm
+                form={form}
+                setForm={setForm}
+                handleSubmit={handleSubmit}
+              />
+            ) : (
+              <>
+                <div className="text-center pb-2">
+                  <button
+                    className="hover:cursor-pointer hover:text-teal-400 hover:scale-105 active:scale-90
+               border-teal-600 border border-0 hover:border-b-2"
+                    onClick={(e) => setAddItem(!addItem)}
+                  >
+                    Add Item
+                  </button>
+                </div>
+              </>
+            )}
             {/* Table + Chart */}
-            <div className="grid grid-cols-2 gap-6 mb-6">
-              {/* Positions table */}
+            <div className="mb-3">
               <PositionsTable
                 positions={positions}
                 formatSilver={formatSilver}
@@ -120,16 +132,20 @@ export default function Investments() {
                 modal_open={modal_open}
                 handleSoldAll={handleSoldAll}
               />
+            </div>
+            <PriceChart
+              selected={selected}
+              range={range}
+              setRange={setRange}
+              sliced_data={sliced_data}
+              formatSilver={formatSilver}
+              CustomTooltip={CustomTooltip}
+            />
+
+            <div className="grid grid-cols-2 gap-6 mb-6">
+              {/* Positions table */}
 
               {/* Chart */}
-              <PriceChart
-                selected={selected}
-                range={range}
-                setRange={setRange}
-                sliced_data={sliced_data}
-                formatSilver={formatSilver}
-                CustomTooltip={CustomTooltip}
-              />
             </div>
           </div>
         </>

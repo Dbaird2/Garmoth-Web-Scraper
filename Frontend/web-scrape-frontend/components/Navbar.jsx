@@ -14,6 +14,7 @@ import {
 
 export default function Navbar() {
   const [jwt, setJwt] = useState(localStorage.getItem("jwt"));
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeRoute, setActiveRoute] = useState("/dashboard");
 
