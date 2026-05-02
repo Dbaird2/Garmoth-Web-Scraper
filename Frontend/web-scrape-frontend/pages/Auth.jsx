@@ -6,9 +6,9 @@ export default function AuthCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    MINUTES = 60;
-    HOURS = 24;
-    DAYS = 7;
+    const MINUTES = 60;
+    const HOURS = 24;
+    const DAYS = 7;
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
     if (token) {
