@@ -27,8 +27,7 @@ export default function PositionsTable({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-  const actual = sliced_data?.[p?.item]?.[0]?.actual;
-  const result = actual ? (p?.buyPrice - actual) * p?.qty : null;
+
   return (
     <>
       <div className="bg-[#0f1a26] border border-[#1a2a3a] rounded-xl p-5">
