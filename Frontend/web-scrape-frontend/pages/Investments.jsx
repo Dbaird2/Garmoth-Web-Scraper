@@ -131,7 +131,7 @@ export default function Investments() {
                 setModalId={setModalId}
                 modal_open={modal_open}
                 handleSoldAll={handleSoldAll}
-                sliced_data={sliced_data}
+                chart_data={chart_data}
               />
             </div>
             <PriceChart

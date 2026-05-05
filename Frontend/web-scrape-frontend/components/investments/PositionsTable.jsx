@@ -12,7 +12,7 @@ export default function PositionsTable({
   setModalId,
   modal_open,
   handleSoldAll,
-  sliced_data,
+  chart_data,
 }) {
   const menu_ref = useRef(null);
   const [open, setOpen] = useState(false);
@@ -27,7 +27,7 @@ export default function PositionsTable({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-  console.log("sliced_data in positions table", sliced_data);
+  console.log("chart_data in positions table", chart_data);
   return (
     <>
       <div className="bg-[#0f1a26] border border-[#1a2a3a] rounded-xl p-5">
@@ -53,7 +53,7 @@ export default function PositionsTable({
           </thead>
           <tbody>
             {positions.map((p) => {
-              const actual = sliced_data?.[p?.item]?.[0]?.actual;
+              const actual = chart_data?.[p?.item]?.[0]?.actual;
               const result = actual
                 ? (actual * 0.855 - p?.buyPrice) * p?.qty
                 : null;
