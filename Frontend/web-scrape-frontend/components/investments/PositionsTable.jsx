@@ -27,7 +27,7 @@ export default function PositionsTable({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
+  console.log("sliced_data in positions table", sliced_data);
   return (
     <>
       <div className="bg-[#0f1a26] border border-[#1a2a3a] rounded-xl p-5">
