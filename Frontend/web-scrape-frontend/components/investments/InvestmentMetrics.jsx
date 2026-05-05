@@ -4,6 +4,7 @@ export default function InvestmentMetrics({
   positions,
   formatSilver,
   total_pnl_pct,
+  
 }) {
   return (
     <>
