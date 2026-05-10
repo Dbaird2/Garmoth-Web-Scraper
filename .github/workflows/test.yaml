@@ -44,3 +44,5 @@ jobs:
         run: |
           cd Backend
           pytest unit_tests/ -v
+        env:
+          PYTHONPATH: ./Backend
