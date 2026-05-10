@@ -1,5 +1,5 @@
 # test_functions.py
-from misc_functions_test import getBaselineAvg, calculateImpactLevel, higherImpact, calculatePctDiff
+from misc_functions import getBaselineAvg, calculateImpactLevel, higherImpact, calculatePctDiff
 import pytest
 from datetime import date
 
