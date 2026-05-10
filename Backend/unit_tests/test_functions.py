@@ -44,6 +44,8 @@ def test_higher_impact():
 
 @pytest.mark.asyncio
 async def test_calculatePctDiff_normal(mock_db):
+    from misc_functions_test import state  # or wherever state lives
+    state.item_db = mock_db
     mock_db.selectBaselinePriceRange.return_value = [
         {'price': 1000}, {'price': 1000}, {'price': 1000}
     ]
@@ -53,12 +55,16 @@ async def test_calculatePctDiff_normal(mock_db):
 
 @pytest.mark.asyncio
 async def test_calculatePctDiff_empty_baseline(mock_db):
+    from misc_functions_test import state  # or wherever state lives
+    state.item_db = mock_db
     mock_db.selectBaselinePriceRange.return_value = []
     result = await calculatePctDiff(mock_db, 'Test Item', date.today())
     assert result is None
 
 @pytest.mark.asyncio
 async def test_calculatePctDiff_empty_recent_price(mock_db):
+    from misc_functions_test import state  # or wherever state lives
+    state.item_db = mock_db
     mock_db.selectBaselinePriceRange.return_value = [{'price': 1000}]
     mock_db.selectItemRecentPrice.return_value = []
     result = await calculatePctDiff(mock_db, 'Test Item', date.today())
@@ -66,6 +72,8 @@ async def test_calculatePctDiff_empty_recent_price(mock_db):
 
 @pytest.mark.asyncio
 async def test_calculatePctDiff_zero_baseline(mock_db):
+    from misc_functions_test import state  # or wherever state lives
+    state.item_db = mock_db
     mock_db.selectBaselinePriceRange.return_value = [{'price': 0}]
     result = await calculatePctDiff(mock_db, 'Test Item', date.today())
     assert result is None
