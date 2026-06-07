@@ -32,7 +32,7 @@ async def investments_ws(websocket: WebSocket, token: str):
                 if data.get('create'):
                     await state.invest_db.upsertInvestment(email, data.get('create'))
                 elif data.get('update'):
-                    await state.invest_db.updateInvestment(data.get('delete'))
+                    await state.invest_db.updateInvestment(data.get('update'))
                 elif data.get('sold_all'):
                     await state.invest_db.soldAllInvestment(data.get('sold_all'))
                 elif data.get('delete'):
