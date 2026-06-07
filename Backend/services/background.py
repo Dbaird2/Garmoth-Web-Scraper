@@ -1,12 +1,12 @@
 from services.events import getIndirectItems
-from predict_item import predictWeek
-from discord_webhook import sendDiscordMessage
+from utils.predict_item import predictWeek
+from Backend.utils.discord_webhook import sendDiscordMessage
 import state
 import pandas as pd
 import asyncio
 import json
 import logging
-from misc_functions import recalculateAllEventImpacts
+from utils.misc_functions import recalculateAllEventImpacts
 
 logger = logging.getLogger(__name__)
 

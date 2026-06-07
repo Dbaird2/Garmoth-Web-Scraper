@@ -1,5 +1,5 @@
 import logging
-from discord_webhook import sendDiscordMessage
+from utils.discord_webhook import sendDiscordMessage
 import state
 logger = logging.getLogger(__name__)
 

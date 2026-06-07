@@ -1,4 +1,4 @@
-from predict_item import predictWeek
+from utils.predict_item import predictWeek
 import state
 import pandas as pd
 from services.events import calculateImpact

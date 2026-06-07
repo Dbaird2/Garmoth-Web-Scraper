@@ -5,7 +5,7 @@ from pathlib import Path
 
 MODEL_DIR = Path(__file__).resolve().parent
 
-models = {day: joblib.load(MODEL_DIR / f'market_model_{day}d.pkl') for day in range(1, 8)}
+models = {day: joblib.load(MODEL_DIR / f'MLModels/market_model_{day}d.pkl') for day in range(1, 8)}
 
 def predictItem(item_name, df_latest, day):
     bst = models[day]
