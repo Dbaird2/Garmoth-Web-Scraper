@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-MODEL_DIR = Path(__file__).resolve().parent
+MODEL_DIR = Path(__file__).resolve().parent.parent
 
 models = {day: joblib.load(MODEL_DIR / f'MLModels/market_model_{day}d.pkl') for day in range(1, 8)}
 
