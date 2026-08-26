@@ -1,4 +1,4 @@
-from services.events import getIndirectItems
+from services.events import cache_all_events, getIndirectItems
 from utils.predict_item import predictWeek
 from Backend.utils.discord_webhook import sendDiscordMessage
 import state
@@ -59,6 +59,10 @@ async def recentDropsCheck():
 
     if string != "Items Recently dropped:":
         await sendDiscordMessage(string, 'item_drop')
+
+async def updateCachedEvents():
+    event_dict = await cache_all_events()
+    await state.dash_manager.broadcast(event_dict)
 
 async def recalEventImpact():
     await recalculateAllEventImpacts(state.event_db)

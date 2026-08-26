@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from web_scrape import ScrapeForItems
 from grind_webscraper import ScrapeForGrindSpots
 from datetime import datetime, date
+from garmoth_event_api import get_garmoth_events
 import asyncio
 
 db = Database()
@@ -34,7 +35,21 @@ async def repeatInsert():
     while True:
 
         loop = asyncio.get_event_loop()
-            
+        try:
+            print(f"Starting Garmoth Events Scrape")
+            time1 = datetime.now()
+            garmoth_events = await loop.run_in_executor(None, get_garmoth_events)
+            time2 = datetime.now()
+            diff = time2 - time1
+        except Exception as e:
+            print(f"Scrape failed for Garmoth Events, retrying next cycle: {e}")
+
+        try:
+            print(f"Inserting Garmoth events examples {garmoth_events[0]}; Time took {diff.seconds}.{diff.microseconds}")
+            await db.upsertGarmothEvents(garmoth_events)
+        except Exception as e:
+            print(f"Inserting into database failed: {e}")
+
         try:
             print(f"Starting Webscraping")
             time1 = datetime.now()
@@ -50,22 +65,24 @@ async def repeatInsert():
         except Exception as e:
             print(f"Inserting into database failed: {e}")
 
-        try:
-            print(f"Starting ScrapeForGrindSpots")
-            time1 = datetime.now()
-            grind_info = await loop.run_in_executor(None, ScrapeForGrindSpots)
-            time2 = datetime.now()
-            diff = time2 - time1
-        except Exception as e:
-            print(f"Scrape failed for ScrapeForGrindSpots, retrying next cycle: {e}")
+        
 
-        try:
-            print(f"Inserting grind spots examples {grind_info[0:3]}; Time took {diff.seconds}.{diff.microseconds}")
-            await db.insertGrindValues(grind_info)
-        except Exception as e:
-            print(f"Inserting into database failed: {e}")
+        # try:
+        #     print(f"Starting ScrapeForGrindSpots")
+        #     time1 = datetime.now()
+        #     grind_info = await loop.run_in_executor(None, ScrapeForGrindSpots)
+        #     time2 = datetime.now()
+        #     diff = time2 - time1
+        # except Exception as e:
+        #     print(f"Scrape failed for ScrapeForGrindSpots, retrying next cycle: {e}")
+
+        # try:
+        #     print(f"Inserting grind spots examples {grind_info[0:3]}; Time took {diff.seconds}.{diff.microseconds}")
+        #     await db.insertGrindValues(grind_info)
+        # except Exception as e:
+        #     print(f"Inserting into database failed: {e}")
    
-        await asyncio.sleep(3600)
+        await asyncio.sleep(18000)
         
 
 @app.get("/")

@@ -55,44 +55,49 @@ def ScrapeForItems():
     options.add_argument('--disable-images')  # skip loading images
     options.add_argument('--blink-settings=imagesEnabled=false')
     options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36')
-    driver = uc.Chrome(version_main=147, options=options)
+    driver = uc.Chrome(version_main=151, options=options)
     wait = WebDriverWait(driver, 30)
     item_list = []
     seen = set()
     try: 
         for url in urls:
-            print(f"Starting url: {url}")
-            driver.get(url)
-            if counter == 0:
-                # switch to NA regionx
-                wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "div.rounded-md"))).click()
-                time.sleep(1)
+            try:
 
-                # then click NA
-                wait.until(EC.element_to_be_clickable((By.XPATH, "//span[text()='NA']/parent::div"))).click()
+                print(f"Starting url: {url}")
+                driver.get(url)
+                if counter == 0:
+                    # switch to NA regionx
+                    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "div.rounded-md"))).click()
+                    time.sleep(1)
 
-                # wait for table data
-                wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "tbody tr")))
-            time.sleep(2)  # small buffer for all rows to populate
-            counter += 1
-            rows = driver.find_elements(By.CSS_SELECTOR, "tbody tr")
-            for row in rows:
-                cells = [c.text for c in row.find_elements(By.CSS_SELECTOR, "td")]
-                cells = [c for c in cells if c and c != "Unknown Name"]
-                # print(cells)
-                change = cells[2]
-                direction = change[0]
-                value = change[1:-1].replace(",", "")
-                if cells and cells[0] != '0' and value != '' and len(cells) == 4:
-                    cells[3] = cells[3].replace(",", "")
-                    cells[1] = cells[1].replace(",", "")
-                    if direction == '-':
-                        value = -int(value)
-                    if (cells[0]) not in seen:
-                        seen.add(cells[0])
-                        item_list.append((cells[0], int(value), int(cells[1]),  int(cells[3])))
-                    else:
-                        print(cells[0])
+                    # then click NA
+                    wait.until(EC.element_to_be_clickable((By.XPATH, "//span[text()='NA']/parent::div"))).click()
+
+                    # wait for table data
+                    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "tbody tr")))
+                time.sleep(2)  # small buffer for all rows to populate
+                counter += 1
+                rows = driver.find_elements(By.CSS_SELECTOR, "tbody tr")
+                for row in rows:
+                    cells = [c.text for c in row.find_elements(By.CSS_SELECTOR, "td")]
+                    cells = [c for c in cells if c and c != "Unknown Name"]
+                    # print(cells)
+                    change = cells[2]
+                    direction = change[0]
+                    value = change[1:-1].replace(",", "")
+                    if cells and cells[0] != '0' and value != '' and len(cells) == 4:
+                        cells[3] = cells[3].replace(",", "")
+                        cells[1] = cells[1].replace(",", "")
+                        if direction == '-':
+                            value = -int(value)
+                        if (cells[0]) not in seen:
+                            seen.add(cells[0])
+                            item_list.append((cells[0], int(value), int(cells[1]),  int(cells[3])))
+                        else:
+                            print(cells[0])
+            except Exception as e:
+                print(f"Failed {url}: {e}")
+                continue
     except Exception as e:
         print(f'Error Scraping {e}')
                 

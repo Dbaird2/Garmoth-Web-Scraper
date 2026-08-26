@@ -26,6 +26,7 @@ async def getIndirectItems():
     item_dict = {}
     json_indirect = {}
     seen_direct = set()
+    logger.debug("Fetched %d events and %d indirect items", len(events), len(indirect_items))
     for row in events:
         event = row[0]
         impact = row[1]
@@ -65,6 +66,19 @@ async def getIndirectItems():
                 "items": sorted(indirect_rows, key=lambda x: (x['pct_diff'], x['item']))
             }
     await state.cache.set("indirect_items", json.dumps(event_dict), ex=3600)
+
+async def cache_all_events():
+    events = await state.event_db.selectAllEvents()
+    event_list = []
+    for row in events:
+        event_list.append({
+            "event": row[0],
+            "impact": row[1],
+            "start_date": row[2].strftime('%Y-%m-%d'),
+            "end_date": row[3].strftime('%Y-%m-%d')
+        })
+    await state.cache.set("all_events", json.dumps(event_list), ex=3600)
+    return event_list
 
 def calculateImpact(buy, current):
     if current is None or buy is None:

@@ -80,5 +80,26 @@ class Database:
         diff = time2 - time1
         print(f"Time took to insert {diff.seconds}.{diff.microseconds}")
 
+    async def upsertGarmothEvents(self, events):
+        time1 = datetime.now()
+        print(f"upsertGarmothEvents called with {len(events)} items")
+        async with self.conn.acquire() as pool:
+            # Start a transaction on the acquired connection
+            try:
+                await pool.execute('''
+                    INSERT INTO bdo_events (name, start_date, end_date)
+                    SELECT unnest($1::text[]), unnest($2::timestamp[]), unnest($3::timestamp[])
+                    ON CONFLICT (name, start_date) 
+                        DO NOTHING
+                ''', 
+                [i[0] for i in events],
+                [i[1] for i in events],
+                [i[2] for i in events])
+            except Exception as e:
+                print(f"Transaction failed: {e}")
+        time2 = datetime.now()
+        diff = time2 - time1
+        print(f"Time took to insert {diff.seconds}.{diff.microseconds}")
+
     async def closeConnection(self):
         await self.conn.close()
