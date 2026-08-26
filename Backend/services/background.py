@@ -1,6 +1,6 @@
 from services.events import cache_all_events, getIndirectItems
 from utils.predict_item import predictWeek
-from Backend.utils.discord_webhook import sendDiscordMessage
+from utils.discord_webhook import sendDiscordMessage
 import state
 import pandas as pd
 import asyncio
