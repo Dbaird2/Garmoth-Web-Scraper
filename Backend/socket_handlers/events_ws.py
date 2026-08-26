@@ -11,7 +11,7 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         await websocket.accept()
         await state.dash_manager.connect(websocket)
-        cached = await state.cache.get("indirect_items")
+        cached = await state.cache.get("all_events")
         if cached:   
             await state.dash_manager.send_personal_message(json.loads(cached), websocket)        
         # await state.dash_manager.send_personal_message(cached, websocket)
