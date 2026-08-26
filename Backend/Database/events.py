@@ -1,6 +1,6 @@
 import logging
 from datetime import date
-from Backend.utils.discord_webhook import sendDiscordMessage
+from utils.discord_webhook import sendDiscordMessage
 
 logger = logging.getLogger(__name__)
 
